@@ -1,0 +1,905 @@
+
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>第 26 章 —— 图引导的上下文组装 &#8212; Use AI to build a knowledge base for a software project</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=591f613d" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=23f7fa08"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../_static/translations.js?v=beaddf03"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'part6-hybrid-layer/ch26-graph-guided-context-assembly';</script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="第 27 章 —— 用知识库驾驭 AI 编码" href="ch27-harnessing-ai-coding.html" />
+    <link rel="prev" title="第 25 章 —— 文档分层 L0–L4" href="ch25-document-layering-L0-L4.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+    <meta name="docbuild:last-update" content="2026-11-10"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Use AI to build a knowledge base for a software project</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">搜索</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Part I — Foundations</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part1-foundations/index.html">第一部分 —— 基础</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch01-why-kb-for-software.html">第 1 章 —— 为什么要给软件建一个知识库？</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch01a-quickstart-30min.html">第 1a 章 —— 30 分钟快速上手</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch02-ir-rag-primer.html">第 2 章 —— IR 与 RAG 入门</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch03-diataxis-and-software-docs.html">第 3 章 —— Diátaxis 与软件文档</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part II — The Prose Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part2-prose-layer/index.html">第二部分 —— 文稿层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch04-file-based-wiki.html">第 4 章 —— 一个基于文件的 wiki</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch05-frontmatter-provenance-trust.html">第 5 章 —— 把 frontmatter 当作一份来源记录</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch06-llm-classification-pipeline.html">第 6 章 —— 分类流水线</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch07-publish-and-search.html">第 7 章 —— 发布与搜索</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch08-prose-operational-model.html">第 8 章 —— 文稿层的运维模型</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch09-cold-start-migration.html">第 9 章 —— 冷启动与批量迁移</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part III — The Author Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part3-author-layer/index.html">第三部分 —— 作者层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch10-why-ai-as-author.html">第 10 章 —— 为什么让 AI 当作者</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch11-ai-drafting-and-rewriting.html">第 11 章 —— AI 起草、重写、翻译</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch12-ai-for-metadata.html">第 12 章 —— AI 处理元数据：分类、打标签、实体与关系抽取</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch13-ai-for-maintenance.html">第 13 章 —— AI 做维护：摘要、去重、过期与漂移检测</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch14-ai-as-judge.html">第 14 章 —— AI 作为评判者：评估生成质量与引用合规</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part IV — The Code Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part4-code-layer/index.html">第四部分 —— 代码层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch15-why-code-is-not-prose.html">第 15 章 —— 为什么代码不是文稿</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch16-parsing-and-entity-extraction.html">第 16 章 —— 解析与实体抽取</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch17-embeddings-and-vector-stores.html">第 17 章 —— 嵌入向量与向量存储</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch18-code-knowledge-graph.html">第 18 章 —— 代码知识图谱</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch19-hybrid-retrieval-and-rrf.html">第 19 章 —— 混合检索与 RRF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch20-prompt-and-generation.html">第 20 章 —— 提示词与生成</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part V — Operations &amp; Lifecycle</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part5-operations-lifecycle/index.html">第五部分 —— 运维与生命周期</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part5-operations-lifecycle/ch21-incremental-sync.html">第 21 章 —— 增量同步</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part5-operations-lifecycle/ch22-evaluation-and-benchmarks.html">第 22 章 —— 评测、基准与发布门禁</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part5-operations-lifecycle/ch23-maintenance-drift-and-link-rot.html">第 23 章 —— 维护、漂移与链接腐化</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part VI — The Hybrid Layer</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">第六部分 —— 混合层</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="ch24-prose-meets-code.html">第 24 章 —— 文稿与代码相遇</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ch25-document-layering-L0-L4.html">第 25 章 —— 文档分层 L0–L4</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">第 26 章 —— 图引导的上下文组装</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ch27-harnessing-ai-coding.html">第 27 章 —— 用知识库驾驭 AI 编码</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ch28-team-sdlc-integration.html">第 28 章 —— 团队协作与 SDLC 集成</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ch29-ai-agents-on-the-kb.html">第 29 章 —— 在知识库上跑的 AI Agent</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part VII — Governance &amp; Outlook</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part7-governance-and-outlook/index.html">第七部分 —— 治理与展望</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch30-cost-privacy-security.html">第 30 章 —— 成本、隐私、安全</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch31-trust-provenance-and-red-teaming.html">第 31 章 —— 信任、出处与红队演练</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch32-outlook-and-open-problems.html">第 32 章 —— 展望与尚未解决的问题</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Appendices</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-a-example-wiki.html">附录 A —— 端到端：从杂乱文件夹到可发布 Wiki</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-b-example-code-kg.html">附录 B —— 示例：从一个 Go 仓库构建代码知识库</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-c-deepwiki-checklist.html">附录 C —— 自己动手做 DeepWiki 检查清单</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-d-glossary.html">附录 D —— 术语表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-e-bilingual-publishing.html">附录 E —— 发布一个双语知识库</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">参考文献</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../reference/index.html">参考文献：仓库级代码理解与软件知识库论文导读</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../reference/01-repoformer-selective-retrieval.html">Repoformer: Selective Retrieval for Repository-Level Code Completion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/02-codeplan-repository-level-planning.html">CodePlan: Repository-Level Coding using LLMs and Planning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/03-repograph-code-graph-navigation.html">RepoGraph: Enhancing AI Software Engineering with Repository-level Code Graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/04-repoagent-documentation-generation.html">RepoAgent: An LLM-Powered Open-Source Framework for Repository-level Code Documentation Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/05-repocoder-iterative-retrieval-generation.html">RepoCoder: Repository-Level Code Completion Through Iterative Retrieval and Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/06-llm-kg-synergy-repo-qa.html">Synergizing LLMs and Knowledge Graphs: A Novel Approach to Software Repository-Related Question Answering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/07-repo-level-prompt-generation.html">Repository-Level Prompt Generation for Large Language Models of Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/08-repobench-benchmarking.html">RepoBench: Benchmarking Repository-Level Code Auto-Completion Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/09-long-code-arena-benchmarks.html">Long Code Arena: A Set of Benchmarks for Long-Context Code Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/10-cgm-graph-integrated-llm.html">Code Graph Model (CGM): A Graph-Integrated Large Language Model for Repository-Level Software Engineering Tasks</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="下载此页面">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="下载源文件"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="列印成 PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="全屏模式"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>第 26 章 —— 图引导的上下文组装</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> 目录 </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why">Why —— 为什么</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what">What —— 是什么</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-heterogeneous-graph-the-packet-comes-from">The heterogeneous graph the packet comes from</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how">How —— 怎么做</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-retrieve-seeds-do-not-answer-yet">Step 1 — Retrieve seeds, do not answer yet</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-expand-locally-with-relation-policy">Step 2 — Expand locally, with relation policy</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-filter-and-weight-with-the-tuple">Step 3 — Filter and weight with the tuple</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-4-render-the-packet-as-evidence-not-as-a-dump">Step 4 — Render the packet as evidence, not as a dump</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-5-reuse-the-same-packet-for-both-agents-and-agentless-tasks">Step 5 — Reuse the same packet for both agents and agentless tasks</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-operational-rule-assemble-locally-never-globally">The operational rule: assemble locally, never globally</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example —— 范例</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#seeds-from-chapter-12">1. Seeds from Chapter 12</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#local-graph-expansion">2. Local graph expansion</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tuple-and-budget-filtering">3. Tuple and budget filtering</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#generator-output">4. Generator output</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#conclusion">Conclusion —— 小结</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">参考文献</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="id1">
+<h1>第 26 章 —— 图引导的上下文组装<a class="headerlink" href="#id1" title="Link to this heading">#</a></h1>
+<section id="why">
+<h2>Why —— 为什么<a class="headerlink" href="#why" title="Link to this heading">#</a></h2>
+<p>一个返回&quot;最相关的 5 页&quot;的检索器还不是一个仓库助手。仓库问题很少想要五条孤立的命中。它想要的是一份<strong>小型的、有连接的解释</strong>：函数本身、它的调用方、那份为此行为提供理据的 ADR、那份指出了故障模式的 runbook —— 并且其中只包含已评审过的页面。原始的 top-k 对于一个搜索框够用了；对于一个必须回答 <em>why</em>、<em>where else</em> 和 <em>what changed</em> 而不能瞎猜的 LLM，它不够。</p>
+<p>本章恰好坐落在这个边界上。第 19 章检索了种子：向量用于模糊意图、关键词用于标识符、图用于结构。第 25 章给每个文稿节点一个元组 <span class="math notranslate nohighlight">\(\langle L, U, R, S \rangle\)</span> 来表示它有多值得信任。第 29 章将把最终的知识库以工具的形式暴露给 agent。缺失的那一步，就是把一份排了序的种子列表变成一个 LLM 可以安全推理的<strong>有界的、有类型的上下文包</strong>。</p>
+<p>近期文献让这一步更容易命名。GraphRAG 表明图结构不仅对存储有用，而且对<strong>以查询为中心的上下文构造</strong>有用 <span id="id2">[<a class="reference internal" href="#id33" title="Darren Edge, Ha Trinh, Newman Cheng, Joshua Bradley, Alex Chao, Apurva Mody, Steven Truitt, and Jonathan Larson. From local to global: a graph RAG approach to query-focused summarization. arXiv preprint arXiv:2404.16130, 2024.">Edge <em>et al.</em>, 2024</a>]</span>。HippoRAG 把同一直觉推向长期记忆 <span id="id3">[<a class="reference internal" href="#id34" title="Bernal Jiménez Gutiérrez, Yiheng Shu, Yu Gu, Michihiro Yasunaga, and Yu Su. HippoRAG: neurobiologically inspired long-term memory for large language models. arXiv preprint arXiv:2405.14831, 2024.">Gutiérrez <em>et al.</em>, 2024</a>]</span>。Zhu 等人的综述解释了为什么这不仅仅是一个检索技巧：LLM 在<strong>对结构化证据进行推理</strong>方面，往往比按需从原始语料中提取该结构要强得多 <span id="id4">[<a class="reference internal" href="../part7-governance-and-outlook/index.html#id29" title="Yuqi Zhu, Xiaohan Wang, Jing Chen, Shuofei Qiao, Yixin Ou, Yunzhi Yao, Shumin Deng, Huajun Chen, and Ningyu Zhang. LLMs for knowledge graph construction and reasoning: recent capabilities and future opportunities. 2024. URL: https://arxiv.org/abs/2305.13168, arXiv:2305.13168.">Zhu <em>et al.</em>, 2024</a>]</span>。CGM 是同一思路在仓库级上的模型端延续 <span id="id5">[<a class="reference internal" href="../part7-governance-and-outlook/index.html#id31" title="Hongyuan Tao, Ying Zhang, Zhenhao Tang, Hongen Peng, Xukun Zhu, Bingchang Liu, Yingguang Yang, Ziyin Zhang, Zhaogui Xu, Haipeng Zhang, Linchao Zhu, Rui Wang, Hang Yu, Jianguo Li, and Peng Di. Code graph model (CGM): a graph-integrated large language model for repository-level software engineering tasks. 2025. URL: https://arxiv.org/abs/2505.16901, arXiv:2505.16901.">Tao <em>et al.</em>, 2025</a>]</span>。本章是本书的检索端回答：保持图的显式性，但用它来组装模型应该看到的那个精确的证据包。</p>
+</section>
+<section id="what">
+<h2>What —— 是什么<a class="headerlink" href="#what" title="Link to this heading">#</a></h2>
+<p><strong>图引导上下文组装</strong>是检索与生成之间的那一步，它把：</p>
+<div class="math notranslate nohighlight">
+\[
+(\text{query},\ \text{seed hits},\ \text{graphs},\ \text{tuple labels},\ \text{budget})
+\rightarrow \text{context packet}
+\]</div>
+<p>上下文包是生成器或 agent 真正消费的东西。它不是&quot;top-k 文档&quot;。它是一个<strong>被渲染为证据的有界子图</strong>。</p>
+<p>三项性质定义了这个包：</p>
+<ol class="arabic simple">
+<li><p><strong>有种子的。</strong> 组装从第 19 章检索到的种子出发；它不会盲目地遍历仓库图。</p></li>
+<li><p><strong>有类型的。</strong> 扩展保留了关系标签，如 <code class="docutils literal notranslate"><span class="pre">CALLS</span></code>、<code class="docutils literal notranslate"><span class="pre">IMPLEMENTS</span></code>、<code class="docutils literal notranslate"><span class="pre">RETURNS</span></code>、页面到页面的链接和页面到代码的引用。包应该解释每个节点<em>为什么</em>出现在这里。</p></li>
+<li><p><strong>按权威性和预算过滤的。</strong> 来自第 25 章的元组元数据和一个 token 预算，决定了什么能存活进最终的包。</p></li>
+</ol>
+<p>本章刻意把问题范围限制得很窄。它<strong>不是</strong>关于：</p>
+<ul class="simple">
+<li><p>构建新的图数据库 schema；</p></li>
+<li><p>替换第 19 章的检索器；</p></li>
+<li><p>把整个仓库总结成一个巨型 prompt；</p></li>
+<li><p>学习一个像 CGM 那样的图集成模型。</p></li>
+</ul>
+<p>它关注的是那个运维层的中间步骤 —— 使用工具的 agent 和无 agent 的仓库阅读器都需要的：把检索到的种子转化为一个与问题匹配的小型邻域。</p>
+<section id="the-heterogeneous-graph-the-packet-comes-from">
+<h3>The heterogeneous graph the packet comes from<a class="headerlink" href="#the-heterogeneous-graph-the-packet-comes-from" title="Link to this heading">#</a></h3>
+<p>组装层推理的对象是一张<strong>异构的仓库图</strong>，不仅仅是第 18 章的代码图。它至少包含：</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>Node kind</p></th>
+<th class="head text-left"><p>Examples</p></th>
+<th class="head text-left"><p>Main metadata</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p>Code entity</p></td>
+<td class="text-left"><p>function, method, type, file</p></td>
+<td class="text-left"><p>stable ID, path, signature, lines</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>Prose page</p></td>
+<td class="text-left"><p>ADR, runbook, architecture note, chapter page</p></td>
+<td class="text-left"><p>tuple <span class="math notranslate nohighlight">\(\langle L,U,R,S\rangle\)</span>, frontmatter, footer</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>Citation anchor</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">file:line</span></code>, page section, include target</p></td>
+<td class="text-left"><p>target path, line span, resolution status</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>它还包含至少三个边族：</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>Edge family</p></th>
+<th class="head text-left"><p>Examples</p></th>
+<th class="head text-left"><p>Purpose</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p>Code structure</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">CALLS</span></code>, <code class="docutils literal notranslate"><span class="pre">IMPLEMENTS</span></code>, <code class="docutils literal notranslate"><span class="pre">RETURNS</span></code>, <code class="docutils literal notranslate"><span class="pre">CONTAINS</span></code></p></td>
+<td class="text-left"><p>structural neighbourhood</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>Prose structure</p></td>
+<td class="text-left"><p>page links, section references, includes</p></td>
+<td class="text-left"><p>documentation neighbourhood</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>Cross-layer links</p></td>
+<td class="text-left"><p>page cites entity, ADR explains file, runbook points to path</p></td>
+<td class="text-left"><p>prose ↔ code bridge</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>重要的不是每条边是否都物化在一个物理存储中。重要的是组装层能像它们构成了一张有类型的图一样去遍历它们。</p>
+</section>
+</section>
+<section id="how">
+<h2>How —— 怎么做<a class="headerlink" href="#how" title="Link to this heading">#</a></h2>
+<section id="step-1-retrieve-seeds-do-not-answer-yet">
+<h3>Step 1 — Retrieve seeds, do not answer yet<a class="headerlink" href="#step-1-retrieve-seeds-do-not-answer-yet" title="Link to this heading">#</a></h3>
+<p>第 19 章返回一个排序后的种子集合。这个种子集合是一份<em>提议</em>，还不是上下文。不同的查询形状产生不同的种子特征：</p>
+<ul class="simple">
+<li><p><strong>语义查询</strong>：种子通常是稠密检索找到的一两个实体或页面。</p></li>
+<li><p><strong>标识符查询</strong>：种子通常是关键词搜索返回的一个精确符号。</p></li>
+<li><p><strong>结构化查询</strong>：种子通常是一个符号加上它的显式图邻域。</p></li>
+<li><p><strong>Why 查询</strong>：种子通常是混合的 —— 一个代码实体加上一个文稿页面或 ADR。</p></li>
+</ul>
+<p>本章的第一条纪律因此很简单：<strong>不要让生成器直接消费种子列表</strong>。一条 top hit 只是进入本地仓库邻域的入口。</p>
+</section>
+<section id="step-2-expand-locally-with-relation-policy">
+<h3>Step 2 — Expand locally, with relation policy<a class="headerlink" href="#step-2-expand-locally-with-relation-policy" title="Link to this heading">#</a></h3>
+<p>组装然后围绕种子执行一次有界的图扩展。有界意味着同时是<strong>跳数受限的</strong>和<strong>关系受限的</strong>。沿所有可能的边扩展两跳通常太多了；沿正确的边扩展一跳通常就够了。</p>
+<p>一个有用的默认策略是：</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>Query shape</p></th>
+<th class="head text-left"><p>Preferred expansion</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p>“where / who calls / what implements”</p></td>
+<td class="text-left"><p>code edges first (<code class="docutils literal notranslate"><span class="pre">CALLS</span></code>, <code class="docutils literal notranslate"><span class="pre">IMPLEMENTS</span></code>, <code class="docutils literal notranslate"><span class="pre">CONTAINS</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>“why / how / what is the rationale”</p></td>
+<td class="text-left"><p>cross-layer links first (ADR, architecture page, reviewed runbook)</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>“what changed / what breaks”</p></td>
+<td class="text-left"><p>code neighbours plus pages citing the changed entities</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>正是这套关系策略，让图引导组装不同于&quot;把图邻居追加上去&quot;。图不只是增加 recall。它选择的是让问题<em>可回答</em>的那<em>类</em>周围证据。</p>
+</section>
+<section id="step-3-filter-and-weight-with-the-tuple">
+<h3>Step 3 — Filter and weight with the tuple<a class="headerlink" href="#step-3-filter-and-weight-with-the-tuple" title="Link to this heading">#</a></h3>
+<p>此时包中往往包含了超出上下文窗口承受能力的相关材料。第 25 章的元组在这里变成了承重件。一个被图引用的页面，如果是 AI 起草的且待评审，喂给模型仍然可能是坏事。</p>
+<p>一个实用的打分草案：</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>final_score(node) =
+    seed_score(node)
+  * relation_weight(edge_to_node)
+  * hop_decay(hops_from_seed)
+  * tuple_weight(node.tuple)
+  * freshness_weight(node.commit_age)
+</pre></div>
+</div>
+<p>Where:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">seed_score</span></code> comes from Chapter 12 (vector / keyword / graph / RRF);</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">relation_weight</span></code> 对 “why” 问题偏好解释性边，对 “where” 问题偏好结构性边；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hop_decay</span></code> 惩罚离种子远的节点；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tuple_weight</span></code> 降权 <code class="docutils literal notranslate"><span class="pre">pending</span></code> 或低分的文稿；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">freshness_weight</span></code> 是可选的，但在两页同等相关而其中一页明显更新时很有用。</p></li>
+</ul>
+<p>关键思想不是精确的公式。而是<strong>上下文组装是检索相关性与文档权威性最终会合的地方</strong>。</p>
+</section>
+<section id="step-4-render-the-packet-as-evidence-not-as-a-dump">
+<h3>Step 4 — Render the packet as evidence, not as a dump<a class="headerlink" href="#step-4-render-the-packet-as-evidence-not-as-a-dump" title="Link to this heading">#</a></h3>
+<p>最终的包应该保留谱系和关系线索。一条好的包条目不仅要说<em>包含了什么</em>文本，还要说<em>为什么</em>：</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>[seed] Function runSync
+  file: reference-impl/code-kg/service.go:201-248
+  reason: keyword seed
+
+[neighbor via CALLS&lt;-] Function TriggerSync
+  file: reference-impl/code-kg/service.go:161-184
+  reason: caller of runSync
+
+[neighbor via EXPLAINS] ADR-0014 Panic-safety in worker pools
+  tuple: ⟨L1, human, approved, 4⟩
+  reason: cited by runSync doc comment and mentions panic recovery
+</pre></div>
+</div>
+<p>这就是通往第 29 章的桥梁。一个像 <code class="docutils literal notranslate"><span class="pre">kb.search</span></code> 这样的 MCP 工具不需要暴露原始图遍历；它可以暴露一个现成的包，其条目已经包含了关系标签、元组标签和可解析的锚点。</p>
+</section>
+<section id="step-5-reuse-the-same-packet-for-both-agents-and-agentless-tasks">
+<h3>Step 5 — Reuse the same packet for both agents and agentless tasks<a class="headerlink" href="#step-5-reuse-the-same-packet-for-both-agents-and-agentless-tasks" title="Link to this heading">#</a></h3>
+<p>保持组装层显式化的一个原因是，它同等地服务于两种下游消费者。</p>
+<p><strong>使用工具的 agent。</strong> 一个 IDE agent 问一个问题、收到一个包、读一两页、然后追问。第 29 章的 <code class="docutils literal notranslate"><span class="pre">kb.search</span></code> 和 <code class="docutils literal notranslate"><span class="pre">kb.cite</span></code> 就是这种模式。</p>
+<p><strong>无 agent 的仓库任务。</strong> 批量评估器、补丁生成器或 CGM 风格的阅读器可能更倾向于对预组装好的邻域做一次性推理 <span id="id6">[<a class="reference internal" href="../part7-governance-and-outlook/index.html#id31" title="Hongyuan Tao, Ying Zhang, Zhenhao Tang, Hongen Peng, Xukun Zhu, Bingchang Liu, Yingguang Yang, Ziyin Zhang, Zhaogui Xu, Haipeng Zhang, Linchao Zhu, Rui Wang, Hang Yu, Jianguo Li, and Peng Di. Code graph model (CGM): a graph-integrated large language model for repository-level software engineering tasks. 2025. URL: https://arxiv.org/abs/2505.16901, arXiv:2505.16901.">Tao <em>et al.</em>, 2025</a>]</span>。包的格式仍然有用：它是模型应该关心的本地子图在检索时的显式表示。</p>
+<p>RepoAgent 在这里是互补的、而非竞争的工作。RepoAgent 改善的是仓库知识的<strong>生产端</strong> —— 通过持续循环地做全局结构分析、文档生成和文档更新 <span id="id7">[<a class="reference internal" href="../part7-governance-and-outlook/index.html#id30" title="Qinyu Luo, Yining Ye, Shihao Liang, Zhong Zhang, Yujia Qin, Yaxi Lu, Yesai Wu, Xin Cong, Yankai Lin, Yingli Zhang, Xiaoyin Che, Zhiyuan Liu, and Maosong Sun. Repoagent: an LLM-powered open-source framework for repository-level code documentation generation. 2024. URL: https://arxiv.org/abs/2402.16667, arXiv:2402.16667.">Luo <em>et al.</em>, 2024</a>]</span>。图引导组装改善的是<strong>消费端</strong> —— 通过在运行时让那些被持续维护的仓库记忆变成查询形状的。</p>
+</section>
+<section id="the-operational-rule-assemble-locally-never-globally">
+<h3>The operational rule: assemble locally, never globally<a class="headerlink" href="#the-operational-rule-assemble-locally-never-globally" title="Link to this heading">#</a></h3>
+<p>graph-RAG 系统中最大的失败模式是把图访问变成过度抓取的许可证。仓库图足够稠密，几次不小心的跳转就能让包爆炸。最安全的运维规则是：</p>
+<blockquote>
+<div><p><strong>全局检索，局部组装。</strong></p>
+</div></blockquote>
+<p>全局搜索找到正确的种子。局部图组装构建可回答的邻域。颠倒顺序，就是系统把半个仓库展示给模型然后管它叫&quot;上下文&quot;的由来。</p>
+</section>
+</section>
+<section id="example">
+<h2>Example —— 范例<a class="headerlink" href="#example" title="Link to this heading">#</a></h2>
+<p>假设开发者问：</p>
+<blockquote>
+<div><p><em>“<code class="docutils literal notranslate"><span class="pre">runSync</span></code> 为什么恢复 panic 而不是让 worker 崩溃？”</em></p>
+</div></blockquote>
+<section id="seeds-from-chapter-12">
+<h3>1. Seeds from Chapter 12<a class="headerlink" href="#seeds-from-chapter-12" title="Link to this heading">#</a></h3>
+<p>混合检索返回：</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">service.go</span></code> 中的 <code class="docutils literal notranslate"><span class="pre">runSync</span></code> 函数</p></li>
+<li><p>ADR 页面 <code class="docutils literal notranslate"><span class="pre">ADR-0014</span> <span class="pre">Panic-safety</span> <span class="pre">in</span> <span class="pre">worker</span> <span class="pre">pools</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">runIncrementalSync</span></code> 作为排名较低的结构性邻居</p></li>
+</ol>
+</section>
+<section id="local-graph-expansion">
+<h3>2. Local graph expansion<a class="headerlink" href="#local-graph-expansion" title="Link to this heading">#</a></h3>
+<p>Assembly follows:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">CALLS</span></code> / reverse-<code class="docutils literal notranslate"><span class="pre">CALLS</span></code> edges around <code class="docutils literal notranslate"><span class="pre">runSync</span></code></p></li>
+<li><p>page-to-code citation edges from <code class="docutils literal notranslate"><span class="pre">ADR-0014</span></code></p></li>
+<li><p>从 <code class="docutils literal notranslate"><span class="pre">ADR-0014</span></code> 到事故 runbook 的页面到页面链接</p></li>
+</ul>
+<p>这产生了一个原始的 11 节点邻域。</p>
+</section>
+<section id="tuple-and-budget-filtering">
+<h3>3. Tuple and budget filtering<a class="headerlink" href="#tuple-and-budget-filtering" title="Link to this heading">#</a></h3>
+<p>两个节点被丢弃：</p>
+<ul class="simple">
+<li><p>一个 AI 生成的摘要页面，元组为 <code class="docutils literal notranslate"><span class="pre">⟨L3,</span> <span class="pre">ai,</span> <span class="pre">pending,</span> <span class="pre">0⟩</span></code></p></li>
+<li><p>一份超出 token 预算的过期事故复盘</p></li>
+</ul>
+<p>五个节点存活，排列为最终的包。下面的包是示意性的；精确的行范围随仓库和 commit 而异：</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>1. [seed] runSync
+   file: reference-impl/code-kg/service.go:&lt;runSync span&gt;
+   why included: exact function under discussion
+
+2. [code neighbor] TriggerSync
+   file: reference-impl/code-kg/service.go:161-184
+   why included: caller of runSync
+
+3. [prose bridge] ADR-0014
+   tuple: ⟨L1, human, approved, 4⟩
+   why included: rationale for panic recovery policy
+
+4. [ops bridge] worker-pool incident runbook
+   tuple: ⟨L2, ai+human, approved, 3⟩
+   why included: describes failure mode and on-call handling
+
+5. [structural neighbor] runIncrementalSync
+   file: reference-impl/code-kg/service.go:278-314
+   why included: recursion / re-entry context
+</pre></div>
+</div>
+</section>
+<section id="generator-output">
+<h3>4. Generator output<a class="headerlink" href="#generator-output" title="Link to this heading">#</a></h3>
+<p>LLM 不再需要仅凭原始文件推断理据。它可以回答：</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>`runSync` recovers panics so a single failed sync target does not crash
+the whole worker loop. The implementation is in the `runSync` span in
+`reference-impl/code-kg/service.go`, and the policy rationale is
+recorded in `ADR-0014`, which states that worker-pool panics should be
+contained and logged rather than allowed to terminate sibling work.
+`TriggerSync` is one caller (`service.go:161-184`), and
+`runIncrementalSync` participates in the same control path
+(`service.go:278-314`).
+</pre></div>
+</div>
+<p>这个回答比单纯的 top-k 检索更好，不是因为它看到了更多文本，而是因为它在一个显式的权威性过滤器下看到了<strong>正确的局部子图</strong>。</p>
+</section>
+</section>
+<section id="conclusion">
+<h2>Conclusion —— 小结<a class="headerlink" href="#conclusion" title="Link to this heading">#</a></h2>
+<p>图引导上下文组装是把知识库从一个搜索系统变成仓库记忆的那一步。第 19 章给了我们种子；第 25 章给了我们权威性标签；本章把两者组合成一个 LLM 真正可以推理的有界证据包。</p>
+<p>更广泛的研究脉络现在看起来是连贯的。Zhu 等人解释了为什么结构化证据有助于 LLM 推理。GraphRAG 和 HippoRAG 解释了为什么图形状的上下文在很多场景下击败了平坦的 top-k。RepoAgent 表明仓库知识必须被持续维护。CGM 表明同样的图信号可以移向更靠近模型本身的位置。本章的赌注是这条脉络的保守系统版本：保持图和元组的显式性，在查询时组装局部上下文包，让使用工具的 agent 和无 agent 的仓库阅读器消费同一套被持续维护的底座。</p>
+</section>
+<section id="id8">
+<h2>参考文献<a class="headerlink" href="#id8" title="Link to this heading">#</a></h2>
+<div class="docutils container" id="id9">
+<div role="list" class="citation-list">
+<div class="citation" id="id94" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>Ramakrishna Bairi, Atharv Sonwane, Aditya Kanade, Vageesh D C, Arun Iyer, Suresh Parthasarathy, Sriram Rajamani, B. Ashok, and Shashank Shet. CodePlan: repository-level coding using LLMs and planning. <em>Proceedings of the ACM on Software Engineering (FSE 2024)</em>, 2024. Models repo-level code changes as a planning problem: seed edit → change-impact analysis on the dependency graph → ordered sub-task list → iterative LLM execution with validation. Key insight for Chapter 20: KB-backed AI coding assistants can generate structured multi-file refactoring plans using the same dependency graph the KB already maintains. URL: <a class="reference external" href="https://www.microsoft.com/en-us/research/publication/codeplan-repository-level-coding-using-llms-and-planning-2/">https://www.microsoft.com/en-us/research/publication/codeplan-repository-level-coding-using-llms-and-planning-2/</a>.</p>
+</div>
+<div class="citation" id="id79" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></span>
+<p>Shiqi Chen, Yiran Zhang, Yunze Zhao, Yifei Liu, Chengye Hu, and Yang Liu. Benchmarking large language models in retrieval-augmented generation. In <em>arXiv preprint arXiv:2309.01431</em>. 2023. URL: <a class="reference external" href="https://arxiv.org/abs/2309.01431">https://arxiv.org/abs/2309.01431</a>.</p>
+</div>
+<div class="citation" id="id33" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">3</a><span class="fn-bracket">]</span></span>
+<p>Darren Edge, Ha Trinh, Newman Cheng, Joshua Bradley, Alex Chao, Apurva Mody, Steven Truitt, and Jonathan Larson. From local to global: a graph RAG approach to query-focused summarization. <em>arXiv preprint arXiv:2404.16130</em>, 2024.</p>
+</div>
+<div class="citation" id="id12" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></span>
+<p>Walter (Yamin) Fan. RAG 进阶指南：别只盯着向量数据库，Elasticsearch 才是扫地僧. January 2026. v1.0, CC-BY-NC-ND 4.0. URL: <a class="reference external" href="https://www.fanyamin.com/2026-01-15-rag-elasticsearch-database.html">https://www.fanyamin.com/2026-01-15-rag-elasticsearch-database.html</a>.</p>
+</div>
+<div class="citation" id="id92" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></span>
+<p>Kai Greshake, Sahar Abdelnabi, Shailesh Mishra, Christoph Endres, Thorsten Holz, and Mario Fritz. Not what you have signed up for: compromising real-world LLM-integrated applications with indirect prompt injection. <em>arXiv preprint arXiv:2302.12173</em>, 2023. Formalises the indirect-prompt-injection threat model that RAG systems inherit the moment retrieved documents can contain attacker-controlled text. Cited in Chapter 13 as the named threat model the two-step defence (system preamble + context escaping) addresses, and re-visited in Chapter 23's red-teaming treatment. URL: <a class="reference external" href="https://arxiv.org/abs/2302.12173">https://arxiv.org/abs/2302.12173</a>.</p>
+</div>
+<div class="citation" id="id34" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">6</a><span class="fn-bracket">]</span></span>
+<p>Bernal Jiménez Gutiérrez, Yiheng Shu, Yu Gu, Michihiro Yasunaga, and Yu Su. HippoRAG: neurobiologically inspired long-term memory for large language models. <em>arXiv preprint arXiv:2405.14831</em>, 2024.</p>
+</div>
+<div class="citation" id="id93" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></span>
+<p>Di Li, Jingyi Wei, Yewen Peng, Hanbin Bai, Bei Chen, and Yong Li. Repoformer: selective retrieval for repository-level code completion. <em>Proceedings of the 41st International Conference on Machine Learning (ICML 2024)</em>, 2024. Trains a lightweight classifier to predict whether retrieval will help a given code-completion task, skipping it when the local context suffices. Key insight for Chapter 12: not every query needs retrieval, and a retrieval-necessity signal can cut latency and noise. URL: <a class="reference external" href="https://arxiv.org/abs/2403.10059">https://arxiv.org/abs/2403.10059</a>, <a class="reference external" href="https://arxiv.org/abs/2403.10059">arXiv:2403.10059</a>.</p>
+</div>
+<div class="citation" id="id36" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id7">8</a><span class="fn-bracket">]</span></span>
+<p>Qinyu Luo, Yining Ye, Shihao Liang, Zhong Zhang, Yujia Qin, Yaxi Lu, Yesai Wu, Xin Cong, Yankai Lin, Yingli Zhang, Xiaoyin Che, Zhiyuan Liu, and Maosong Sun. Repoagent: an LLM-powered open-source framework for repository-level code documentation generation. 2024. URL: <a class="reference external" href="https://arxiv.org/abs/2402.16667">https://arxiv.org/abs/2402.16667</a>, <a class="reference external" href="https://arxiv.org/abs/2402.16667">arXiv:2402.16667</a>.</p>
+</div>
+<div class="citation" id="id88" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>9<span class="fn-bracket">]</span></span>
+<p>Rodrigo Nogueira and Kyunghyun Cho. Passage re-ranking with BERT. <em>arXiv preprint arXiv:1901.04085</em>, 2019. Canonical reference for cross-encoder re-ranking — a BERT model scores (query, document) pairs for the second stage of a retrieve-then-rerank pipeline. Widely known as &quot;monoBERT&quot;. URL: <a class="reference external" href="https://arxiv.org/abs/1901.04085">https://arxiv.org/abs/1901.04085</a>.</p>
+</div>
+<div class="citation" id="id95" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>10<span class="fn-bracket">]</span></span>
+<p>Siru Ouyang, Jingqing Yu, Daoguang Zan, Xiangyu Xu, Wei Liu, Shuai Shi, and Hao Peng. RepoGraph: enhancing AI software engineering with repository-level code graph. <em>ICLR 2025 Poster</em>, 2025. Builds a typed repository-level code graph (calls, imports, inherits, defines) and uses graph-enhanced retrieval to expand seed hits along structural edges. Key insight for Chapter 11: code graphs are not just for storage; they are retrieval primitives that produce structurally complete context, not just semantically similar chunks. URL: <a class="reference external" href="https://openreview.net/forum?id=dw9VUsSHGB">https://openreview.net/forum?id=dw9VUsSHGB</a>.</p>
+</div>
+<div class="citation" id="id89" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>11<span class="fn-bracket">]</span></span>
+<p>Nils Reimers and Iryna Gurevych. Sentence-BERT: sentence embeddings using siamese BERT-networks. In <em>Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing</em>. 2019. Introduces the bi-encoder framing that underlies every modern dense retriever: two independent encodings compared by cosine similarity, contrasted explicitly against cross-encoders that concatenate (query, document) before scoring. URL: <a class="reference external" href="https://arxiv.org/abs/1908.10084">https://arxiv.org/abs/1908.10084</a>.</p>
+</div>
+<div class="citation" id="id98" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>12<span class="fn-bracket">]</span></span>
+<p>Disha Shrivastava, Hugo Larochelle, and Daniel Tarlow. Repository-level prompt generation for large language models of code. In <em>Proceedings of the 40th International Conference on Machine Learning (ICML 2023)</em>. 2023. The conceptual origin of repo-level RAG: even without fine-tuning, selecting the right cross-file context (imports, similar code, usage examples, type definitions) substantially improves code completion. Key insight for Chapter 12 and Chapter 19: context assembly is a first-class retrieval problem, not a prompt-engineering afterthought. URL: <a class="reference external" href="https://proceedings.mlr.press/v202/shrivastava23a.html">https://proceedings.mlr.press/v202/shrivastava23a.html</a>.</p>
+</div>
+<div class="citation" id="id37" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>13<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id5">1</a>,<a role="doc-backlink" href="#id6">2</a>)</span>
+<p>Hongyuan Tao, Ying Zhang, Zhenhao Tang, Hongen Peng, Xukun Zhu, Bingchang Liu, Yingguang Yang, Ziyin Zhang, Zhaogui Xu, Haipeng Zhang, Linchao Zhu, Rui Wang, Hang Yu, Jianguo Li, and Peng Di. Code graph model (CGM): a graph-integrated large language model for repository-level software engineering tasks. 2025. URL: <a class="reference external" href="https://arxiv.org/abs/2505.16901">https://arxiv.org/abs/2505.16901</a>, <a class="reference external" href="https://arxiv.org/abs/2505.16901">arXiv:2505.16901</a>.</p>
+</div>
+<div class="citation" id="id97" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>14<span class="fn-bracket">]</span></span>
+<p>Chuxin Xu, Zhicheng Geng, Zhengtao Liao, and Yifan Wei. Synergizing LLMs and knowledge graphs: a novel approach to software repository-related question answering. <em>arXiv preprint arXiv:2412.03815</em>, 2024. Designs a software-specific KG ontology (Repository, Module, File, Class, Function, Dependency, Issue, Commit, Developer) and a synergistic LLM+KG QA framework that routes structural queries to KG and semantic queries to dense retrieval. Key insight for Chapter 6 and Chapter 11: a purpose-built software ontology plus hybrid query routing covers both structural and semantic questions better than either approach alone. URL: <a class="reference external" href="https://arxiv.org/abs/2412.03815">https://arxiv.org/abs/2412.03815</a>, <a class="reference external" href="https://arxiv.org/abs/2412.03815">arXiv:2412.03815</a>.</p>
+</div>
+<div class="citation" id="id96" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>15<span class="fn-bracket">]</span></span>
+<p>Fengji Zhang, Bei Chen, Yue Zhang, Jacky Keung, Jin Liu, Daoguang Zan, Yi Mao, Jian-Guang Chen, and Wenqiang Chen. RepoCoder: repository-level code completion through iterative retrieval and generation. <em>Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing (EMNLP 2023)</em>, 2023. Proposes a retrieve-generate-re-retrieve iterative loop: the LLM draft becomes a better retrieval query for the next round. Key insight for Chapter 12: multi-round retrieval converges on better context, especially for complex cross-file queries. URL: <a class="reference external" href="https://arxiv.org/abs/2303.12570">https://arxiv.org/abs/2303.12570</a>, <a class="reference external" href="https://arxiv.org/abs/2303.12570">arXiv:2303.12570</a>.</p>
+</div>
+<div class="citation" id="id35" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">16</a><span class="fn-bracket">]</span></span>
+<p>Yuqi Zhu, Xiaohan Wang, Jing Chen, Shuofei Qiao, Yixin Ou, Yunzhi Yao, Shumin Deng, Huajun Chen, and Ningyu Zhang. LLMs for knowledge graph construction and reasoning: recent capabilities and future opportunities. 2024. URL: <a class="reference external" href="https://arxiv.org/abs/2305.13168">https://arxiv.org/abs/2305.13168</a>, <a class="reference external" href="https://arxiv.org/abs/2305.13168">arXiv:2305.13168</a>.</p>
+</div>
+<div class="citation" id="id80" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>17<span class="fn-bracket">]</span></span>
+<p>Anthropic. Model context protocol (mcp) specification. 2024–present. URL: <a class="reference external" href="https://modelcontextprotocol.io/">https://modelcontextprotocol.io/</a>.</p>
+</div>
+<div class="citation" id="id81" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>18<span class="fn-bracket">]</span></span>
+<p>Cloudflare. Cloudflare Workers: serverless execution at the network edge. Documentation, 2024. URL: <a class="reference external" href="https://developers.cloudflare.com/workers/">https://developers.cloudflare.com/workers/</a>.</p>
+</div>
+<div class="citation" id="id82" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>19<span class="fn-bracket">]</span></span>
+<p>Deno Land Inc. Deno Deploy: a globally-distributed serverless javascript runtime. Documentation, 2024. URL: <a class="reference external" href="https://deno.com/deploy">https://deno.com/deploy</a>.</p>
+</div>
+<div class="citation" id="id83" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>20<span class="fn-bracket">]</span></span>
+<p>Vercel. Vercel Edge Functions: serverless functions at the edge. Documentation, 2024. URL: <a class="reference external" href="https://vercel.com/docs/functions">https://vercel.com/docs/functions</a>.</p>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="ch25-document-layering-L0-L4.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">第 25 章 —— 文档分层 L0–L4</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="ch27-harnessing-ai-coding.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">第 27 章 —— 用知识库驾驭 AI 编码</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 目录
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why">Why —— 为什么</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what">What —— 是什么</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-heterogeneous-graph-the-packet-comes-from">The heterogeneous graph the packet comes from</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how">How —— 怎么做</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-retrieve-seeds-do-not-answer-yet">Step 1 — Retrieve seeds, do not answer yet</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-expand-locally-with-relation-policy">Step 2 — Expand locally, with relation policy</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-filter-and-weight-with-the-tuple">Step 3 — Filter and weight with the tuple</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-4-render-the-packet-as-evidence-not-as-a-dump">Step 4 — Render the packet as evidence, not as a dump</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-5-reuse-the-same-packet-for-both-agents-and-agentless-tasks">Step 5 — Reuse the same packet for both agents and agentless tasks</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-operational-rule-assemble-locally-never-globally">The operational rule: assemble locally, never globally</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example —— 范例</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#seeds-from-chapter-12">1. Seeds from Chapter 12</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#local-graph-expansion">2. Local graph expansion</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tuple-and-budget-filtering">3. Tuple and budget filtering</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#generator-output">4. Generator output</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#conclusion">Conclusion —— 小结</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">参考文献</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+作者： Walter Fan
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright AI 辅助创作 2026, Walter Fan.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    <p class="last-updated">
+  最后更新于 2026-11-10.
+  <br/>
+</p>
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

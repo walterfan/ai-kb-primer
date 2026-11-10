@@ -1,0 +1,921 @@
+
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>附录 A —— 端到端：从杂乱文件夹到可发布 Wiki &#8212; Use AI to build a knowledge base for a software project</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=591f613d" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=23f7fa08"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../_static/translations.js?v=beaddf03"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'appendix/appendix-a-example-wiki';</script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="附录 B —— 示例：从一个 Go 仓库构建代码知识库" href="appendix-b-example-code-kg.html" />
+    <link rel="prev" title="第 32 章 —— 展望与尚未解决的问题" href="../part7-governance-and-outlook/ch32-outlook-and-open-problems.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+    <meta name="docbuild:last-update" content="2026-11-10"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Use AI to build a knowledge base for a software project</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">搜索</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Part I — Foundations</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part1-foundations/index.html">第一部分 —— 基础</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch01-why-kb-for-software.html">第 1 章 —— 为什么要给软件建一个知识库？</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch01a-quickstart-30min.html">第 1a 章 —— 30 分钟快速上手</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch02-ir-rag-primer.html">第 2 章 —— IR 与 RAG 入门</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch03-diataxis-and-software-docs.html">第 3 章 —— Diátaxis 与软件文档</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part II — The Prose Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part2-prose-layer/index.html">第二部分 —— 文稿层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch04-file-based-wiki.html">第 4 章 —— 一个基于文件的 wiki</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch05-frontmatter-provenance-trust.html">第 5 章 —— 把 frontmatter 当作一份来源记录</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch06-llm-classification-pipeline.html">第 6 章 —— 分类流水线</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch07-publish-and-search.html">第 7 章 —— 发布与搜索</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch08-prose-operational-model.html">第 8 章 —— 文稿层的运维模型</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch09-cold-start-migration.html">第 9 章 —— 冷启动与批量迁移</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part III — The Author Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part3-author-layer/index.html">第三部分 —— 作者层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch10-why-ai-as-author.html">第 10 章 —— 为什么让 AI 当作者</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch11-ai-drafting-and-rewriting.html">第 11 章 —— AI 起草、重写、翻译</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch12-ai-for-metadata.html">第 12 章 —— AI 处理元数据：分类、打标签、实体与关系抽取</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch13-ai-for-maintenance.html">第 13 章 —— AI 做维护：摘要、去重、过期与漂移检测</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch14-ai-as-judge.html">第 14 章 —— AI 作为评判者：评估生成质量与引用合规</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part IV — The Code Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part4-code-layer/index.html">第四部分 —— 代码层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch15-why-code-is-not-prose.html">第 15 章 —— 为什么代码不是文稿</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch16-parsing-and-entity-extraction.html">第 16 章 —— 解析与实体抽取</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch17-embeddings-and-vector-stores.html">第 17 章 —— 嵌入向量与向量存储</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch18-code-knowledge-graph.html">第 18 章 —— 代码知识图谱</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch19-hybrid-retrieval-and-rrf.html">第 19 章 —— 混合检索与 RRF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch20-prompt-and-generation.html">第 20 章 —— 提示词与生成</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part V — Operations &amp; Lifecycle</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part5-operations-lifecycle/index.html">第五部分 —— 运维与生命周期</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part5-operations-lifecycle/ch21-incremental-sync.html">第 21 章 —— 增量同步</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part5-operations-lifecycle/ch22-evaluation-and-benchmarks.html">第 22 章 —— 评测、基准与发布门禁</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part5-operations-lifecycle/ch23-maintenance-drift-and-link-rot.html">第 23 章 —— 维护、漂移与链接腐化</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part VI — The Hybrid Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part6-hybrid-layer/index.html">第六部分 —— 混合层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch24-prose-meets-code.html">第 24 章 —— 文稿与代码相遇</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch25-document-layering-L0-L4.html">第 25 章 —— 文档分层 L0–L4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch26-graph-guided-context-assembly.html">第 26 章 —— 图引导的上下文组装</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch27-harnessing-ai-coding.html">第 27 章 —— 用知识库驾驭 AI 编码</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch28-team-sdlc-integration.html">第 28 章 —— 团队协作与 SDLC 集成</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch29-ai-agents-on-the-kb.html">第 29 章 —— 在知识库上跑的 AI Agent</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part VII — Governance &amp; Outlook</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part7-governance-and-outlook/index.html">第七部分 —— 治理与展望</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch30-cost-privacy-security.html">第 30 章 —— 成本、隐私、安全</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch31-trust-provenance-and-red-teaming.html">第 31 章 —— 信任、出处与红队演练</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch32-outlook-and-open-problems.html">第 32 章 —— 展望与尚未解决的问题</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Appendices</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">附录 A —— 端到端：从杂乱文件夹到可发布 Wiki</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appendix-b-example-code-kg.html">附录 B —— 示例：从一个 Go 仓库构建代码知识库</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appendix-c-deepwiki-checklist.html">附录 C —— 自己动手做 DeepWiki 检查清单</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appendix-d-glossary.html">附录 D —— 术语表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appendix-e-bilingual-publishing.html">附录 E —— 发布一个双语知识库</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">参考文献</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../reference/index.html">参考文献：仓库级代码理解与软件知识库论文导读</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../reference/01-repoformer-selective-retrieval.html">Repoformer: Selective Retrieval for Repository-Level Code Completion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/02-codeplan-repository-level-planning.html">CodePlan: Repository-Level Coding using LLMs and Planning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/03-repograph-code-graph-navigation.html">RepoGraph: Enhancing AI Software Engineering with Repository-level Code Graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/04-repoagent-documentation-generation.html">RepoAgent: An LLM-Powered Open-Source Framework for Repository-level Code Documentation Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/05-repocoder-iterative-retrieval-generation.html">RepoCoder: Repository-Level Code Completion Through Iterative Retrieval and Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/06-llm-kg-synergy-repo-qa.html">Synergizing LLMs and Knowledge Graphs: A Novel Approach to Software Repository-Related Question Answering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/07-repo-level-prompt-generation.html">Repository-Level Prompt Generation for Large Language Models of Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/08-repobench-benchmarking.html">RepoBench: Benchmarking Repository-Level Code Auto-Completion Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/09-long-code-arena-benchmarks.html">Long Code Arena: A Set of Benchmarks for Long-Context Code Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/10-cgm-graph-integrated-llm.html">Code Graph Model (CGM): A Graph-Integrated Large Language Model for Repository-Level Software Engineering Tasks</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="下载此页面">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="下载源文件"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="列印成 PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="全屏模式"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>附录 A —— 端到端：从杂乱文件夹到可发布 Wiki</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> 目录 </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">为什么</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">是什么</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">怎么做</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">前置条件</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">阶段 1 —— 杂乱输入</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">阶段 2 —— 跑通六个动词</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#git">阶段 3 —— 把它变成 Git 仓库</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">示例</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">结论</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">参考文献</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="a-wiki">
+<h1>附录 A —— 端到端：从杂乱文件夹到可发布 Wiki<a class="headerlink" href="#a-wiki" title="Link to this heading">#</a></h1>
+<p>这个附录逐步复现了第二部分的承诺：把几份手工写出的文件变成一个结构良好的
+wiki，带上 frontmatter、分类结果、信任审计，以及一个可以直接跑起来的
+HTTP 服务。这里的每一条命令都在随书发布的那个 commit 上实际跑过；每一段
+输出都是真实捕获自一个干净的 <code class="docutils literal notranslate"><span class="pre">/tmp</span></code> 目录，而不是编造出来的。</p>
+<p>自己动手跑一遍，大约十五分钟，你就会对第 4 章到第 7 章所描述的一切形成一个
+真正可操作的心智模型。</p>
+<section id="id1">
+<h2>为什么<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
+<p>文稿层那几章论证的是：一个<strong>基于文件、由流水线校验</strong>的 wiki 为什么是软件
+知识库的合适底座。这个附录把这套论证完整跑一遍，而且刻意选择：</p>
+<ul class="simple">
+<li><p>一个非常小的输入集（三个形态不同的文件）；</p></li>
+<li><p>零网络依赖（强制启用启发式分类器）；</p></li>
+<li><p>零隐藏状态（每一个输出都是你能直接 <code class="docutils literal notranslate"><span class="pre">cat</span></code> 出来的文件）。</p></li>
+</ul>
+<p>如果这份 walkthrough 在你的机器上跑不通，那说明在更深的书稿章节开始发挥作用
+之前，工具链本身就已经出问题了。先把这个修好。</p>
+</section>
+<section id="id2">
+<h2>是什么<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
+<p>这是一份三阶段实录：</p>
+<ol class="arabic simple">
+<li><p>准备三个形态混杂的输入文件（<code class="docutils literal notranslate"><span class="pre">.md</span></code>、<code class="docutils literal notranslate"><span class="pre">.txt</span></code>）。</p></li>
+<li><p>跑通六个 CLI 动词：<code class="docutils literal notranslate"><span class="pre">init</span> <span class="pre">→</span> <span class="pre">import</span> <span class="pre">dir</span> <span class="pre">→</span> <span class="pre">verify</span> <span class="pre">→</span> <span class="pre">build</span> <span class="pre">→</span> <span class="pre">status</span> <span class="pre">→</span> <span class="pre">serve</span></code>。</p></li>
+<li><p>观察每一个阶段都向磁盘写出了真实结果，以及最终的 <code class="docutils literal notranslate"><span class="pre">content/</span></code>
+目录已经是一份合法、可直接阅读的 wiki。</p></li>
+</ol>
+</section>
+<section id="id3">
+<h2>怎么做<a class="headerlink" href="#id3" title="Link to this heading">#</a></h2>
+<section id="id4">
+<h3>前置条件<a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># From the repo root.</span>
+$<span class="w"> </span>make<span class="w"> </span>build-backend
+<span class="c1"># → produces ./backend/wiki-cli (~35 MB statically linked Go binary)</span>
+</pre></div>
+</div>
+<p>在这个附录里，我们关闭 LLM 分类器，以保证不同机器上产出的结果能够做到
+<strong>逐字节一致</strong>。启发式分类器是第 6 章里介绍的 fallback 路径；它当然没有
+真正的 LLM 聪明，但正因为如此，才特别适合写进一本书。</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="nv">LLM_API_KEY</span><span class="o">=</span><span class="w">   </span><span class="c1"># empty — force heuristic classifier</span>
+$<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="nv">LLM_BASE_URL</span><span class="o">=</span>
+</pre></div>
+</div>
+</section>
+<section id="id5">
+<h3>阶段 1 —— 杂乱输入<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>mkdir<span class="w"> </span>-p<span class="w"> </span>/tmp/book-appx-a/input
+$<span class="w"> </span>cat<span class="w"> </span>&gt;<span class="w"> </span>/tmp/book-appx-a/input/install.md<span class="w"> </span><span class="s">&lt;&lt;&#39;MD&#39;</span>
+<span class="s"># How to install the service</span>
+
+<span class="s">Run `make build` and then `./bin/service --port 7500`. The binary</span>
+<span class="s">listens on the given port, reads config from `/etc/service.yaml`, and</span>
+<span class="s">emits structured JSON logs to stdout.</span>
+
+<span class="s">## Prerequisites</span>
+
+<span class="s">- Go 1.22 or later</span>
+<span class="s">- Make</span>
+<span class="s">MD</span>
+
+$<span class="w"> </span>cat<span class="w"> </span>&gt;<span class="w"> </span>/tmp/book-appx-a/input/api-reference.md<span class="w"> </span><span class="s">&lt;&lt;&#39;MD&#39;</span>
+<span class="s"># API Reference</span>
+
+<span class="s">## GET /health</span>
+<span class="s">Returns 200 OK with JSON body `{&quot;status&quot;:&quot;ok&quot;}`.</span>
+
+<span class="s">## POST /pages</span>
+<span class="s">Creates a wiki page. Body:</span>
+
+<span class="s">` ` ` json</span>
+<span class="s">{ &quot;title&quot;: &quot;...&quot;, &quot;body&quot;: &quot;...&quot;, &quot;doc_type&quot;: &quot;reference&quot; }</span>
+<span class="s">` ` `</span>
+
+<span class="s">## DELETE /pages/{slug}</span>
+<span class="s">Removes a page. Requires `admin` role.</span>
+<span class="s">MD</span>
+
+$<span class="w"> </span>cat<span class="w"> </span>&gt;<span class="w"> </span>/tmp/book-appx-a/input/architecture-notes.txt<span class="w"> </span><span class="s">&lt;&lt;&#39;MD&#39;</span>
+<span class="s">Why we chose file-based storage</span>
+
+<span class="s">Database-backed wikis couple the content to the database lifecycle.</span>
+<span class="s">We want the wiki tree to be a plain Git repository so every page is</span>
+<span class="s">diffable, reviewable, and auditable via git blame. That leaves the</span>
+<span class="s">search and pipeline layers as the only thing the server needs to add.</span>
+<span class="s">MD</span>
+
+$<span class="w"> </span>ls<span class="w"> </span>/tmp/book-appx-a/input/
+api-reference.md<span class="w">    </span>architecture-notes.txt<span class="w">    </span>install.md
+</pre></div>
+</div>
+<p>三个文件，三种形态。一个是 how-to（标题以 “How to” 开头）；一个是
+reference（结构化 endpoint）；一个是 explanation（<code class="docutils literal notranslate"><span class="pre">.txt</span></code>，没有 Markdown
+标题）。一个好的流水线至少应该把前两个正确地放进各自的 Diátaxis 桶里。</p>
+</section>
+<section id="id6">
+<h3>阶段 2 —— 跑通六个动词<a class="headerlink" href="#id6" title="Link to this heading">#</a></h3>
+<p><strong><code class="docutils literal notranslate"><span class="pre">init</span></code></strong> 会脚手架出一份全新的 wiki，拷贝模板，并创建一个管理员账号：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ./backend/wiki-cli --wiki-dir=/tmp/book-appx-a/wiki init kb
+2026/04/18 05:26:55 Copying wiki template from wiki-template to /tmp/book-appx-a/wiki
+========================================
+  Default admin account created
+  Username: admin
+  Password: [REDACTED_PASSWORD]
+  Please change the password after login.
+========================================
+Wiki initialized (kind=kb) in /tmp/book-appx-a/wiki
+
+$ ls /tmp/book-appx-a/wiki/
+content    metadata
+
+$ ls /tmp/book-appx-a/wiki/content/
+_assets    devops    home.md    productivity    programming
+$ ls /tmp/book-appx-a/wiki/metadata/
+SCHEMA.md   index.md   log.md    skills/    sources/    users.yaml    wiki.yaml
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">content/</span></code> 里已经有模板预置的几页；<code class="docutils literal notranslate"><span class="pre">metadata/</span></code> 里有 <code class="docutils literal notranslate"><span class="pre">SCHEMA.md</span></code>
+契约（第 5 章）、带生成后 admin hash 的 <code class="docutils literal notranslate"><span class="pre">users.yaml</span></code>，以及一个骨架
+<code class="docutils literal notranslate"><span class="pre">wiki.yaml</span></code> 配置。每一个字节都是纯文本。</p>
+<p><strong><code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">dir</span></code></strong> 会遍历输入树，对每个文件做分类，在 <code class="docutils literal notranslate"><span class="pre">content/</span></code> 下写出页面，
+并记录导入日志：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ./backend/wiki-cli --wiki-dir=/tmp/book-appx-a/wiki import dir /tmp/book-appx-a/input
+ImportDir complete: 3 created, 0 skipped, 0 errors
+</pre></div>
+</div>
+<p>三个输入文件，三个创建出的页面。我们来看其中一个：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cat /tmp/book-appx-a/wiki/content/install.md
+---
+title: How to install the service
+slug: install
+summary: |-
+    Run `make build` and then `./bin/service --port 7500`. The binary
+    listens on the given port, reads c
+created: 2026-04-17T21:26:55.152331Z
+created_by: human
+updated: 2026-04-17T21:26:55.152331Z
+status: published
+doc_type: reference
+verification_status: unreviewed
+source:
+    type: doc
+    path: /tmp/book-appx-a/input/install.md
+---
+# How to install the service
+
+Run `make build` and then `./bin/service --port 7500`. The binary
+listens on the given port, reads config from `/etc/service.yaml`, and
+emits structured JSON logs to stdout.
+
+## Prerequisites
+
+- Go 1.22 or later
+- Make
+</pre></div>
+</div>
+<p>注意看，流水线哪些地方做得<strong>完全正确</strong>，哪些地方只是<strong>近似正确</strong>。两者都很有
+价值，因为它们能告诉你启发式分类器到底在哪儿停止帮忙：</p>
+<ul class="simple">
+<li><p>正确：<code class="docutils literal notranslate"><span class="pre">title</span></code> 从第一行 <code class="docutils literal notranslate"><span class="pre">#</span> </code> 标题里提取；<code class="docutils literal notranslate"><span class="pre">slug</span></code> 由文件名推导；
+<code class="docutils literal notranslate"><span class="pre">summary</span></code> 截取前 100 个字符；<code class="docutils literal notranslate"><span class="pre">source.path</span></code> 记录精确输入文件；
+<code class="docutils literal notranslate"><span class="pre">verification_status</span></code> 被设为 <code class="docutils literal notranslate"><span class="pre">unreviewed</span></code>（第 5 章里的默认信任状态，
+即便输入是人写的也照样适用）。</p></li>
+<li><p>近似：<code class="docutils literal notranslate"><span class="pre">doc_type:</span> <span class="pre">reference</span></code>。真正的 LLM 分类器会从
+“How to install…” 这个标题中判断出它是 <code class="docutils literal notranslate"><span class="pre">how-to</span></code>。启发式分类器不会把标题
+与 Diátaxis 桶做交叉校验。这是一个<strong>发现</strong>，不是 bug：人类
+（或者后面更聪明的分类器）可以把 <code class="docutils literal notranslate"><span class="pre">doc_type</span></code> 提升上去，而下面的 <code class="docutils literal notranslate"><span class="pre">verify</span></code>
+会把这件事标出来。</p></li>
+</ul>
+<p><strong><code class="docutils literal notranslate"><span class="pre">verify</span></code></strong> 会审计每一页，并输出一份结构化报告：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ./backend/wiki-cli --wiki-dir=/tmp/book-appx-a/wiki verify | python3 -c \
+    &#39;import sys,json; r=json.load(sys.stdin); \
+     print(json.dumps(r[&quot;summary&quot;], indent=2)); \
+     print(&quot;categories used:&quot;, \
+           sorted([k for k,v in r.items() if isinstance(v,list) and v]))&#39;
+{
+  &quot;total_issues&quot;: 6,
+  &quot;auto_fixable&quot;: 0,
+  &quot;categories&quot;: 1
+}
+categories used: [&#39;consistency&#39;]
+</pre></div>
+</div>
+<p>六个问题，全部都属于 <code class="docutils literal notranslate"><span class="pre">consistency</span></code>：模板预置的样例页里，slug 与文件名并不一致
+（例如一个叫 <code class="docutils literal notranslate"><span class="pre">concurrency.md</span></code> 的文件，其 slug 写的是
+<code class="docutils literal notranslate"><span class="pre">go-concurrency-patterns</span></code>），这只是模板作者的风格。我们刚导入的三个页面没有
+触发任何问题。生产环境里，要么重命名这些种子页，要么直接跑
+<code class="docutils literal notranslate"><span class="pre">verify</span> <span class="pre">--auto-fix</span></code>。</p>
+<p>关键在于：<code class="docutils literal notranslate"><span class="pre">verify</span></code> 在一秒以内跑完，并输出了机器可读的结果。把它接进 CI，
+例如 <code class="docutils literal notranslate"><span class="pre">wiki-cli</span> <span class="pre">verify</span> <span class="pre">|</span> <span class="pre">jq</span> <span class="pre">'.summary.total_issues'</span></code>，然后在这个数字上升时
+让构建失败，就是最自然的下一步。</p>
+<p><strong><code class="docutils literal notranslate"><span class="pre">build</span></code></strong> 会重建内存索引，以及那份供静态发布路径使用的 <code class="docutils literal notranslate"><span class="pre">INDEX.md</span></code>
+（第 7 章）：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ./backend/wiki-cli --wiki-dir=/tmp/book-appx-a/wiki build
+Build complete
+</pre></div>
+</div>
+<p><strong><code class="docutils literal notranslate"><span class="pre">status</span></code></strong> 会用 JSON 报告顶层健康指标：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ./backend/wiki-cli --wiki-dir=/tmp/book-appx-a/wiki status
+{
+  &quot;kind&quot;: &quot;kb&quot;,
+  &quot;wiki_root&quot;: &quot;/tmp/book-appx-a/wiki&quot;,
+  &quot;content_dir&quot;: &quot;/tmp/book-appx-a/wiki/content&quot;,
+  &quot;page_count&quot;: 10,
+  &quot;source_count&quot;: 0,
+  &quot;last_init&quot;: &quot;0001-01-01T00:00:00Z&quot;,
+  &quot;last_update&quot;: &quot;0001-01-01T00:00:00Z&quot;,
+  &quot;last_verify&quot;: &quot;0001-01-01T00:00:00Z&quot;,
+  &quot;last_build&quot;: &quot;0001-01-01T00:00:00Z&quot;,
+  &quot;wiki_base_url&quot;: &quot;http://localhost:8080&quot;,
+  &quot;git_available&quot;: false,
+  &quot;last_commit&quot;: &quot;&quot;
+}
+</pre></div>
+</div>
+<p>十页内容（模板里的七页 + 我们导入的三页），没有待处理的原始 sources。
+<code class="docutils literal notranslate"><span class="pre">git_available:</span> <span class="pre">false</span></code> 是因为 <code class="docutils literal notranslate"><span class="pre">/tmp/book-appx-a/wiki</span></code> 还不是一个 Git 仓库；
+如果你在里面跑一次 <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">init</span></code>，它就会变成 <code class="docutils literal notranslate"><span class="pre">true</span></code>，并解锁第 5 章里描述的
+auto-commit 行为。</p>
+<p><strong><code class="docutils literal notranslate"><span class="pre">serve</span></code></strong> 会针对同一棵树启动 HTTP 服务：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ./backend/wiki-cli --wiki-dir=/tmp/book-appx-a/wiki serve --port=7500
+# → http://localhost:7500
+#   pages listed at /api/v1/pages
+#   single page at /pages/{slug}
+#   search at /api/v1/search?q=&lt;tokens&gt;
+</pre></div>
+</div>
+<p>在浏览器里访问 <code class="docutils literal notranslate"><span class="pre">http://localhost:7500/pages/install</span></code>；来自
+<code class="docutils literal notranslate"><span class="pre">content/install.md</span></code> 的页面会被渲染出来，frontmatter 被隐藏，而 Markdown
+正文被转成 HTML。再请求
+<code class="docutils literal notranslate"><span class="pre">http://localhost:7500/api/v1/search?q=port</span></code>，第 7 章讲过的 tokenizer
+就会返回 <code class="docutils literal notranslate"><span class="pre">install</span></code> 页，以及任何预置页里提到 “port” 的内容，因为此时
+<code class="docutils literal notranslate"><span class="pre">content/</span></code> 下的一切都已经进入了内存索引的 postings list。</p>
+</section>
+<section id="git">
+<h3>阶段 3 —— 把它变成 Git 仓库<a class="headerlink" href="#git" title="Link to this heading">#</a></h3>
+<p>基于文件的 wiki 存在的根本理由，就是让你刚刚搭出来的一切都能像代码一样被版本化。
+只要两条命令：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd /tmp/book-appx-a/wiki
+$ git init -q &amp;&amp; git add -A &amp;&amp; git commit -q -m &quot;init: 3 imported pages&quot;
+$ git log --oneline
+4a1b2c3 init: 3 imported pages
+</pre></div>
+</div>
+<p>重新跑一遍 <code class="docutils literal notranslate"><span class="pre">status</span></code>，然后观察：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ./backend/wiki-cli --wiki-dir=/tmp/book-appx-a/wiki status | jq &#39;.git_available, .last_commit&#39;
+true
+&quot;4a1b2c34d5e6&quot;
+</pre></div>
+</div>
+<p>这个 wiki 现在会把 commit SHA 带进状态输出里；之后任何通过 API 的写操作，
+都会自动 commit，写出一条描述性 message，并把新的 commit SHA 写进受影响
+页面的 <code class="docutils literal notranslate"><span class="pre">frontmatter.commit</span></code> 字段。于是，第 5 章关于 where-provenance 的主张
+就变成了一个真正可运行的机制。</p>
+</section>
+</section>
+<section id="id7">
+<h2>示例<a class="headerlink" href="#id7" title="Link to this heading">#</a></h2>
+<p>把这次运行中产生的一个具体 artefact 再拿出来看一遍：</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># /tmp/book-appx-a/wiki/content/install.md (frontmatter only)</span>
+<span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">How to install the service</span>
+<span class="nt">slug</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">install</span>
+<span class="nt">summary</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|-</span>
+<span class="w">    </span><span class="no">Run `make build` and then `./bin/service --port 7500`. The binary</span>
+<span class="w">    </span><span class="no">listens on the given port, reads c</span>
+<span class="nt">created</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2026-04-17T21:26:55.152331Z</span>
+<span class="nt">created_by</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">human</span>
+<span class="nt">updated</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2026-04-17T21:26:55.152331Z</span>
+<span class="nt">status</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">published</span>
+<span class="nt">doc_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">reference</span><span class="w">          </span><span class="c1"># a smarter classifier would say how-to</span>
+<span class="nt">verification_status</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">unreviewed</span>
+<span class="nt">source</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">doc</span>
+<span class="w">    </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/tmp/book-appx-a/input/install.md</span>
+</pre></div>
+</div>
+<p>其中有七个字段编码了第 5 章的 provenance 记录。<code class="docutils literal notranslate"><span class="pre">verification_status:</span> <span class="pre">unreviewed</span></code> 是能在往返过程中稳定保留下来的默认信任状态。<code class="docutils literal notranslate"><span class="pre">source.path</span></code>
+携带了输入文件在磁盘上的精确位置。这里没有一项依赖数据库；也没有一项需要供应商。</p>
+</section>
+<section id="id8">
+<h2>结论<a class="headerlink" href="#id8" title="Link to this heading">#</a></h2>
+<p>第二部分的四章是在抽象层面讲文稿层；这个附录则证明了，这个抽象
+<strong>小到你能拿在手里</strong>。一个二进制、四个命令、三个输入文件，十五分钟后，
+你就有了一份可工作、可审计、可搜索、可发布的 wiki。</p>
+<p>有两点值得明确写出来：</p>
+<ol class="arabic simple">
+<li><p><strong>启发式分类器是一个特性，不是弱点。</strong> 它保证流水线能在 air-gapped
+环境中工作，让测试复现变得简单，并给出一个清晰的性能下限：LLM 分类器
+必须<strong>比它更好</strong>，才值得支付额外成本。</p></li>
+<li><p><strong>每一个阶段都向磁盘做了承诺。</strong> 这份 walkthrough 里没有任何东西只活在
+内存里。把服务关掉，把笔记本关机，明天再回来，这个 wiki 依然还在
+<code class="docutils literal notranslate"><span class="pre">/tmp/book-appx-a/wiki/</span></code> 里，依然有效，依然能在 Git 里被 review。</p></li>
+</ol>
+<p>从这里开始，本书会进入代码层。第三部分会把<strong>同样的文件式纪律</strong>
+应用到编译器知道的那部分世界：source tree 的 embeddings、代码图，
+以及让 AI 助手能够同时理解这个附录里的 prose 与它所描述代码的混合检索。</p>
+</section>
+<section id="id9">
+<h2>参考文献<a class="headerlink" href="#id9" title="Link to this heading">#</a></h2>
+<div class="docutils container" id="id10">
+<div role="list" class="citation-list">
+<div class="citation" id="id59" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>Tom B. Brown, Benjamin Mann, Nick Ryder, Melanie Subbiah, Jared Kaplan, Prafulla Dhariwal, Arvind Neelakantan, Pranav Shyam, and others. Language models are few-shot learners. <em>Advances in Neural Information Processing Systems</em>, 33:1877–1901, 2020. The paper that made LLM-as-classifier a practical option: a prompt replaces labelled training data.</p>
+</div>
+<div class="citation" id="id24" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></span>
+<p>Tom Christie and contributors. MkDocs: project documentation with Markdown. 2014–present. URL: <a class="reference external" href="https://www.mkdocs.org/">https://www.mkdocs.org/</a>.</p>
+</div>
+<div class="citation" id="id52" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></span>
+<p>Melvin E. Conway. How do committees invent? <em>Datamation</em>, 14(4):28–31, 1968. Origin of “Conway's law”: organisations produce systems whose structure mirrors their communication structure. The prose-layer equivalent is that documentation review follows the same communication lines as the code it describes.</p>
+</div>
+<div class="citation" id="id54" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></span>
+<p>W. Edwards Deming. <em>Out of the Crisis</em>. MIT Press, 1986. Formalised the Plan-Do-Check-Act cycle. Used in Chapter 7a to justify why the four-corner operational model is structurally complete: each corner answers one phase of PDCA applied to a prose-layer artefact.</p>
+</div>
+<div class="citation" id="id91" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></span>
+<p>Walter (Yamin) Fan. Project knowledge base skill: an opinionated operational model for software documentation. Self-published; private toolkit, 2026. Methodology and operational patterns developed by the author in parallel with this book; not publicly released. Cited throughout for the three-level update strategy, the PKB-metadata footer schema, the hard/soft verification-gate catalog, and the opinionated ten-page documentation set. Chapter prose adapts these ideas in the book's voice; command names and employer-internal infrastructure from the toolkit are deliberately omitted.</p>
+</div>
+<div class="citation" id="id50" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>6<span class="fn-bracket">]</span></span>
+<p>Gary Gruver and Tommy Mouser. <em>Starting and Scaling DevOps in the Enterprise</em>. BookBaby, 2016. Popularised the &quot;docs-as-code&quot; treatment of documentation as a first-class artefact of the software delivery pipeline.</p>
+</div>
+<div class="citation" id="id56" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></span>
+<p>John MacFarlane. Pandoc: a universal document converter. 2006–present. Defines the YAML metadata block convention adopted by most Markdown tooling. URL: <a class="reference external" href="https://pandoc.org/">https://pandoc.org/</a>.</p>
+</div>
+<div class="citation" id="id49" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>8<span class="fn-bracket">]</span></span>
+<p>John MacFarlane. Gitit: a wiki backed by a git, darcs, or mercurial filestore. 2008–present. Early demonstration that a wiki can be a plain Git repository. URL: <a class="github reference external" href="https://github.com/jgm/gitit">jgm/gitit</a>.</p>
+</div>
+<div class="citation" id="id53" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>9<span class="fn-bracket">]</span></span>
+<p>David L. Parnas. On the criteria to be used in decomposing systems into modules. <em>Communications of the ACM</em>, 15(12):1053–1058, 1972. Introduces information hiding. Extended to documentation in this book: a software KB should be decomposed so that prose and the code it describes share a review boundary. <a class="reference external" href="https://doi.org/10.1145/361598.361623">doi:10.1145/361598.361623</a>.</p>
+</div>
+<div class="citation" id="id58" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>10<span class="fn-bracket">]</span></span>
+<p>Alexander Ratner, Stephen H. Bach, Henry Ehrenberg, Jason Fries, Sen Wu, and Christopher Ré. Snorkel: rapid training data creation with weak supervision. <em>Proceedings of the VLDB Endowment</em>, 11(3):269–282, 2017. <a class="reference external" href="https://doi.org/10.14778/3157794.3157797">doi:10.14778/3157794.3157797</a>.</p>
+</div>
+<div class="citation" id="id57" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>11<span class="fn-bracket">]</span></span>
+<p>Wenpeng Yin, Jamaal Hay, and Dan Roth. Benchmarking zero-shot text classification: datasets, evaluation and entailment approach. In <em>Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing</em>, 3914–3923. 2019. <a class="reference external" href="https://doi.org/10.18653/v1/D19-1404">doi:10.18653/v1/D19-1404</a>.</p>
+</div>
+<div class="citation" id="id55" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>12<span class="fn-bracket">]</span></span>
+<p>Ben-Kiki, Oren and Evans, Clark and döt Net, Ingy. YAML ain't markup language (YAML) version 1.2. 2021. Specification of YAML, the serialisation format used for wiki frontmatter. URL: <a class="reference external" href="https://yaml.org/spec/1.2.2/">https://yaml.org/spec/1.2.2/</a>.</p>
+</div>
+<div class="citation" id="id61" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>13<span class="fn-bracket">]</span></span>
+<p>Couchbase, Inc. and Bleve contributors. Bleve: a modern text indexing library for Go. 2014–present. Embedded full-text search engine for Go applications — a natural scale-up target from the in-memory token index in \texttt index.go. URL: <a class="reference external" href="https://blevesearch.com/">https://blevesearch.com/</a>.</p>
+</div>
+<div class="citation" id="id47" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>14<span class="fn-bracket">]</span></span>
+<p>DokuWiki contributors. DokuWiki: a simple to use and highly versatile open source wiki software without a database. 2004–present. File-based wiki storing each page as a plain-text file on disk. URL: <a class="reference external" href="https://www.dokuwiki.org/">https://www.dokuwiki.org/</a>.</p>
+</div>
+<div class="citation" id="id65" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>15<span class="fn-bracket">]</span></span>
+<p>Executable Books Project. MyST-Parser: a sphinx and docutils extension to parse MyST, a rich and extensible flavour of Markdown. 2020–present. URL: <a class="reference external" href="https://myst-parser.readthedocs.io/">https://myst-parser.readthedocs.io/</a>.</p>
+</div>
+<div class="citation" id="id64" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>16<span class="fn-bracket">]</span></span>
+<p>Georg Brandl and Sphinx contributors. Sphinx: python documentation generator. 2008–present. The static publishing target used by the prose-layer reference implementation to render the prose layer. URL: <a class="reference external" href="https://www.sphinx-doc.org/">https://www.sphinx-doc.org/</a>.</p>
+</div>
+<div class="citation" id="id48" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>17<span class="fn-bracket">]</span></span>
+<p>MoinMoin contributors. MoinMoin wiki. 2000–present. Python-based file-backed wiki engine with page-per-file storage. URL: <a class="reference external" href="https://moinmo.in/">https://moinmo.in/</a>.</p>
+</div>
+<div class="citation" id="id23" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>18<span class="fn-bracket">]</span></span>
+<p>Obsidian.md. Obsidian: a knowledge base that works on local Markdown files. 2020–present. URL: <a class="reference external" href="https://obsidian.md/">https://obsidian.md/</a>.</p>
+</div>
+<div class="citation" id="id51" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>19<span class="fn-bracket">]</span></span>
+<p>Write the Docs community. Docs as code. n.d. Community reference page distilling the docs-as-code philosophy: plain-text sources, version control, reviews, CI. URL: <a class="reference external" href="https://www.writethedocs.org/guide/docs-as-code/">https://www.writethedocs.org/guide/docs-as-code/</a>.</p>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../part7-governance-and-outlook/ch32-outlook-and-open-problems.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">第 32 章 —— 展望与尚未解决的问题</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="appendix-b-example-code-kg.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">附录 B —— 示例：从一个 Go 仓库构建代码知识库</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 目录
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">为什么</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">是什么</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">怎么做</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">前置条件</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">阶段 1 —— 杂乱输入</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">阶段 2 —— 跑通六个动词</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#git">阶段 3 —— 把它变成 Git 仓库</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">示例</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">结论</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">参考文献</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+作者： Walter Fan
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright AI 辅助创作 2026, Walter Fan.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    <p class="last-updated">
+  最后更新于 2026-11-10.
+  <br/>
+</p>
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

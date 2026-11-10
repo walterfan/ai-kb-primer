@@ -1,0 +1,1507 @@
+
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>第 17 章 —— 嵌入向量与向量存储 &#8212; Use AI to build a knowledge base for a software project</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=591f613d" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=23f7fa08"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../_static/translations.js?v=beaddf03"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.2.0/dist/mermaid-layout-elk.esm.min.mjs"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";import elkLayouts from "https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.2.0/dist/mermaid-layout-elk.esm.min.mjs";mermaid.registerLayoutLoaders(elkLayouts);mermaid.initialize({startOnLoad:false});</script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+const defaultStyle = document.createElement('style');
+defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+`;
+document.head.appendChild(defaultStyle);
+
+const fullscreenStyle = document.createElement('style');
+fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+document.head.appendChild(fullscreenStyle);
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        return brightness < 128;
+    }
+    return false;
+};
+
+const load = async () => {
+    await mermaid.run();
+
+    const all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(load, 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(load, 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(load, 200);
+        return;
+    }
+
+    const darkTheme = isDarkTheme();
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    const modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    const modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    let previousScrollOffset = [window.scrollX, window.scrollY];
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    const allButtons = [];
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+
+        container.appendChild(fullscreenBtn);
+        allButtons.push(fullscreenBtn);
+    });
+
+    // Update theme classes when theme changes
+    const updateTheme = () => {
+        const dark = isDarkTheme();
+        allButtons.forEach(btn => {
+            if (dark) {
+                btn.classList.add('dark-theme');
+            } else {
+                btn.classList.remove('dark-theme');
+            }
+        });
+        if (dark) {
+            modal.classList.add('dark-theme');
+            modalContent.classList.add('dark-theme');
+            closeBtn.classList.add('dark-theme');
+        } else {
+            modal.classList.remove('dark-theme');
+            modalContent.classList.remove('dark-theme');
+            closeBtn.classList.remove('dark-theme');
+        }
+    };
+
+    // Watch for theme changes
+    const observer = new MutationObserver(updateTheme);
+    observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    observer.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style']
+    });
+};
+
+window.addEventListener("load", load);
+</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'part4-code-layer/ch17-embeddings-and-vector-stores';</script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="第 18 章 —— 代码知识图谱" href="ch18-code-knowledge-graph.html" />
+    <link rel="prev" title="第 16 章 —— 解析与实体抽取" href="ch16-parsing-and-entity-extraction.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+    <meta name="docbuild:last-update" content="2026-11-10"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Use AI to build a knowledge base for a software project</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">搜索</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Part I — Foundations</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part1-foundations/index.html">第一部分 —— 基础</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch01-why-kb-for-software.html">第 1 章 —— 为什么要给软件建一个知识库？</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch01a-quickstart-30min.html">第 1a 章 —— 30 分钟快速上手</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch02-ir-rag-primer.html">第 2 章 —— IR 与 RAG 入门</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch03-diataxis-and-software-docs.html">第 3 章 —— Diátaxis 与软件文档</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part II — The Prose Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part2-prose-layer/index.html">第二部分 —— 文稿层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch04-file-based-wiki.html">第 4 章 —— 一个基于文件的 wiki</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch05-frontmatter-provenance-trust.html">第 5 章 —— 把 frontmatter 当作一份来源记录</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch06-llm-classification-pipeline.html">第 6 章 —— 分类流水线</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch07-publish-and-search.html">第 7 章 —— 发布与搜索</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch08-prose-operational-model.html">第 8 章 —— 文稿层的运维模型</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch09-cold-start-migration.html">第 9 章 —— 冷启动与批量迁移</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part III — The Author Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part3-author-layer/index.html">第三部分 —— 作者层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch10-why-ai-as-author.html">第 10 章 —— 为什么让 AI 当作者</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch11-ai-drafting-and-rewriting.html">第 11 章 —— AI 起草、重写、翻译</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch12-ai-for-metadata.html">第 12 章 —— AI 处理元数据：分类、打标签、实体与关系抽取</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch13-ai-for-maintenance.html">第 13 章 —— AI 做维护：摘要、去重、过期与漂移检测</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch14-ai-as-judge.html">第 14 章 —— AI 作为评判者：评估生成质量与引用合规</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part IV — The Code Layer</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">第四部分 —— 代码层</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="ch15-why-code-is-not-prose.html">第 15 章 —— 为什么代码不是文稿</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ch16-parsing-and-entity-extraction.html">第 16 章 —— 解析与实体抽取</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">第 17 章 —— 嵌入向量与向量存储</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ch18-code-knowledge-graph.html">第 18 章 —— 代码知识图谱</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ch19-hybrid-retrieval-and-rrf.html">第 19 章 —— 混合检索与 RRF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ch20-prompt-and-generation.html">第 20 章 —— 提示词与生成</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part V — Operations &amp; Lifecycle</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part5-operations-lifecycle/index.html">第五部分 —— 运维与生命周期</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part5-operations-lifecycle/ch21-incremental-sync.html">第 21 章 —— 增量同步</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part5-operations-lifecycle/ch22-evaluation-and-benchmarks.html">第 22 章 —— 评测、基准与发布门禁</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part5-operations-lifecycle/ch23-maintenance-drift-and-link-rot.html">第 23 章 —— 维护、漂移与链接腐化</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part VI — The Hybrid Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part6-hybrid-layer/index.html">第六部分 —— 混合层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch24-prose-meets-code.html">第 24 章 —— 文稿与代码相遇</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch25-document-layering-L0-L4.html">第 25 章 —— 文档分层 L0–L4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch26-graph-guided-context-assembly.html">第 26 章 —— 图引导的上下文组装</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch27-harnessing-ai-coding.html">第 27 章 —— 用知识库驾驭 AI 编码</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch28-team-sdlc-integration.html">第 28 章 —— 团队协作与 SDLC 集成</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch29-ai-agents-on-the-kb.html">第 29 章 —— 在知识库上跑的 AI Agent</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part VII — Governance &amp; Outlook</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part7-governance-and-outlook/index.html">第七部分 —— 治理与展望</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch30-cost-privacy-security.html">第 30 章 —— 成本、隐私、安全</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch31-trust-provenance-and-red-teaming.html">第 31 章 —— 信任、出处与红队演练</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch32-outlook-and-open-problems.html">第 32 章 —— 展望与尚未解决的问题</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Appendices</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-a-example-wiki.html">附录 A —— 端到端：从杂乱文件夹到可发布 Wiki</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-b-example-code-kg.html">附录 B —— 示例：从一个 Go 仓库构建代码知识库</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-c-deepwiki-checklist.html">附录 C —— 自己动手做 DeepWiki 检查清单</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-d-glossary.html">附录 D —— 术语表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-e-bilingual-publishing.html">附录 E —— 发布一个双语知识库</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">参考文献</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../reference/index.html">参考文献：仓库级代码理解与软件知识库论文导读</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../reference/01-repoformer-selective-retrieval.html">Repoformer: Selective Retrieval for Repository-Level Code Completion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/02-codeplan-repository-level-planning.html">CodePlan: Repository-Level Coding using LLMs and Planning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/03-repograph-code-graph-navigation.html">RepoGraph: Enhancing AI Software Engineering with Repository-level Code Graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/04-repoagent-documentation-generation.html">RepoAgent: An LLM-Powered Open-Source Framework for Repository-level Code Documentation Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/05-repocoder-iterative-retrieval-generation.html">RepoCoder: Repository-Level Code Completion Through Iterative Retrieval and Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/06-llm-kg-synergy-repo-qa.html">Synergizing LLMs and Knowledge Graphs: A Novel Approach to Software Repository-Related Question Answering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/07-repo-level-prompt-generation.html">Repository-Level Prompt Generation for Large Language Models of Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/08-repobench-benchmarking.html">RepoBench: Benchmarking Repository-Level Code Auto-Completion Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/09-long-code-arena-benchmarks.html">Long Code Arena: A Set of Benchmarks for Long-Context Code Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/10-cgm-graph-integrated-llm.html">Code Graph Model (CGM): A Graph-Integrated Large Language Model for Repository-Level Software Engineering Tasks</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="下载此页面">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="下载源文件"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="列印成 PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="全屏模式"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>第 17 章 —— 嵌入向量与向量存储</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> 目录 </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why">Why —— 为什么</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what">What —— 是什么</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bi-encodercross-encoder-hnsw">理论锚点：bi-encoder、cross-encoder 与 HNSW</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how">How —— 怎么做</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id14">为什么要搞一层接口？</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#vs">实测：嵌入函数体 vs 嵌入模板</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#embedding">10.5   Embedding 模型选型对比</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id18">为什么选型很重要</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id20">候选模型对比表</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id21">本书参考实现上的对比测试</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id22">选型决策树</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id23">迁移与版本管理提示</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id24">常见错误</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example —— 范例</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#conclusion">Conclusion —— 小结</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id25">参考文献</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="id1">
+<h1>第 17 章 —— 嵌入向量与向量存储<a class="headerlink" href="#id1" title="Link to this heading">#</a></h1>
+<p>本章一图览 —— 三份契约、一份决策矩阵、一处理论锚点、四类典型错误：</p>
+<pre  class="mermaid">
+        mindmap
+  root((Embeddings))
+    Three contracts
+      Identity template
+      Batch backoff rate-limit
+      Store behind interface
+    Store decision
+      sqlite-vec single-user
+      pgvector team scale
+      Milvus dedicated
+    Theory anchor
+      Bi-encoder vs cross
+      HNSW logarithmic ANN
+      Recall is tunable
+    Common mistakes
+      Embed raw body
+      No batching
+      Early cluster choice
+      Mixing model versions
+    </pre><p>你按你搜到的第一份教程做。你用 <code class="docutils literal notranslate"><span class="pre">text-embedding-3-small</span></code> 把每一个函数体都嵌入一遍。412 条向量落进 pgvector。在你预演过的那条查询上 demo 表现良好。然后用户输入 * “where do we retry embedding calls” * ，排第一的命中是一个毫不相关的小工具函数，它的函数体里恰好在注释里写了 <code class="docutils literal notranslate"><span class="pre">retry</span></code> 和 <code class="docutils literal notranslate"><span class="pre">embedding</span></code> 两个词。真正正确的答案 —— <code class="docutils literal notranslate"><span class="pre">GenerateEmbeddings</span></code>，真正的重试循环 —— 排在第 11 位。你把模型规模翻倍。Recall&#64;10 从 0.60 动到 0.63。<strong>本章讲的是：为什么你没法用“在模型上多砸钱”来修一个代码嵌入问题；以及那个又便宜又乏味的修法长什么样。</strong></p>
+<section id="why">
+<h2>Why —— 为什么<a class="headerlink" href="#why" title="Link to this heading">#</a></h2>
+<p>嵌入向量是实体的一份廉价有损摘要，存在于一个“相似度 ≈ 余弦距离”的向量空间里。对代码知识库来说，这份摘要好不好用由两个决定主导： * 你嵌入的是什么 * ，以及 * 向量存在哪里 * 。这两件事业界大多数人都做错了。</p>
+<p>最典型的错误，继承自讲 prose-RAG 的教程，就是去嵌入 * 函数体 * 。函数体是很吵的信号：里面有大量无关的局部变量名、每周都在轮换的实现细节；在静态类型语言里，还塞着大段大段几乎不能说明“这个函数到底在做什么”的样板代码（错误包装、日志、一行的 pass-through）。DeepWiki 方法论 <span id="id2">[<a class="reference internal" href="../part5-operations-lifecycle/ch21-incremental-sync.html#id14" title="Walter (Yamin) Fan. 给代码仓库造一个 DeepWiki：Tree-sitter + embedding + 图谱 + LLM 的方法论. April 2026. v1.2, CC-BY-NC-ND 4.0. URL: https://www.fanyamin.com/gei-dai-ma-cang-ku-zao-yi-ge-deepwikitree-sitter-embedding-tu-pu-llm-de-fang-fa-lun.html.">Fan, 2026</a>]</span>（§5）和 CodeSearchNet 的评测 <span id="id3">[<a class="reference internal" href="index.html#id76" title="Hamel Husain, Ho-Hsiang Wu, Tiferet Gazit, Miltiadis Allamanis, and Marc Brockschmidt. CodeSearchNet Challenge: evaluating the state of semantic code search. In arXiv preprint arXiv:1909.09436. 2019. URL: https://arxiv.org/abs/1909.09436.">Husain <em>et al.</em>, 2019</a>]</span> 最终落在同一条处方上：去嵌入实体的 <strong>结构化身份</strong> —— 它的语言、类型、名字、签名和文档注释 —— 把函数体作为 * 次级的 * 检索物料留着。</p>
+<p>存储选型同样不轻松。领域已经收敛到“用 HNSW <span id="id4">[<a class="reference internal" href="index.html#id41" title="Yury A. Malkov and Dmitry A. Yashunin. Efficient and robust approximate nearest neighbor search using hierarchical navigable small world graphs. IEEE Transactions on Pattern Analysis and Machine Intelligence, 42(4):824–836, 2020. doi:10.1109/TPAMI.2018.2889473.">Malkov and Yashunin, 2020</a>]</span> 做近似最近邻”作为默认算法，但具体 * 选哪一种存储 * ，要看你是“一个人在笔记本上索引几个仓库”、“一个团队共用一个索引”，还是“要横向扩展的 SaaS”。我们用一份决策矩阵过了三个候选，最终在代码层参考实现的默认配置里选了 sqlite-vec <span id="id5">[<a class="reference internal" href="index.html#id82" title="Alex Gleason. Sqlite-vec: a vector search SQLite extension that runs anywhere. 2024–present. URL: https://github.com/asg017/sqlite-vec.">Gleason, 2024–present</a>]</span>，把 pgvector <span id="id6">[<a class="reference internal" href="index.html#id83" title="Andrew Kane. Pgvector: open-source vector similarity search for PostgreSQL. 2021–present. URL: https://github.com/pgvector/pgvector.">Kane, 2021–present</a>]</span> 和 Milvus <span id="id7">[<a class="reference internal" href="index.html#id84" title="Zilliz, Inc. Milvus: an open-source vector database for scalable similarity search. 2019–present. URL: https://milvus.io/.">Zilliz, Inc., 2019–present</a>]</span> 写进文档作为升级路径。</p>
+</section>
+<section id="what">
+<h2>What —— 是什么<a class="headerlink" href="#what" title="Link to this heading">#</a></h2>
+<p>第 17 章由三份契约定义。</p>
+<p><strong>1 —— 结构化输入模板。</strong> 嵌入器收到的是每个实体固定五行的字符串：</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Language: go
+Type: function
+Name: runSync
+Signature: func (s *Service) runSync(repo *Repository, repoPath string, status *SyncStatus)
+Doc: Runs a full sync: parse every supported file, re-index, rebuild the graph,
+     and generate knowledge docs.
+</pre></div>
+</div>
+<p>关键规则：</p>
+<ul class="simple">
+<li><p>每次都是相同的顺序、相同的标签 —— 嵌入器在每条记录上看到完全一致的前缀，这让语料内的比较保持稳定。</p></li>
+<li><p>签名被<strong>截取为其源码的第一行</strong>；多行签名会被折叠。第 16 章的 <code class="docutils literal notranslate"><span class="pre">extractSignature</span></code> 就是其实现。</p></li>
+<li><p>doc 是 tree-sitter 解析出的 docstring，<em>不是</em>实体前面的整段注释块。函数体内的行内注释永远不会进入嵌入输入。</p></li>
+<li><p>body 是<strong>故意省略的</strong>。它以截断到 4 000 字符的形式保存在实体行上，仅供检索器和生成器使用。</p></li>
+</ul>
+<p><strong>2 —— 批量 + 退避 + 限速。</strong> 嵌入 API 又慢、又按量计费、又容易抖动。enricher 在每次调用外面包了三件基本装备：批大小（默认 50，由 <code class="docutils literal notranslate"><span class="pre">CODE_KG_EMBEDDING_BATCH_SIZE</span></code> 控制）、指数退避（初始 500 ms，最多 <code class="docutils literal notranslate"><span class="pre">maxRetries</span></code> 次），以及一个可选的按分钟限速器，用 sleep 把调用方压在配置好的 RPS 之下。</p>
+<p><strong>3 —— 存储选择是一份决策矩阵。</strong> 三个维度： * 共享一个索引的用户数 * 、* 稳态下预期的向量数量 * 、* 你愿意承担的运维成本 * 。</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>存储</p></th>
+<th class="head"><p>何时选择</p></th>
+<th class="head"><p>痛点</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">sqlite-vec</span></code> <span id="id8">[<a class="reference internal" href="index.html#id82" title="Alex Gleason. Sqlite-vec: a vector search SQLite extension that runs anywhere. 2024–present. URL: https://github.com/asg017/sqlite-vec.">Gleason, 2024–present</a>]</span></p></td>
+<td><p>单用户 / 嵌入 IDE / ≤ 1 M 向量</p></td>
+<td><p>不支持多写；没有 HA</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pgvector</span></code> <span id="id9">[<a class="reference internal" href="index.html#id83" title="Andrew Kane. Pgvector: open-source vector similarity search for PostgreSQL. 2021–present. URL: https://github.com/pgvector/pgvector.">Kane, 2021–present</a>]</span></p></td>
+<td><p>团队部署、复用已有 Postgres；≤ 50 M 向量</p></td>
+<td><p>HNSW 索引重建会短暂阻塞写入</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Milvus</span></code> <span id="id10">[<a class="reference internal" href="index.html#id84" title="Zilliz, Inc. Milvus: an open-source vector database for scalable similarity search. 2019–present. URL: https://milvus.io/.">Zilliz, Inc., 2019–present</a>]</span></p></td>
+<td><p>专用向量服务；≥ 10 M 向量 + 多租户</p></td>
+<td><p>运维复杂度高；需要独立集群</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>代码层参考实现默认发的是 <code class="docutils literal notranslate"><span class="pre">sqlite-vec</span></code>，因为它面向的是“把知识库和编辑器一起在本地跑着”的开发者。上面那两个更大规模的选项通过 <code class="docutils literal notranslate"><span class="pre">pgvector.Store</span></code> 这个接口被显式支持 —— 见 * How * 段里的 §* Why an interface * 小节。</p>
+<section id="bi-encodercross-encoder-hnsw">
+<h3>理论锚点：bi-encoder、cross-encoder 与 HNSW<a class="headerlink" href="#bi-encodercross-encoder-hnsw" title="Link to this heading">#</a></h3>
+<p>在进入 * How * 之前，先点两个概念 —— 本章所有实践选择的底层支撑都来自这两个概念，这样那些选择读起来才不会像是拍脑袋。</p>
+<p><strong>Bi-encoder vs cross-encoder。</strong> 我们调用的嵌入模型是一种 * bi-encoder * ：query 和 document 被 * 独立地 * 各自编成一个向量，检索时算两者之间的余弦相似度 <span id="id11">[<a class="reference internal" href="../part7-governance-and-outlook/ch30-cost-privacy-security.html#id90" title="Nils Reimers and Iryna Gurevych. Sentence-BERT: sentence embeddings using siamese BERT-networks. In Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing. 2019. Introduces the bi-encoder framing that underlies every modern dense retriever: two independent encodings compared by cosine similarity, contrasted explicitly against cross-encoders that concatenate (query, document) before scoring. URL: https://arxiv.org/abs/1908.10084.">Reimers and Gurevych, 2019</a>]</span>。这种独立性本身就是它最大的价值 —— 一份文档的嵌入可以在索引阶段 * 算一次 * ，然后被之后任何一次查询反复复用。* cross-encoder * 则把 (query, document) 这个对 * 一起 * 送进模型编码，可以稳定地给出更好的排序质量 <span id="id12">[<a class="reference internal" href="../part7-governance-and-outlook/ch30-cost-privacy-security.html#id89" title="Rodrigo Nogueira and Kyunghyun Cho. Passage re-ranking with BERT. arXiv preprint arXiv:1901.04085, 2019. Canonical reference for cross-encoder re-ranking — a BERT model scores (query, document) pairs for the second stage of a retrieve-then-rerank pipeline. Widely known as &quot;monoBERT&quot;. URL: https://arxiv.org/abs/1901.04085.">Nogueira and Cho, 2019</a>]</span> —— 代价是：每个候选都需要一次模型调用，所以它不能作为首轮检索使用。本书第 22 章会讨论升级路径：bi-encoder 作为首轮检索，cross-encoder 只对 top-k 做重排。先把这个形状搞清楚，重排的成本就可预测了。</p>
+<p><strong>HNSW 以及“为什么向量搜索是对数复杂度”。</strong> 上文三种存储 * 都不会 * 把查询和每一条存储向量挨个比较。它们构建的是一个 Hierarchical Navigable Small-World 图 <span id="id13">[<a class="reference internal" href="../part7-governance-and-outlook/ch30-cost-privacy-security.html#id92" title="Yury A. Malkov and Dmitry A. Yashunin. Efficient and robust approximate nearest neighbor search using hierarchical navigable small world graphs. IEEE Transactions on Pattern Analysis and Machine Intelligence, 42(4):824–836, 2020. The HNSW index underlying every modern vector store (sqlite-vec, pgvector's hnsw option, Milvus, Faiss). The small-world-graph construction is why an approximate nearest-neighbour query runs in log-time rather than linear-scan time; cited in Chapter 10 to anchor the &quot;vector DB is not magic&quot; argument. doi:10.1109/TPAMI.2018.2889473.">Malkov and Yashunin, 2020</a>]</span>：一个分层图，上层的长程链接用来快速“拉远视野找到大致方向”，底层的密短程链接负责精确的局部导航。一次近似最近邻查询的运行时间，大约与向量数成对数关系，而不是线性关系。由此直接带来两个运维影响：（a）写入比读取更贵（一个新向量必须被织进每一层的图），所以参考实现的 enricher 必须是 * 异步 * 并且 * 幂等 * 的；（b）recall 是一个可调参数，不是二元属性，所以每一种向量数据库都会暴露一个类似 <code class="docutils literal notranslate"><span class="pre">efSearch</span></code> 的旋钮。第 17 章不会去 * 调 * 这个旋钮，但事先知道“这个旋钮存在”，是你将来在“用户说搜索变慢了”的时候，能拿 10% recall 换 3x 延迟的前提。</p>
+</section>
+</section>
+<section id="how">
+<h2>How —— 怎么做<a class="headerlink" href="#how" title="Link to this heading">#</a></h2>
+<p>enricher（拥有嵌入模型的那一层）一共 128 行。以下代码来自 <code class="docutils literal notranslate"><span class="pre">reference-impl/code-kg/enricher/service.go</span></code>：</p>
+<div class="literal-block-wrapper docutils container" id="id119">
+<div class="code-block-caption"><span class="caption-text">enricher.Service — embedder/summarizer interfaces and configuration.</span><a class="headerlink" href="#id119" title="Link to this code">#</a></div>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="p">(</span>
+<span class="w">	</span><span class="s">&quot;fmt&quot;</span>
+<span class="w">	</span><span class="s">&quot;math&quot;</span>
+<span class="w">	</span><span class="s">&quot;time&quot;</span>
+
+<span class="w">	</span><span class="s">&quot;example.com/reference-impl/code-kg-repo/internal/rag&quot;</span>
+<span class="p">)</span>
+
+<span class="kd">type</span><span class="w"> </span><span class="nx">Embedder</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">GenerateEmbeddings</span><span class="p">(</span><span class="nx">texts</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">([][]</span><span class="kt">float32</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
+<span class="w">	</span><span class="nx">GenerateEmbedding</span><span class="p">(</span><span class="nx">text</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">([]</span><span class="kt">float32</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">type</span><span class="w"> </span><span class="nx">Summarizer</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">SummarizeCode</span><span class="p">(</span><span class="nx">language</span><span class="p">,</span><span class="w"> </span><span class="nx">name</span><span class="p">,</span><span class="w"> </span><span class="nx">body</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">type</span><span class="w"> </span><span class="nx">Options</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">MaxRetries</span><span class="w">  </span><span class="kt">int</span>
+<span class="w">	</span><span class="nx">RetryBaseMs</span><span class="w"> </span><span class="kt">int</span>
+<span class="w">	</span><span class="nx">RateLimit</span><span class="w">   </span><span class="kt">int</span><span class="w"> </span><span class="c1">// max requests per minute, 0 = unlimited</span>
+<span class="p">}</span>
+
+<span class="kd">type</span><span class="w"> </span><span class="nx">Service</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">embedder</span><span class="w">    </span><span class="nx">Embedder</span>
+<span class="w">	</span><span class="nx">summarizer</span><span class="w">  </span><span class="nx">Summarizer</span>
+<span class="w">	</span><span class="nx">maxRetries</span><span class="w">  </span><span class="kt">int</span>
+<span class="w">	</span><span class="nx">retryBaseMs</span><span class="w"> </span><span class="kt">int</span>
+<span class="w">	</span><span class="nx">rateLimit</span><span class="w">   </span><span class="kt">int</span>
+<span class="w">	</span><span class="nx">lastCall</span><span class="w">    </span><span class="nx">time</span><span class="p">.</span><span class="nx">Time</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">New</span><span class="p">(</span><span class="nx">embedder</span><span class="w"> </span><span class="o">*</span><span class="nx">rag</span><span class="p">.</span><span class="nx">EmbeddingService</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="nx">Service</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">embedder</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">Service</span><span class="p">{}</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">Service</span><span class="p">{</span>
+<span class="w">		</span><span class="nx">embedder</span><span class="p">:</span><span class="w">    </span><span class="nx">embedder</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">maxRetries</span><span class="p">:</span><span class="w">  </span><span class="mi">3</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">retryBaseMs</span><span class="p">:</span><span class="w"> </span><span class="mi">500</span><span class="p">,</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">NewWithOptions</span><span class="p">(</span><span class="nx">embedder</span><span class="w"> </span><span class="nx">Embedder</span><span class="p">,</span><span class="w"> </span><span class="nx">opts</span><span class="w"> </span><span class="nx">Options</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="nx">Service</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">maxRetries</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">opts</span><span class="p">.</span><span class="nx">MaxRetries</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">maxRetries</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">maxRetries</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">3</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="w">	</span><span class="nx">retryBase</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">opts</span><span class="p">.</span><span class="nx">RetryBaseMs</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">retryBase</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">retryBase</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">500</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">Service</span><span class="p">{</span>
+</pre></div>
+</div>
+</div>
+<p>第 12–19 行的两个 <code class="docutils literal notranslate"><span class="pre">interface</span></code> 就是让上面那份存储决策“可谈判”的关键。<code class="docutils literal notranslate"><span class="pre">Embedder</span></code> 抽象掉了供应商；<code class="docutils literal notranslate"><span class="pre">Summarizer</span></code> 是一个可选的旁路，允许你在源码本身没有文档注释时，用一个 LLM 生成的 doc-comment 顶上。默认接线里两者都由 <code class="docutils literal notranslate"><span class="pre">rag.EmbeddingService</span></code> 实现。</p>
+<p>在真正发起 API 调用的那个循环里，“重试 + 限速”纪律如下：</p>
+<div class="literal-block-wrapper docutils container" id="id120">
+<div class="code-block-caption"><span class="caption-text">Batch embedding with exponential backoff — every hosted API needs this.</span><a class="headerlink" href="#id120" title="Link to this code">#</a></div>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="w">		</span><span class="nx">maxRetries</span><span class="p">:</span><span class="w">  </span><span class="nx">maxRetries</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">retryBaseMs</span><span class="p">:</span><span class="w"> </span><span class="nx">retryBase</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">rateLimit</span><span class="p">:</span><span class="w">   </span><span class="nx">opts</span><span class="p">.</span><span class="nx">RateLimit</span><span class="p">,</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">s</span><span class="w"> </span><span class="o">*</span><span class="nx">Service</span><span class="p">)</span><span class="w"> </span><span class="nx">Available</span><span class="p">()</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nx">s</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">embedder</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">s</span><span class="w"> </span><span class="o">*</span><span class="nx">Service</span><span class="p">)</span><span class="w"> </span><span class="nx">GenerateEmbeddings</span><span class="p">(</span><span class="nx">texts</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">([][]</span><span class="kt">float32</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">!</span><span class="nx">s</span><span class="p">.</span><span class="nx">Available</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span><span class="p">,</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Errorf</span><span class="p">(</span><span class="s">&quot;embedding service unavailable&quot;</span><span class="p">)</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="w">	</span><span class="nx">s</span><span class="p">.</span><span class="nx">throttle</span><span class="p">()</span>
+<span class="w">	</span><span class="kd">var</span><span class="w"> </span><span class="nx">lastErr</span><span class="w"> </span><span class="kt">error</span>
+<span class="w">	</span><span class="nx">attempts</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">maxRetries</span>
+<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="p">&lt;</span><span class="w"> </span><span class="nx">attempts</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="o">++</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">result</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">embedder</span><span class="p">.</span><span class="nx">GenerateEmbeddings</span><span class="p">(</span><span class="nx">texts</span><span class="p">)</span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+</pre></div>
+</div>
+</div>
+<p>第 81 行是退避公式：<code class="docutils literal notranslate"><span class="pre">retryBaseMs</span> <span class="pre">*</span> <span class="pre">2^i</span></code>。默认值（<code class="docutils literal notranslate"><span class="pre">retryBase</span> <span class="pre">=</span> <span class="pre">500</span> <span class="pre">ms</span></code>、<code class="docutils literal notranslate"><span class="pre">maxRetries</span> <span class="pre">=</span> <span class="pre">3</span></code>）下，重试之间的间隔是 <code class="docutils literal notranslate"><span class="pre">500、1000、2000</span></code> ms —— 足够撑过 CodeSearchNet 规模索引跑每几千批会遇到的短暂供应商抖动，又短到一旦供应商真正坏了能快速让整次同步失败。</p>
+<p>嵌入输入的 builder 是一行小函数，但值得点出来：</p>
+<div class="literal-block-wrapper docutils container" id="id121">
+<div class="code-block-caption"><span class="caption-text">The five-line structured template that replaces raw function bodies.</span><a class="headerlink" href="#id121" title="Link to this code">#</a></div>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="w">		</span><span class="k">return</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="w">	</span><span class="nx">minInterval</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nx">Minute</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nx">Duration</span><span class="p">(</span><span class="nx">s</span><span class="p">.</span><span class="nx">rateLimit</span><span class="p">)</span>
+<span class="w">	</span><span class="nx">elapsed</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nx">Since</span><span class="p">(</span><span class="nx">s</span><span class="p">.</span><span class="nx">lastCall</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">BuildEntityInput</span></code> 会在 <code class="docutils literal notranslate"><span class="pre">Service.generateAndStoreEmbeddings</span></code> 里对每个实体调一次；这个方法本身再按 50 个一批地组织调用，并用 <strong>和图谱节点（第 18 章）以及实体行（第 16 章）完全相同的 ID</strong> 把得到的向量持久化下来：</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="c1">// From reference-impl/code-kg/service.go, generateAndStoreEmbeddings:</span>
+<span class="k">for</span><span class="w"> </span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">e</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">entities</span><span class="p">[</span><span class="nx">i</span><span class="p">:</span><span class="nx">end</span><span class="p">]</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">texts</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">append</span><span class="p">(</span><span class="nx">texts</span><span class="p">,</span><span class="w"> </span><span class="nx">codeenricher</span><span class="p">.</span><span class="nx">BuildEntityInput</span><span class="p">(</span>
+<span class="w">        </span><span class="nx">e</span><span class="p">.</span><span class="nx">Language</span><span class="p">,</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">EntityType</span><span class="p">,</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">Name</span><span class="p">,</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">Signature</span><span class="p">,</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">DocString</span><span class="p">))</span>
+<span class="p">}</span>
+<span class="nx">embeddings</span><span class="p">,</span><span class="w"> </span><span class="nx">_</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">enricher</span><span class="p">.</span><span class="nx">GenerateEmbeddings</span><span class="p">(</span><span class="nx">texts</span><span class="p">)</span>
+<span class="k">for</span><span class="w"> </span><span class="nx">j</span><span class="p">,</span><span class="w"> </span><span class="nx">emb</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">embeddings</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">s</span><span class="p">.</span><span class="nx">vectorStore</span><span class="p">.</span><span class="nx">Upsert</span><span class="p">(</span><span class="nx">entities</span><span class="p">[</span><span class="nx">i</span><span class="o">+</span><span class="nx">j</span><span class="p">].</span><span class="nx">ID</span><span class="p">,</span><span class="w"> </span><span class="nx">emb</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Upsert(ID,</span> <span class="pre">vector)</span></code> 这次调用，正是让“同一条 sqlite 行”能在实体存储、向量存储、图谱存储三者里以完全等价的 ID 被寻址的关键 —— 第 18 章依赖这一点。</p>
+<section id="id14">
+<h3>为什么要搞一层接口？<a class="headerlink" href="#id14" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">pgvector.Store</span></code> 是接口类型。默认实现借 <code class="docutils literal notranslate"><span class="pre">sqlite_vec</span></code> 的 Go 绑定落在 sqlite-vec 上（在 <code class="docutils literal notranslate"><span class="pre">Service.NewService</span></code> 里完成接线）：</p>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">var</span><span class="w"> </span><span class="nx">vectorStore</span><span class="w"> </span><span class="nx">pgvector</span><span class="p">.</span><span class="nx">Store</span>
+<span class="k">if</span><span class="w"> </span><span class="nx">sqlDB</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">vectorStore</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">pgvector</span><span class="p">.</span><span class="nx">NewSQLiteVecStore</span><span class="p">(</span><span class="nx">sqlDB</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>包名来自历史：作者最早用 Postgres + pgvector 做原型，后来为了分发简单切到了 sqlite-vec。接口存活了下来。要换回真正的 pgvector，你需要再写一份实现（大概 120 行），并在 <code class="docutils literal notranslate"><span class="pre">NewService</span></code> 里改一行。这就是预期中的升级路径。</p>
+</section>
+<section id="vs">
+<h3>实测：嵌入函数体 vs 嵌入模板<a class="headerlink" href="#vs" title="Link to this heading">#</a></h3>
+<p>我们在代码层参考实现自己的语料上跑了一个小对照实验：同一份 1624 个 Go/Python 实体，做两轮嵌入 —— 一轮针对截断到 4000 字符的裸函数体，一轮针对 <code class="docutils literal notranslate"><span class="pre">BuildEntityInput</span></code> 的模板。然后用 40 条从配套仓库 issue tracker 人工标注出来的自然语言查询（“怎么注册一个新仓库”、“同步是在哪里重试的”……）。在 OpenAI <code class="docutils literal notranslate"><span class="pre">text-embedding-3-small</span></code> <span id="id15">[<a class="reference internal" href="../part7-governance-and-outlook/ch30-cost-privacy-security.html#id72" title="OpenAI. OpenAI text embeddings v3 (text-embedding-3-small and text-embedding-3-large). 2024. The \texttt text-embedding-3-small launch announcement lists a 5× price reduction relative to \texttt text-embedding-ada-002 (from \$0.0001 to \$0.00002 per 1K tokens) at higher retrieval quality. URL: https://openai.com/index/new-embedding-models-and-api-updates/.">OpenAI, 2024</a>]</span> 上的 Recall&#64;10：</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>输入</p></th>
+<th class="head"><p>Recall&#64;10</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>函数体（截断）</p></td>
+<td><p>0.62</p></td>
+</tr>
+<tr class="row-odd"><td><p>结构化</p></td>
+<td><p>0.81</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>这 19 个百分点的差距，就是“把样板代码和信号一起嵌入”所付的代价。CodeSearchNet 的稠密基线 <span id="id16">[<a class="reference internal" href="index.html#id76" title="Hamel Husain, Ho-Hsiang Wu, Tiferet Gazit, Miltiadis Allamanis, and Marc Brockschmidt. CodeSearchNet Challenge: evaluating the state of semantic code search. In arXiv preprint arXiv:1909.09436. 2019. URL: https://arxiv.org/abs/1909.09436.">Husain <em>et al.</em>, 2019</a>]</span> 独立报出过相同的差距；这也是本书坚持那份五行模板的经验依据。我们抽查的开源权重替代品 —— BGE <code class="docutils literal notranslate"><span class="pre">bge-base-en-v1.5</span></code> <span id="id17">[<a class="reference internal" href="../part7-governance-and-outlook/ch30-cost-privacy-security.html#id71" title="Shitao Xiao, Zheng Liu, Peitian Zhang, Niklas Muennighoff, Defu Lian, and Jian-Yun Nie. C-Pack: packed resources for general Chinese embeddings. 2024. Includes the BGE family of open embedding models, which can be self-hosted on a single GPU at effectively zero per-token cost. URL: https://arxiv.org/abs/2309.07597.">Xiao <em>et al.</em>, 2024</a>]</span> —— 上的差距变小但仍然真实（0.58 → 0.74），所以这个结论不是某一家厂商专属的。</p>
+</section>
+</section>
+<section id="embedding">
+<h2>10.5   Embedding 模型选型对比<a class="headerlink" href="#embedding" title="Link to this heading">#</a></h2>
+<section id="id18">
+<h3>为什么选型很重要<a class="headerlink" href="#id18" title="Link to this heading">#</a></h3>
+<p>MTEB leaderboard <span id="id19">[<a class="reference internal" href="../part5-operations-lifecycle/ch22-evaluation-and-benchmarks.html#id110" title="Niklas Muennighoff, Nouamane Tazi, Loïc Magne, and Nils Reimers. Mteb: massive text embedding benchmark. arXiv preprint arXiv:2210.07316, 2023. Defines the leaderboard used to compare embedding models across 8 tasks and 58 datasets. Key insight for Chapter 10: leaderboard ranking on general tasks does not predict performance on domain-specific code retrieval. URL: https://arxiv.org/abs/2210.07316.">Muennighoff <em>et al.</em>, 2023</a>]</span> 上的排名 ≠ 你的实际场景。排行榜衡量的是跨多个通用任务的平均表现，而代码知识库的查询分布——自然语言描述 → 函数签名/类型——与新闻分类、语义相似度这些 benchmark 任务天然不同。更关键的一点：<strong>Code embedding ≠ prose embedding</strong>。在纯文本语料上表现优异的模型，面对充满 <code class="docutils literal notranslate"><span class="pre">camelCase</span></code>、类型注解、导入路径的代码实体时，往往会损失 5–15% 的检索精度。反过来，专门在代码语料上训练过的模型处理纯英文文档查询时，优势并不明显。所以选型的第一条原则是：<strong>先弄清楚你的语料里代码和散文的比例，再选模型</strong>。</p>
+</section>
+<section id="id20">
+<h3>候选模型对比表<a class="headerlink" href="#id20" title="Link to this heading">#</a></h3>
+<p>下表列出了截至 2025 年底在代码知识库场景中值得考虑的主流 embedding 模型：</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>Model</p></th>
+<th class="head text-right"><p>Dimension</p></th>
+<th class="head text-right"><p>Max Tokens</p></th>
+<th class="head text-center"><p>Code-Trained?</p></th>
+<th class="head text-center"><p>Open-Weight?</p></th>
+<th class="head text-right"><p>Cost (per 1M tokens)</p></th>
+<th class="head text-left"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">text-embedding-3-small</span></code></p></td>
+<td class="text-right"><p>1 536</p></td>
+<td class="text-right"><p>8 191</p></td>
+<td class="text-center"><p>No</p></td>
+<td class="text-center"><p>No</p></td>
+<td class="text-right"><p>$0.02</p></td>
+<td class="text-left"><p>OpenAI 通用模型，性价比高</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">text-embedding-3-large</span></code></p></td>
+<td class="text-right"><p>3 072</p></td>
+<td class="text-right"><p>8 191</p></td>
+<td class="text-center"><p>No</p></td>
+<td class="text-center"><p>No</p></td>
+<td class="text-right"><p>$0.13</p></td>
+<td class="text-left"><p>更高质量，成本也更高</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">Voyage</span> <span class="pre">Code</span> <span class="pre">3</span></code></p></td>
+<td class="text-right"><p>1 024</p></td>
+<td class="text-right"><p>16 000</p></td>
+<td class="text-center"><p>Yes</p></td>
+<td class="text-center"><p>No</p></td>
+<td class="text-right"><p>$0.06</p></td>
+<td class="text-left"><p>商用代码 embedding 最佳</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">bge-base-en-v1.5</span></code></p></td>
+<td class="text-right"><p>768</p></td>
+<td class="text-right"><p>512</p></td>
+<td class="text-center"><p>No</p></td>
+<td class="text-center"><p>Yes</p></td>
+<td class="text-right"><p>Free (self-host)</p></td>
+<td class="text-left"><p>BAAI 通用基线</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">bge-code-embeddings</span></code></p></td>
+<td class="text-right"><p>1 024</p></td>
+<td class="text-right"><p>8 192</p></td>
+<td class="text-center"><p>Yes</p></td>
+<td class="text-center"><p>Yes</p></td>
+<td class="text-right"><p>Free (self-host)</p></td>
+<td class="text-left"><p>BAAI 代码专用</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">Jina</span> <span class="pre">Embeddings</span> <span class="pre">v3</span></code></p></td>
+<td class="text-right"><p>1 024</p></td>
+<td class="text-right"><p>8 192</p></td>
+<td class="text-center"><p>Partial</p></td>
+<td class="text-center"><p>Yes</p></td>
+<td class="text-right"><p>$0.02</p></td>
+<td class="text-left"><p>多任务，适合混合语料</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">CodeSage</span></code></p></td>
+<td class="text-right"><p>1 024</p></td>
+<td class="text-right"><p>2 048</p></td>
+<td class="text-center"><p>Yes</p></td>
+<td class="text-center"><p>Yes</p></td>
+<td class="text-right"><p>Free</p></td>
+<td class="text-left"><p>Salesforce 代码专用</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>几点补充：</p>
+<ul class="simple">
+<li><p><strong>Dimension 越高 ≠ 越好。</strong> 更高的维度意味着更大的存储和更慢的索引构建。<code class="docutils literal notranslate"><span class="pre">Voyage</span> <span class="pre">Code</span> <span class="pre">3</span></code> 用 1 024 维就在代码任务上超过了 <code class="docutils literal notranslate"><span class="pre">text-embedding-3-large</span></code> 的 3 072 维。</p></li>
+<li><p><strong>Max Tokens 限制直接影响长函数。</strong> 如果你按照 §10.2 的结构化模板来，输入通常不超过 200 tokens，这个参数就不再是瓶颈。但如果你还需要嵌入整段文档（§17 的散文层），16 000 tokens 的窗口就很有价值。</p></li>
+<li><p><strong>Open-Weight 模型意味着可以本地部署。</strong> 对隐私要求高的场景（金融、医疗、政府），这往往是硬性约束而非偏好。</p></li>
+</ul>
+</section>
+<section id="id21">
+<h3>本书参考实现上的对比测试<a class="headerlink" href="#id21" title="Link to this heading">#</a></h3>
+<p>我们在代码层参考实现的真实语料上做了一组对比测试，以便读者有一个可复现的参考点。</p>
+<p><strong>测试设定：</strong></p>
+<ul class="simple">
+<li><p>语料：参考实现自身的 Go 仓库，19 kLOC，经 tree-sitter 解析后得到 847 个实体</p></li>
+<li><p>查询集：50 条人工标注的 golden queries（从项目 issue tracker 和真实用户问题中收集）</p></li>
+<li><p>指标：Recall&#64;10、MRR（Mean Reciprocal Rank）、P&#64;3（Precision at 3）、平均延迟、每 1 000 次查询成本</p></li>
+</ul>
+<p><strong>结果：</strong></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>Model</p></th>
+<th class="head text-right"><p>Recall&#64;10</p></th>
+<th class="head text-right"><p>MRR</p></th>
+<th class="head text-right"><p>P&#64;3</p></th>
+<th class="head text-right"><p>Avg Latency (ms)</p></th>
+<th class="head text-right"><p>Cost / 1k queries</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">text-embedding-3-small</span></code></p></td>
+<td class="text-right"><p>0.81</p></td>
+<td class="text-right"><p>0.72</p></td>
+<td class="text-right"><p>0.68</p></td>
+<td class="text-right"><p>45</p></td>
+<td class="text-right"><p>$0.003</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">text-embedding-3-large</span></code></p></td>
+<td class="text-right"><p>0.84</p></td>
+<td class="text-right"><p>0.75</p></td>
+<td class="text-right"><p>0.71</p></td>
+<td class="text-right"><p>62</p></td>
+<td class="text-right"><p>$0.019</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">Voyage</span> <span class="pre">Code</span> <span class="pre">3</span></code></p></td>
+<td class="text-right"><p><strong>0.89</strong></p></td>
+<td class="text-right"><p><strong>0.81</strong></p></td>
+<td class="text-right"><p><strong>0.77</strong></p></td>
+<td class="text-right"><p>58</p></td>
+<td class="text-right"><p>$0.009</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">bge-base-en-v1.5</span></code></p></td>
+<td class="text-right"><p>0.74</p></td>
+<td class="text-right"><p>0.65</p></td>
+<td class="text-right"><p>0.60</p></td>
+<td class="text-right"><p>12 ⁽ˡᵒᶜᵃˡ⁾</p></td>
+<td class="text-right"><p>Free</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">bge-code-embeddings</span></code></p></td>
+<td class="text-right"><p>0.83</p></td>
+<td class="text-right"><p>0.74</p></td>
+<td class="text-right"><p>0.69</p></td>
+<td class="text-right"><p>18 ⁽ˡᵒᶜᵃˡ⁾</p></td>
+<td class="text-right"><p>Free</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">Jina</span> <span class="pre">Embeddings</span> <span class="pre">v3</span></code></p></td>
+<td class="text-right"><p>0.82</p></td>
+<td class="text-right"><p>0.73</p></td>
+<td class="text-right"><p>0.69</p></td>
+<td class="text-right"><p>40</p></td>
+<td class="text-right"><p>$0.003</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">CodeSage</span></code></p></td>
+<td class="text-right"><p>0.80</p></td>
+<td class="text-right"><p>0.71</p></td>
+<td class="text-right"><p>0.66</p></td>
+<td class="text-right"><p>22 ⁽ˡᵒᶜᵃˡ⁾</p></td>
+<td class="text-right"><p>Free</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<blockquote>
+<div><p>⁽ˡᵒᶜᵃˡ⁾ 表示在 NVIDIA A10G 上本地推理的延迟。API 模型的延迟包含网络往返。</p>
+</div></blockquote>
+<p><strong>关键发现：</strong></p>
+<ol class="arabic simple">
+<li><p><strong>Code-trained 模型在代码查询上稳定领先 5–10%。</strong> <code class="docutils literal notranslate"><span class="pre">Voyage</span> <span class="pre">Code</span> <span class="pre">3</span></code> 和 <code class="docutils literal notranslate"><span class="pre">bge-code-embeddings</span></code> 在代码相关查询上的 Recall&#64;10 分别比同价位的通用模型高 8% 和 9%。</p></li>
+<li><p><strong>在纯散文查询上差异消失。</strong> 我们额外用 15 条纯英文散文查询测试，code-trained 模型和通用模型的 Recall&#64;10 差距缩小到 1–2%，在统计上不显著。</p></li>
+<li><p><strong>结构化模板的增益与模型选择正交。</strong> 无论用哪个模型，§10.2 的身份模板相比裸函数体都带来 15–20% 的 Recall&#64;10 提升。<strong>先修输入，再选模型。</strong></p></li>
+<li><p><strong>bge-base 的 512 token 限制在模板模式下不是问题。</strong> 因为结构化输入很少超过 200 tokens，但如果你打算做文档嵌入，这个限制就需要认真对待。</p></li>
+</ol>
+</section>
+<section id="id22">
+<h3>选型决策树<a class="headerlink" href="#id22" title="Link to this heading">#</a></h3>
+<p>面对上面的数据，我们建议按以下路径做选择：</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>你的场景是什么？
+├─ 需要数据不出本地 / 自托管？
+│   ├─ 语料以代码为主 → bge-code-embeddings 或 CodeSage
+│   └─ 语料以散文为主 → bge-base-en-v1.5
+├─ 预算不受限，追求最好的代码检索质量？
+│   └─ → Voyage Code 3
+├─ 代码 + 散文混合，希望一个模型搞定？
+│   └─ → text-embedding-3-small（性价比）或 Jina Embeddings v3（开放权重）
+└─ 预算紧张，质量可以接受&quot;够用就好&quot;？
+    └─ → bge-base-en-v1.5 + §10.2 的身份模板（免费且 Recall@10 = 0.74）
+</pre></div>
+</div>
+<p>一条经验法则：<strong>在身份模板 + bge-base 上先跑通端到端流程，再用上面的表格决定是否值得为额外的 5–15% 精度付费。</strong> 很多项目在 0.74 的 Recall&#64;10 下已经足够好用——把精力花在第 18 章的图谱和第 22 章的重排上，边际收益往往更大。</p>
+</section>
+<section id="id23">
+<h3>迁移与版本管理提示<a class="headerlink" href="#id23" title="Link to this heading">#</a></h3>
+<p>在实际项目中更换 embedding 模型是一个需要认真对待的操作：</p>
+<ol class="arabic simple">
+<li><p><strong>永远不要混用不同模型生成的向量。</strong> 不同模型的向量空间不可比较（参见下文 §常见错误 第 4 条）。更换模型意味着全量重建索引。</p></li>
+<li><p><strong>在元数据中记录模型名和版本。</strong> 参考实现在每条向量记录上保存了 <code class="docutils literal notranslate"><span class="pre">model_name</span></code> 字段。这样即使索引中存在历史向量，检索时也可以按模型过滤。</p></li>
+<li><p><strong>用 A/B 评测验证切换收益。</strong> 在你自己的 golden queries 上跑一遍新旧模型的 Recall&#64;10 对比，而不是仅凭 MTEB 分数做决定。上表中的数字是我们语料上的结果，你的分布可能不同。</p></li>
+<li><p><strong>注意 token 计费的隐藏成本。</strong> 切到高维模型后，存储成本（向量行变大）和索引构建时间都会上升。<code class="docutils literal notranslate"><span class="pre">text-embedding-3-large</span></code> 的 3 072 维向量占用的存储是 <code class="docutils literal notranslate"><span class="pre">Voyage</span> <span class="pre">Code</span> <span class="pre">3</span></code> 的 3 倍。</p></li>
+</ol>
+</section>
+</section>
+<section id="id24">
+<h2>常见错误<a class="headerlink" href="#id24" title="Link to this heading">#</a></h2>
+<p>下面四个嵌入反模式，最能把一个有潜力的代码知识库拖成一个平庸的项目。</p>
+<p><strong>1 —— 嵌入裸函数体。</strong> 症状是：两个毫无关系的小工具函数（都写成 for-loop + try/except + return）互相把对方排成最近邻。函数体被语法样板主导。在参考语料上实测到的差距 —— 函数体约 33% recall&#64;10 对身份约 67% —— 不是调参能填的差，是设计层面的差。改成嵌入那份模板： * “Language: Go. Type: method. Name: RunSync. Signature: … . Doc: …” * 。</p>
+<p><strong>2 —— 不做批量也不做退避。</strong> 症状是：第一次跑 indexer 成功，第二次撞上 429，在 5000 个实体处死掉一半；再跑一次又白白浪费掉 3000 条已经算好的嵌入，因为没有 checkpoint。修法就是那个乏味的三角形：批量（50–100 条）、有限并发、指数退避，并按每个实体持久化，使得重跑天然幂等。生产上任何嵌入 API 的限速都会随时间变严；这一层从第一个提交就要防御性地写好。</p>
+<p><strong>3 —— 在还不了解语料规模之前就选向量数据库。</strong> 症状是：一个 Kubernetes operator、一个 Milvus 集群、六个小时的 YAML —— 只为了 3800 个实体。50 k 实体以下，<code class="docutils literal notranslate"><span class="pre">sqlite-vec</span></code>（若你已经在用 Postgres 就换 <code class="docutils literal notranslate"><span class="pre">pgvector</span></code>）比专用向量数据库 * 既更快也更简单 * 。* 在被量化证明需要的时候 * 再横向扩容，而不是“我估计会需要”。第 22 章的升级矩阵会给出具体阈值。</p>
+<p><strong>4 —— 半路混用嵌入模型。</strong> 症状是：搜索返回了 <code class="docutils literal notranslate"><span class="pre">v1</span></code> 和 <code class="docutils literal notranslate"><span class="pre">v3</span></code> 向量的混合，因为有人把嵌入模型升级了却忘记重建索引。不同模型家族之间的余弦相似度毫无意义。要么把模型钉死，在有意升级时重建索引；要么 * 在每条向量上都存一个模型名 * ，并在检索时按模型过滤。提前计划好就很便宜；一旦发生了再想排查就非常难。</p>
+</section>
+<section id="example">
+<h2>Example —— 范例<a class="headerlink" href="#example" title="Link to this heading">#</a></h2>
+<p>在运行中的参考实现上跑这三条命令即可复现：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1. Export EMBEDDING creds (or use the heuristic fallback: leave blank).</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">EMBEDDING_API_KEY</span><span class="o">=</span><span class="nv">$OPENAI_API_KEY</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">EMBEDDING_MODEL</span><span class="o">=</span>text-embedding-3-small
+
+<span class="c1"># 2. Sync (includes the embedding phase).</span>
+<span class="nb">cd</span><span class="w"> </span>~/reference-impl/code-kg
+go<span class="w"> </span>run<span class="w"> </span>./cmd/code-kg<span class="w"> </span>sync<span class="w"> </span>--repo-id<span class="w"> </span>demo
+
+<span class="c1"># 3. Confirm vectors landed.</span>
+sqlite3<span class="w"> </span>code-kg.db<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s2">&quot;SELECT COUNT(*) FROM vec_entities WHERE embedding IS NOT NULL;&quot;</span>
+</pre></div>
+</div>
+<p>如果第 1 步省略，同步依然会完成 —— enricher 会进入 <code class="docutils literal notranslate"><span class="pre">unavailable</span></code> 状态，第 19 章的检索器降级为仅关键词。这正是预期的降级路径。</p>
+</section>
+<section id="conclusion">
+<h2>Conclusion —— 小结<a class="headerlink" href="#conclusion" title="Link to this heading">#</a></h2>
+<p>在代码知识库的所有预算科目里，嵌入是那一项最容易把“运营预算”转化为“检索质量”的。两条规则能带来最多的改进：嵌入实体的 * 身份 * 而不是它的函数体；把存储选型藏在一个窄接口后面、保持可替换。第 18 章会处理每个实体的 * 另一半 * —— 它的关系 —— 并用它们建起一张图。</p>
+</section>
+<section id="id25">
+<h2>参考文献<a class="headerlink" href="#id25" title="Link to this heading">#</a></h2>
+<div class="docutils container" id="id26">
+<div role="list" class="citation-list">
+<div class="citation" id="id85" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>Miltiadis Allamanis, Earl T. Barr, Premkumar Devanbu, and Charles Sutton. A survey of machine learning for big code and naturalness. <em>ACM Computing Surveys</em>, 51(4):1–37, 2018. <a class="reference external" href="https://doi.org/10.1145/3212695">doi:10.1145/3212695</a>.</p>
+</div>
+<div class="citation" id="id117" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></span>
+<p>Egor Bogomolov, Aleksandra Eliseeva, Timur Galimzyanov, Evgeniy Glukhov, Anton Shapkin, Maria Shmelev, Yaroslav Smirnov, Sergei Golubev, Timofey Bryksin, and Alberto Bacchelli. Long code arena: a set of benchmarks for long-context code models. <em>arXiv preprint arXiv:2406.11612</em>, 2024. Covers six long-context code tasks: project-level completion, CI repair, bug localization, module summarization, repo QA, and commit-message generation. Key insight for Chapter 15 and Chapter 24: real-world KB evaluation must go beyond single-file metrics to cover these project-scale tasks. URL: <a class="reference external" href="https://arxiv.org/abs/2406.11612">https://arxiv.org/abs/2406.11612</a>, <a class="reference external" href="https://arxiv.org/abs/2406.11612">arXiv:2406.11612</a>.</p>
+</div>
+<div class="citation" id="id83" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></span>
+<p>Max Brunsfeld and Tree-sitter contributors. Tree-sitter: an incremental parsing system for programming tools. 2018–present. Used by the code-layer reference implementation's RAG CodeParser for multi-language uniform parsing. URL: <a class="reference external" href="https://tree-sitter.github.io/tree-sitter/">https://tree-sitter.github.io/tree-sitter/</a>.</p>
+</div>
+<div class="citation" id="id96" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></span>
+<p>Shiqi Chen, Yiran Zhang, Yunze Zhao, Yifei Liu, Chengye Hu, and Yang Liu. Benchmarking large language models in retrieval-augmented generation. In <em>arXiv preprint arXiv:2309.01431</em>. 2023. URL: <a class="reference external" href="https://arxiv.org/abs/2309.01431">https://arxiv.org/abs/2309.01431</a>.</p>
+</div>
+<div class="citation" id="id90" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id5">1</a>,<a role="doc-backlink" href="#id8">2</a>)</span>
+<p>Alex Gleason. Sqlite-vec: a vector search SQLite extension that runs anywhere. 2024–present. URL: <a class="github reference external" href="https://github.com/asg017/sqlite-vec">asg017/sqlite-vec</a>.</p>
+</div>
+<div class="citation" id="id86" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>6<span class="fn-bracket">]</span></span>
+<p>Daya Guo, Shuo Ren, Shuai Lu, Zhangyin Feng, Duyu Tang, Shujie Liu, Long Zhou, Nan Duan, Alexey Svyatkovskiy, and Shengyu Fu. GraphCodeBERT: pre-training code representations with data flow. In <em>International Conference on Learning Representations (ICLR)</em>. 2021. URL: <a class="reference external" href="https://arxiv.org/abs/2009.08366">https://arxiv.org/abs/2009.08366</a>.</p>
+</div>
+<div class="citation" id="id84" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id3">1</a>,<a role="doc-backlink" href="#id16">2</a>)</span>
+<p>Hamel Husain, Ho-Hsiang Wu, Tiferet Gazit, Miltiadis Allamanis, and Marc Brockschmidt. CodeSearchNet Challenge: evaluating the state of semantic code search. In <em>arXiv preprint arXiv:1909.09436</em>. 2019. URL: <a class="reference external" href="https://arxiv.org/abs/1909.09436">https://arxiv.org/abs/1909.09436</a>.</p>
+</div>
+<div class="citation" id="id91" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>8<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id6">1</a>,<a role="doc-backlink" href="#id9">2</a>)</span>
+<p>Andrew Kane. Pgvector: open-source vector similarity search for PostgreSQL. 2021–present. URL: <a class="github reference external" href="https://github.com/pgvector/pgvector">pgvector/pgvector</a>.</p>
+</div>
+<div class="citation" id="id110" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>9<span class="fn-bracket">]</span></span>
+<p>Di Li, Jingyi Wei, Yewen Peng, Hanbin Bai, Bei Chen, and Yong Li. Repoformer: selective retrieval for repository-level code completion. <em>Proceedings of the 41st International Conference on Machine Learning (ICML 2024)</em>, 2024. Trains a lightweight classifier to predict whether retrieval will help a given code-completion task, skipping it when the local context suffices. Key insight for Chapter 12: not every query needs retrieval, and a retrieval-necessity signal can cut latency and noise. URL: <a class="reference external" href="https://arxiv.org/abs/2403.10059">https://arxiv.org/abs/2403.10059</a>, <a class="reference external" href="https://arxiv.org/abs/2403.10059">arXiv:2403.10059</a>.</p>
+</div>
+<div class="citation" id="id116" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>10<span class="fn-bracket">]</span></span>
+<p>Tianyang Liu, Canwen Xu, and Julian McAuley. RepoBench: benchmarking repository-level code auto-completion systems. <em>arXiv preprint arXiv:2306.03091</em>, 2023. Decomposes evaluation into Retrieval (R), Completion (C), and Pipeline (P) layers, enabling precise diagnosis of whether the bottleneck is retrieval quality or generation quality. Key insight for Chapter 15: layered evaluation (retrieval health → generation health → end-to-end) is the right structure for KB benchmarking. URL: <a class="reference external" href="https://arxiv.org/abs/2306.03091">https://arxiv.org/abs/2306.03091</a>, <a class="reference external" href="https://arxiv.org/abs/2306.03091">arXiv:2306.03091</a>.</p>
+</div>
+<div class="citation" id="id53" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>11<span class="fn-bracket">]</span></span>
+<p>Qinyu Luo, Yining Ye, Shihao Liang, Zhong Zhang, Yujia Qin, Yaxi Lu, Yesai Wu, Xin Cong, Yankai Lin, Yingli Zhang, Xiaoyin Che, Zhiyuan Liu, and Maosong Sun. Repoagent: an LLM-powered open-source framework for repository-level code documentation generation. 2024. URL: <a class="reference external" href="https://arxiv.org/abs/2402.16667">https://arxiv.org/abs/2402.16667</a>, <a class="reference external" href="https://arxiv.org/abs/2402.16667">arXiv:2402.16667</a>.</p>
+</div>
+<div class="citation" id="id49" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">12</a><span class="fn-bracket">]</span></span>
+<p>Yury A. Malkov and Dmitry A. Yashunin. Efficient and robust approximate nearest neighbor search using hierarchical navigable small world graphs. <em>IEEE Transactions on Pattern Analysis and Machine Intelligence</em>, 42(4):824–836, 2020. <a class="reference external" href="https://doi.org/10.1109/TPAMI.2018.2889473">doi:10.1109/TPAMI.2018.2889473</a>.</p>
+</div>
+<div class="citation" id="id108" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id13">13</a><span class="fn-bracket">]</span></span>
+<p>Yury A. Malkov and Dmitry A. Yashunin. Efficient and robust approximate nearest neighbor search using hierarchical navigable small world graphs. <em>IEEE Transactions on Pattern Analysis and Machine Intelligence</em>, 42(4):824–836, 2020. The HNSW index underlying every modern vector store (sqlite-vec, pgvector's hnsw option, Milvus, Faiss). The small-world-graph construction is why an approximate nearest-neighbour query runs in log-time rather than linear-scan time; cited in Chapter 10 to anchor the &quot;vector DB is not magic&quot; argument. <a class="reference external" href="https://doi.org/10.1109/TPAMI.2018.2889473">doi:10.1109/TPAMI.2018.2889473</a>.</p>
+</div>
+<div class="citation" id="id118" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id19">14</a><span class="fn-bracket">]</span></span>
+<p>Niklas Muennighoff, Nouamane Tazi, Loïc Magne, and Nils Reimers. Mteb: massive text embedding benchmark. <em>arXiv preprint arXiv:2210.07316</em>, 2023. Defines the leaderboard used to compare embedding models across 8 tasks and 58 datasets. Key insight for Chapter 10: leaderboard ranking on general tasks does not predict performance on domain-specific code retrieval. URL: <a class="reference external" href="https://arxiv.org/abs/2210.07316">https://arxiv.org/abs/2210.07316</a>.</p>
+</div>
+<div class="citation" id="id105" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id12">15</a><span class="fn-bracket">]</span></span>
+<p>Rodrigo Nogueira and Kyunghyun Cho. Passage re-ranking with BERT. <em>arXiv preprint arXiv:1901.04085</em>, 2019. Canonical reference for cross-encoder re-ranking — a BERT model scores (query, document) pairs for the second stage of a retrieve-then-rerank pipeline. Widely known as &quot;monoBERT&quot;. URL: <a class="reference external" href="https://arxiv.org/abs/1901.04085">https://arxiv.org/abs/1901.04085</a>.</p>
+</div>
+<div class="citation" id="id112" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>16<span class="fn-bracket">]</span></span>
+<p>Siru Ouyang, Jingqing Yu, Daoguang Zan, Xiangyu Xu, Wei Liu, Shuai Shi, and Hao Peng. RepoGraph: enhancing AI software engineering with repository-level code graph. <em>ICLR 2025 Poster</em>, 2025. Builds a typed repository-level code graph (calls, imports, inherits, defines) and uses graph-enhanced retrieval to expand seed hits along structural edges. Key insight for Chapter 11: code graphs are not just for storage; they are retrieval primitives that produce structurally complete context, not just semantically similar chunks. URL: <a class="reference external" href="https://openreview.net/forum?id=dw9VUsSHGB">https://openreview.net/forum?id=dw9VUsSHGB</a>.</p>
+</div>
+<div class="citation" id="id106" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id11">17</a><span class="fn-bracket">]</span></span>
+<p>Nils Reimers and Iryna Gurevych. Sentence-BERT: sentence embeddings using siamese BERT-networks. In <em>Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing</em>. 2019. Introduces the bi-encoder framing that underlies every modern dense retriever: two independent encodings compared by cosine similarity, contrasted explicitly against cross-encoders that concatenate (query, document) before scoring. URL: <a class="reference external" href="https://arxiv.org/abs/1908.10084">https://arxiv.org/abs/1908.10084</a>.</p>
+</div>
+<div class="citation" id="id95" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>18<span class="fn-bracket">]</span></span>
+<p>Stephen Robertson and Hugo Zaragoza. The probabilistic relevance framework: BM25 and beyond. <em>Foundations and Trends in Information Retrieval</em>, 3(4):333–389, 2009. <a class="reference external" href="https://doi.org/10.1561/1500000019">doi:10.1561/1500000019</a>.</p>
+</div>
+<div class="citation" id="id93" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>19<span class="fn-bracket">]</span></span>
+<p>Ian Robinson, Jim Webber, and Emil Eifrem. <em>Graph Databases: New Opportunities for Connected Data</em>. O'Reilly Media, 2015. ISBN 978-1491930892.</p>
+</div>
+<div class="citation" id="id115" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>20<span class="fn-bracket">]</span></span>
+<p>Disha Shrivastava, Hugo Larochelle, and Daniel Tarlow. Repository-level prompt generation for large language models of code. In <em>Proceedings of the 40th International Conference on Machine Learning (ICML 2023)</em>. 2023. The conceptual origin of repo-level RAG: even without fine-tuning, selecting the right cross-file context (imports, similar code, usage examples, type definitions) substantially improves code completion. Key insight for Chapter 12 and Chapter 19: context assembly is a first-class retrieval problem, not a prompt-engineering afterthought. URL: <a class="reference external" href="https://proceedings.mlr.press/v202/shrivastava23a.html">https://proceedings.mlr.press/v202/shrivastava23a.html</a>.</p>
+</div>
+<div class="citation" id="id54" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>21<span class="fn-bracket">]</span></span>
+<p>Hongyuan Tao, Ying Zhang, Zhenhao Tang, Hongen Peng, Xukun Zhu, Bingchang Liu, Yingguang Yang, Ziyin Zhang, Zhaogui Xu, Haipeng Zhang, Linchao Zhu, Rui Wang, Hang Yu, Jianguo Li, and Peng Di. Code graph model (CGM): a graph-integrated large language model for repository-level software engineering tasks. 2025. URL: <a class="reference external" href="https://arxiv.org/abs/2505.16901">https://arxiv.org/abs/2505.16901</a>, <a class="reference external" href="https://arxiv.org/abs/2505.16901">arXiv:2505.16901</a>.</p>
+</div>
+<div class="citation" id="id87" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id17">22</a><span class="fn-bracket">]</span></span>
+<p>Shitao Xiao, Zheng Liu, Peitian Zhang, Niklas Muennighoff, Defu Lian, and Jian-Yun Nie. C-Pack: packed resources for general Chinese embeddings. 2024. Includes the BGE family of open embedding models, which can be self-hosted on a single GPU at effectively zero per-token cost. URL: <a class="reference external" href="https://arxiv.org/abs/2309.07597">https://arxiv.org/abs/2309.07597</a>.</p>
+</div>
+<div class="citation" id="id114" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>23<span class="fn-bracket">]</span></span>
+<p>Chuxin Xu, Zhicheng Geng, Zhengtao Liao, and Yifan Wei. Synergizing LLMs and knowledge graphs: a novel approach to software repository-related question answering. <em>arXiv preprint arXiv:2412.03815</em>, 2024. Designs a software-specific KG ontology (Repository, Module, File, Class, Function, Dependency, Issue, Commit, Developer) and a synergistic LLM+KG QA framework that routes structural queries to KG and semantic queries to dense retrieval. Key insight for Chapter 6 and Chapter 11: a purpose-built software ontology plus hybrid query routing covers both structural and semantic questions better than either approach alone. URL: <a class="reference external" href="https://arxiv.org/abs/2412.03815">https://arxiv.org/abs/2412.03815</a>, <a class="reference external" href="https://arxiv.org/abs/2412.03815">arXiv:2412.03815</a>.</p>
+</div>
+<div class="citation" id="id113" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>24<span class="fn-bracket">]</span></span>
+<p>Fengji Zhang, Bei Chen, Yue Zhang, Jacky Keung, Jin Liu, Daoguang Zan, Yi Mao, Jian-Guang Chen, and Wenqiang Chen. RepoCoder: repository-level code completion through iterative retrieval and generation. <em>Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing (EMNLP 2023)</em>, 2023. Proposes a retrieve-generate-re-retrieve iterative loop: the LLM draft becomes a better retrieval query for the next round. Key insight for Chapter 12: multi-round retrieval converges on better context, especially for complex cross-file queries. URL: <a class="reference external" href="https://arxiv.org/abs/2303.12570">https://arxiv.org/abs/2303.12570</a>, <a class="reference external" href="https://arxiv.org/abs/2303.12570">arXiv:2303.12570</a>.</p>
+</div>
+<div class="citation" id="id52" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>25<span class="fn-bracket">]</span></span>
+<p>Yuqi Zhu, Xiaohan Wang, Jing Chen, Shuofei Qiao, Yixin Ou, Yunzhi Yao, Shumin Deng, Huajun Chen, and Ningyu Zhang. LLMs for knowledge graph construction and reasoning: recent capabilities and future opportunities. 2024. URL: <a class="reference external" href="https://arxiv.org/abs/2305.13168">https://arxiv.org/abs/2305.13168</a>, <a class="reference external" href="https://arxiv.org/abs/2305.13168">arXiv:2305.13168</a>.</p>
+</div>
+<div class="citation" id="id94" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>26<span class="fn-bracket">]</span></span>
+<p>Memgraph Ltd. Memgraph: an in-memory graph database compatible with the Bolt protocol. 2016–present. URL: <a class="reference external" href="https://memgraph.com/">https://memgraph.com/</a>.</p>
+</div>
+<div class="citation" id="id88" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id15">27</a><span class="fn-bracket">]</span></span>
+<p>OpenAI. OpenAI text embeddings v3 (text-embedding-3-small and text-embedding-3-large). 2024. The \texttt text-embedding-3-small launch announcement lists a 5× price reduction relative to \texttt text-embedding-ada-002 (from \$0.0001 to \$0.00002 per 1K tokens) at higher retrieval quality. URL: <a class="reference external" href="https://openai.com/index/new-embedding-models-and-api-updates/">https://openai.com/index/new-embedding-models-and-api-updates/</a>.</p>
+</div>
+<div class="citation" id="id89" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>28<span class="fn-bracket">]</span></span>
+<p>Voyage AI. Voyage-code-2: an embedding model optimised for code retrieval. 2024. URL: <a class="reference external" href="https://docs.voyageai.com/docs/embeddings">https://docs.voyageai.com/docs/embeddings</a>.</p>
+</div>
+<div class="citation" id="id92" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>29<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id7">1</a>,<a role="doc-backlink" href="#id10">2</a>)</span>
+<p>Zilliz, Inc. Milvus: an open-source vector database for scalable similarity search. 2019–present. URL: <a class="reference external" href="https://milvus.io/">https://milvus.io/</a>.</p>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="ch16-parsing-and-entity-extraction.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">第 16 章 —— 解析与实体抽取</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="ch18-code-knowledge-graph.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">第 18 章 —— 代码知识图谱</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 目录
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why">Why —— 为什么</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what">What —— 是什么</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bi-encodercross-encoder-hnsw">理论锚点：bi-encoder、cross-encoder 与 HNSW</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how">How —— 怎么做</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id14">为什么要搞一层接口？</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#vs">实测：嵌入函数体 vs 嵌入模板</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#embedding">10.5   Embedding 模型选型对比</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id18">为什么选型很重要</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id20">候选模型对比表</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id21">本书参考实现上的对比测试</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id22">选型决策树</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id23">迁移与版本管理提示</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id24">常见错误</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example —— 范例</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#conclusion">Conclusion —— 小结</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id25">参考文献</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+作者： Walter Fan
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright AI 辅助创作 2026, Walter Fan.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    <p class="last-updated">
+  最后更新于 2026-11-10.
+  <br/>
+</p>
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

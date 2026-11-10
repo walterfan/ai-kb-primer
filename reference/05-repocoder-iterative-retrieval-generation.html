@@ -1,0 +1,687 @@
+
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>RepoCoder: Repository-Level Code Completion Through Iterative Retrieval and Generation &#8212; Use AI to build a knowledge base for a software project</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=591f613d" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=23f7fa08"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../_static/translations.js?v=beaddf03"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'reference/05-repocoder-iterative-retrieval-generation';</script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="Synergizing LLMs and Knowledge Graphs: A Novel Approach to Software Repository-Related Question Answering" href="06-llm-kg-synergy-repo-qa.html" />
+    <link rel="prev" title="RepoAgent: An LLM-Powered Open-Source Framework for Repository-level Code Documentation Generation" href="04-repoagent-documentation-generation.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+    <meta name="docbuild:last-update" content="2026-11-10"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Use AI to build a knowledge base for a software project</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">搜索</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Part I — Foundations</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part1-foundations/index.html">第一部分 —— 基础</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch01-why-kb-for-software.html">第 1 章 —— 为什么要给软件建一个知识库？</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch01a-quickstart-30min.html">第 1a 章 —— 30 分钟快速上手</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch02-ir-rag-primer.html">第 2 章 —— IR 与 RAG 入门</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch03-diataxis-and-software-docs.html">第 3 章 —— Diátaxis 与软件文档</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part II — The Prose Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part2-prose-layer/index.html">第二部分 —— 文稿层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch04-file-based-wiki.html">第 4 章 —— 一个基于文件的 wiki</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch05-frontmatter-provenance-trust.html">第 5 章 —— 把 frontmatter 当作一份来源记录</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch06-llm-classification-pipeline.html">第 6 章 —— 分类流水线</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch07-publish-and-search.html">第 7 章 —— 发布与搜索</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch08-prose-operational-model.html">第 8 章 —— 文稿层的运维模型</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch09-cold-start-migration.html">第 9 章 —— 冷启动与批量迁移</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part III — The Author Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part3-author-layer/index.html">第三部分 —— 作者层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch10-why-ai-as-author.html">第 10 章 —— 为什么让 AI 当作者</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch11-ai-drafting-and-rewriting.html">第 11 章 —— AI 起草、重写、翻译</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch12-ai-for-metadata.html">第 12 章 —— AI 处理元数据：分类、打标签、实体与关系抽取</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch13-ai-for-maintenance.html">第 13 章 —— AI 做维护：摘要、去重、过期与漂移检测</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch14-ai-as-judge.html">第 14 章 —— AI 作为评判者：评估生成质量与引用合规</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part IV — The Code Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part4-code-layer/index.html">第四部分 —— 代码层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch15-why-code-is-not-prose.html">第 15 章 —— 为什么代码不是文稿</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch16-parsing-and-entity-extraction.html">第 16 章 —— 解析与实体抽取</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch17-embeddings-and-vector-stores.html">第 17 章 —— 嵌入向量与向量存储</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch18-code-knowledge-graph.html">第 18 章 —— 代码知识图谱</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch19-hybrid-retrieval-and-rrf.html">第 19 章 —— 混合检索与 RRF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch20-prompt-and-generation.html">第 20 章 —— 提示词与生成</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part V — Operations &amp; Lifecycle</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part5-operations-lifecycle/index.html">第五部分 —— 运维与生命周期</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part5-operations-lifecycle/ch21-incremental-sync.html">第 21 章 —— 增量同步</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part5-operations-lifecycle/ch22-evaluation-and-benchmarks.html">第 22 章 —— 评测、基准与发布门禁</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part5-operations-lifecycle/ch23-maintenance-drift-and-link-rot.html">第 23 章 —— 维护、漂移与链接腐化</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part VI — The Hybrid Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part6-hybrid-layer/index.html">第六部分 —— 混合层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch24-prose-meets-code.html">第 24 章 —— 文稿与代码相遇</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch25-document-layering-L0-L4.html">第 25 章 —— 文档分层 L0–L4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch26-graph-guided-context-assembly.html">第 26 章 —— 图引导的上下文组装</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch27-harnessing-ai-coding.html">第 27 章 —— 用知识库驾驭 AI 编码</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch28-team-sdlc-integration.html">第 28 章 —— 团队协作与 SDLC 集成</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch29-ai-agents-on-the-kb.html">第 29 章 —— 在知识库上跑的 AI Agent</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part VII — Governance &amp; Outlook</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part7-governance-and-outlook/index.html">第七部分 —— 治理与展望</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch30-cost-privacy-security.html">第 30 章 —— 成本、隐私、安全</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch31-trust-provenance-and-red-teaming.html">第 31 章 —— 信任、出处与红队演练</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch32-outlook-and-open-problems.html">第 32 章 —— 展望与尚未解决的问题</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Appendices</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-a-example-wiki.html">附录 A —— 端到端：从杂乱文件夹到可发布 Wiki</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-b-example-code-kg.html">附录 B —— 示例：从一个 Go 仓库构建代码知识库</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-c-deepwiki-checklist.html">附录 C —— 自己动手做 DeepWiki 检查清单</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-d-glossary.html">附录 D —— 术语表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-e-bilingual-publishing.html">附录 E —— 发布一个双语知识库</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">参考文献</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">参考文献：仓库级代码理解与软件知识库论文导读</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="01-repoformer-selective-retrieval.html">Repoformer: Selective Retrieval for Repository-Level Code Completion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02-codeplan-repository-level-planning.html">CodePlan: Repository-Level Coding using LLMs and Planning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="03-repograph-code-graph-navigation.html">RepoGraph: Enhancing AI Software Engineering with Repository-level Code Graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="04-repoagent-documentation-generation.html">RepoAgent: An LLM-Powered Open-Source Framework for Repository-level Code Documentation Generation</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">RepoCoder: Repository-Level Code Completion Through Iterative Retrieval and Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="06-llm-kg-synergy-repo-qa.html">Synergizing LLMs and Knowledge Graphs: A Novel Approach to Software Repository-Related Question Answering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="07-repo-level-prompt-generation.html">Repository-Level Prompt Generation for Large Language Models of Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="08-repobench-benchmarking.html">RepoBench: Benchmarking Repository-Level Code Auto-Completion Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="09-long-code-arena-benchmarks.html">Long Code Arena: A Set of Benchmarks for Long-Context Code Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="10-cgm-graph-integrated-llm.html">Code Graph Model (CGM): A Graph-Integrated Large Language Model for Repository-Level Software Engineering Tasks</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="下载此页面">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="下载源文件"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="列印成 PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="全屏模式"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>RepoCoder: Repository-Level Code Completion Through Iterative Retrieval and Generation</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> 目录 </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what">What — 这篇论文解决什么问题</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why">Why — 为什么这个方向对软件知识库重要</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how">How — 核心方法</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sliding-window-retrieval">1. 滑动窗口检索（Sliding Window Retrieval）</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#iterative-retrieve-generate">2. 迭代检索-生成流程（Iterative Retrieve-Generate）</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#similarity-metric">3. 相似度计算（Similarity Metric）</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example — 在软件知识库中的应用示例</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#conclusion">Conclusion — 对软件知识库建设的启示</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reference">Reference</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="repocoder-repository-level-code-completion-through-iterative-retrieval-and-generation">
+<h1>RepoCoder: Repository-Level Code Completion Through Iterative Retrieval and Generation<a class="headerlink" href="#repocoder-repository-level-code-completion-through-iterative-retrieval-and-generation" title="Link to this heading">#</a></h1>
+<blockquote>
+<div><p><strong>论文信息</strong>：EMNLP 2023 | <a class="reference external" href="https://arxiv.org/abs/2303.12570">arXiv:2303.12570</a></p>
+</div></blockquote>
+<hr class="docutils" />
+<section id="what">
+<h2>What — 这篇论文解决什么问题<a class="headerlink" href="#what" title="Link to this heading">#</a></h2>
+<p>RepoCoder 解决的问题是：<strong>在仓库级代码补全中，单轮检索（one-shot retrieval）的质量不够高</strong>，因为查询时尚未生成任何代码，检索信号最弱。</p>
+<p>传统 RAG 流程的缺陷：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>[查询] → [一次检索] → [生成结果]
+</pre></div>
+</div>
+<p>问题在于：<strong>检索时没有生成内容，只能用原始输入作为查询向量，检索精度有限</strong>。</p>
+<p>RepoCoder 提出了&quot;<strong>检索-生成-再检索</strong>&quot;的迭代流程：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>[查询] → [初步生成] → [用生成结果重新检索] → [精化生成] → [再次检索] → ...
+</pre></div>
+</div>
+<p>每一轮生成都会产生更好的检索信号，从而进入良性循环。</p>
+</section>
+<hr class="docutils" />
+<section id="why">
+<h2>Why — 为什么这个方向对软件知识库重要<a class="headerlink" href="#why" title="Link to this heading">#</a></h2>
+<p>在软件知识库的 RAG 链路中，检索质量直接决定了回答质量。RepoCoder 的迭代检索思想对知识库问答有深刻启示：</p>
+<ul class="simple">
+<li><p><strong>初始查询往往不精确</strong>：用户提问可能是模糊的，直接检索效果差；</p></li>
+<li><p><strong>生成内容是更好的检索锚点</strong>：LLM 的初步回答包含了更丰富的语义，可以反过来指导更准确的二次检索；</p></li>
+<li><p><strong>迭代收敛</strong>：每轮迭代都缩小了搜索空间，最终在更精准的上下文上生成高质量答案；</p></li>
+<li><p><strong>适用于复杂问答</strong>：对于需要综合多个知识片段的复杂技术问题，迭代检索尤其有效。</p></li>
+</ul>
+<p>RepoCoder 是 repo-level RAG 的<strong>强基线方法</strong>，也是后续所有迭代 RAG 系统的参考起点。</p>
+</section>
+<hr class="docutils" />
+<section id="how">
+<h2>How — 核心方法<a class="headerlink" href="#how" title="Link to this heading">#</a></h2>
+<section id="sliding-window-retrieval">
+<h3>1. 滑动窗口检索（Sliding Window Retrieval）<a class="headerlink" href="#sliding-window-retrieval" title="Link to this heading">#</a></h3>
+<p>RepoCoder 将代码文件切分为<strong>滑动窗口片段</strong>（而不是固定大小的 chunk）：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 窗口大小: w 行，步长: s 行</span>
+<span class="n">windows</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">file_lines</span><span class="p">),</span> <span class="n">step</span><span class="p">):</span>
+    <span class="n">window</span> <span class="o">=</span> <span class="n">file_lines</span><span class="p">[</span><span class="n">i</span> <span class="p">:</span> <span class="n">i</span> <span class="o">+</span> <span class="n">window_size</span><span class="p">]</span>
+    <span class="n">windows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">window</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>这样每个检索单元保留了代码的<strong>局部上下文连续性</strong>，避免在函数中间截断。</p>
+</section>
+<section id="iterative-retrieve-generate">
+<h3>2. 迭代检索-生成流程（Iterative Retrieve-Generate）<a class="headerlink" href="#iterative-retrieve-generate" title="Link to this heading">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Round</span> <span class="mi">0</span><span class="p">:</span>
+  <span class="n">query</span> <span class="o">=</span> <span class="n">code_prefix</span>              <span class="c1"># 仅用代码前缀作为查询</span>
+  <span class="n">snippets_0</span> <span class="o">=</span> <span class="n">retrieve</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>     <span class="c1"># 初步检索</span>
+
+<span class="n">Round</span> <span class="mi">1</span><span class="p">:</span>
+  <span class="n">draft_0</span> <span class="o">=</span> <span class="n">generate</span><span class="p">(</span><span class="n">code_prefix</span> <span class="o">+</span> <span class="n">snippets_0</span><span class="p">)</span>  <span class="c1"># 初步生成</span>
+  <span class="n">query_1</span> <span class="o">=</span> <span class="n">code_prefix</span> <span class="o">+</span> <span class="n">draft_0</span>  <span class="c1"># 用前缀+草稿作为新查询</span>
+  <span class="n">snippets_1</span> <span class="o">=</span> <span class="n">retrieve</span><span class="p">(</span><span class="n">query_1</span><span class="p">)</span>   <span class="c1"># 二次检索（更精准）</span>
+
+<span class="n">Round</span> <span class="mi">2</span><span class="p">:</span>
+  <span class="n">final</span> <span class="o">=</span> <span class="n">generate</span><span class="p">(</span><span class="n">code_prefix</span> <span class="o">+</span> <span class="n">snippets_1</span><span class="p">)</span>    <span class="c1"># 最终生成</span>
+</pre></div>
+</div>
+<p>实验表明，通常 <strong>2-3 轮迭代</strong>就能收敛到较好效果，继续迭代收益递减。</p>
+</section>
+<section id="similarity-metric">
+<h3>3. 相似度计算（Similarity Metric）<a class="headerlink" href="#similarity-metric" title="Link to this heading">#</a></h3>
+<p>使用 <strong>BM25 + 代码特征</strong>的混合相似度，不依赖向量 Embedding，计算效率高：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>sim(query, snippet) = α × BM25(query, snippet)
+                    + β × token_overlap(query, snippet)
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="example">
+<h2>Example — 在软件知识库中的应用示例<a class="headerlink" href="#example" title="Link to this heading">#</a></h2>
+<p><strong>场景</strong>：开发者在知识库中提问&quot;如何在这个项目中实现带缓存的数据库查询&quot;。</p>
+<p><strong>单轮 RAG 的问题</strong>：</p>
+<ul class="simple">
+<li><p>查询向量：<code class="docutils literal notranslate"><span class="pre">&quot;如何实现带缓存的数据库查询&quot;</span></code> → 检索到通用的 Cache 文档</p></li>
+<li><p>缺失：项目专属的 Cache 配置方式、数据库连接池设置</p></li>
+</ul>
+<p><strong>RepoCoder 迭代流程</strong>：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Round</span> <span class="mi">0</span><span class="p">:</span>
+  <span class="n">检索到</span><span class="p">:</span> <span class="n">cache</span><span class="o">.</span><span class="n">py</span> <span class="p">(</span><span class="n">通用缓存工具</span><span class="p">),</span> <span class="n">db_base</span><span class="o">.</span><span class="n">py</span> <span class="p">(</span><span class="n">数据库基类</span><span class="p">)</span>
+  
+  <span class="n">初步生成</span><span class="p">:</span>
+  <span class="k">def</span><span class="w"> </span><span class="nf">get_user_with_cache</span><span class="p">(</span><span class="n">user_id</span><span class="p">):</span>
+      <span class="n">result</span> <span class="o">=</span> <span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;user:</span><span class="si">{</span><span class="n">user_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+      <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="p">:</span>
+          <span class="n">result</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;SELECT * FROM users WHERE id=?&quot;</span><span class="p">,</span> <span class="n">user_id</span><span class="p">)</span>
+          <span class="n">cache</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;user:</span><span class="si">{</span><span class="n">user_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
+      <span class="k">return</span> <span class="n">result</span>
+
+<span class="n">Round</span> <span class="mi">1</span><span class="p">:</span>
+  <span class="n">用初步生成的代码重新检索</span><span class="p">:</span>
+  <span class="n">新检索到</span><span class="p">:</span> <span class="n">redis_cache</span><span class="o">.</span><span class="n">py</span> <span class="p">(</span><span class="n">项目实际使用</span> <span class="n">Redis</span><span class="p">),</span> 
+            <span class="n">user_repository</span><span class="o">.</span><span class="n">py</span> <span class="p">(</span><span class="n">项目的查询模式</span><span class="p">)</span>
+  
+  <span class="n">精化生成</span><span class="p">:</span>
+  <span class="k">def</span><span class="w"> </span><span class="nf">get_user_with_cache</span><span class="p">(</span><span class="n">user_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">User</span><span class="p">]:</span>
+      <span class="n">cache_key</span> <span class="o">=</span> <span class="n">CacheKey</span><span class="o">.</span><span class="n">user</span><span class="p">(</span><span class="n">user_id</span><span class="p">)</span>           <span class="c1"># 项目的 CacheKey 规范</span>
+      <span class="n">result</span> <span class="o">=</span> <span class="n">redis_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cache_key</span><span class="p">)</span>
+      <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+          <span class="n">result</span> <span class="o">=</span> <span class="n">user_repository</span><span class="o">.</span><span class="n">find_by_id</span><span class="p">(</span><span class="n">user_id</span><span class="p">)</span>  <span class="c1"># 项目实际用法</span>
+          <span class="k">if</span> <span class="n">result</span><span class="p">:</span>
+              <span class="n">redis_cache</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">cache_key</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">ttl</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+      <span class="k">return</span> <span class="n">result</span>
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="conclusion">
+<h2>Conclusion — 对软件知识库建设的启示<a class="headerlink" href="#conclusion" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>启示点</p></th>
+<th class="head"><p>具体应用</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>迭代检索架构</strong></p></td>
+<td><p>知识库问答流程应支持多轮检索，用初步回答来优化后续检索</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>草稿驱动检索</strong></p></td>
+<td><p>先生成草稿，再用草稿检索补充上下文，适用于复杂技术问答</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>滑动窗口切分</strong></p></td>
+<td><p>代码索引时使用滑动窗口而非硬切分，保留上下文连续性</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>检索信号演化</strong></p></td>
+<td><p>随着对话轮次增加，查询向量应动态更新以包含对话历史</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>迭代次数控制</strong></p></td>
+<td><p>2-3 轮迭代通常足够，过多迭代会增加延迟且收益递减</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<hr class="docutils" />
+<section id="reference">
+<h2>Reference<a class="headerlink" href="#reference" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>论文原文：<a class="reference external" href="https://arxiv.org/abs/2303.12570">arXiv:2303.12570</a></p></li>
+<li><p>会议：EMNLP 2023</p></li>
+<li><p>关键词：Iterative Retrieval, Repository-Level Code Completion, Sliding Window, RAG for Code</p></li>
+<li><p>相关工作：Repoformer（选择性检索）、RepoBench（评测体系）、Repository-Level Prompt Generation</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="04-repoagent-documentation-generation.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">RepoAgent: An LLM-Powered Open-Source Framework for Repository-level Code Documentation Generation</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="06-llm-kg-synergy-repo-qa.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">Synergizing LLMs and Knowledge Graphs: A Novel Approach to Software Repository-Related Question Answering</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 目录
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what">What — 这篇论文解决什么问题</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why">Why — 为什么这个方向对软件知识库重要</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how">How — 核心方法</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sliding-window-retrieval">1. 滑动窗口检索（Sliding Window Retrieval）</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#iterative-retrieve-generate">2. 迭代检索-生成流程（Iterative Retrieve-Generate）</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#similarity-metric">3. 相似度计算（Similarity Metric）</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example — 在软件知识库中的应用示例</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#conclusion">Conclusion — 对软件知识库建设的启示</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reference">Reference</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+作者： Walter Fan
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright AI 辅助创作 2026, Walter Fan.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    <p class="last-updated">
+  最后更新于 2026-11-10.
+  <br/>
+</p>
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

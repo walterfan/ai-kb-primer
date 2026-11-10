@@ -1,0 +1,1131 @@
+
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>第 11 章 —— AI 起草、重写、翻译 &#8212; Use AI to build a knowledge base for a software project</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=591f613d" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=23f7fa08"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../_static/translations.js?v=beaddf03"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.2.0/dist/mermaid-layout-elk.esm.min.mjs"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";import elkLayouts from "https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.2.0/dist/mermaid-layout-elk.esm.min.mjs";mermaid.registerLayoutLoaders(elkLayouts);mermaid.initialize({startOnLoad:false});</script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+const defaultStyle = document.createElement('style');
+defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+`;
+document.head.appendChild(defaultStyle);
+
+const fullscreenStyle = document.createElement('style');
+fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+document.head.appendChild(fullscreenStyle);
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        return brightness < 128;
+    }
+    return false;
+};
+
+const load = async () => {
+    await mermaid.run();
+
+    const all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(load, 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(load, 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(load, 200);
+        return;
+    }
+
+    const darkTheme = isDarkTheme();
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    const modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    const modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    let previousScrollOffset = [window.scrollX, window.scrollY];
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    const allButtons = [];
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+
+        container.appendChild(fullscreenBtn);
+        allButtons.push(fullscreenBtn);
+    });
+
+    // Update theme classes when theme changes
+    const updateTheme = () => {
+        const dark = isDarkTheme();
+        allButtons.forEach(btn => {
+            if (dark) {
+                btn.classList.add('dark-theme');
+            } else {
+                btn.classList.remove('dark-theme');
+            }
+        });
+        if (dark) {
+            modal.classList.add('dark-theme');
+            modalContent.classList.add('dark-theme');
+            closeBtn.classList.add('dark-theme');
+        } else {
+            modal.classList.remove('dark-theme');
+            modalContent.classList.remove('dark-theme');
+            closeBtn.classList.remove('dark-theme');
+        }
+    };
+
+    // Watch for theme changes
+    const observer = new MutationObserver(updateTheme);
+    observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    observer.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style']
+    });
+};
+
+window.addEventListener("load", load);
+</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'part3-author-layer/ch11-ai-drafting-and-rewriting';</script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="第 12 章 —— AI 处理元数据：分类、打标签、实体与关系抽取" href="ch12-ai-for-metadata.html" />
+    <link rel="prev" title="第 10 章 —— 为什么让 AI 当作者" href="ch10-why-ai-as-author.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+    <meta name="docbuild:last-update" content="2026-11-10"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Use AI to build a knowledge base for a software project</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">搜索</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Part I — Foundations</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part1-foundations/index.html">第一部分 —— 基础</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch01-why-kb-for-software.html">第 1 章 —— 为什么要给软件建一个知识库？</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch01a-quickstart-30min.html">第 1a 章 —— 30 分钟快速上手</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch02-ir-rag-primer.html">第 2 章 —— IR 与 RAG 入门</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch03-diataxis-and-software-docs.html">第 3 章 —— Diátaxis 与软件文档</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part II — The Prose Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part2-prose-layer/index.html">第二部分 —— 文稿层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch04-file-based-wiki.html">第 4 章 —— 一个基于文件的 wiki</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch05-frontmatter-provenance-trust.html">第 5 章 —— 把 frontmatter 当作一份来源记录</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch06-llm-classification-pipeline.html">第 6 章 —— 分类流水线</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch07-publish-and-search.html">第 7 章 —— 发布与搜索</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch08-prose-operational-model.html">第 8 章 —— 文稿层的运维模型</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch09-cold-start-migration.html">第 9 章 —— 冷启动与批量迁移</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part III — The Author Layer</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">第三部分 —— 作者层</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="ch10-why-ai-as-author.html">第 10 章 —— 为什么让 AI 当作者</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">第 11 章 —— AI 起草、重写、翻译</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ch12-ai-for-metadata.html">第 12 章 —— AI 处理元数据：分类、打标签、实体与关系抽取</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ch13-ai-for-maintenance.html">第 13 章 —— AI 做维护：摘要、去重、过期与漂移检测</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ch14-ai-as-judge.html">第 14 章 —— AI 作为评判者：评估生成质量与引用合规</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part IV — The Code Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part4-code-layer/index.html">第四部分 —— 代码层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch15-why-code-is-not-prose.html">第 15 章 —— 为什么代码不是文稿</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch16-parsing-and-entity-extraction.html">第 16 章 —— 解析与实体抽取</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch17-embeddings-and-vector-stores.html">第 17 章 —— 嵌入向量与向量存储</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch18-code-knowledge-graph.html">第 18 章 —— 代码知识图谱</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch19-hybrid-retrieval-and-rrf.html">第 19 章 —— 混合检索与 RRF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch20-prompt-and-generation.html">第 20 章 —— 提示词与生成</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part V — Operations &amp; Lifecycle</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part5-operations-lifecycle/index.html">第五部分 —— 运维与生命周期</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part5-operations-lifecycle/ch21-incremental-sync.html">第 21 章 —— 增量同步</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part5-operations-lifecycle/ch22-evaluation-and-benchmarks.html">第 22 章 —— 评测、基准与发布门禁</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part5-operations-lifecycle/ch23-maintenance-drift-and-link-rot.html">第 23 章 —— 维护、漂移与链接腐化</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part VI — The Hybrid Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part6-hybrid-layer/index.html">第六部分 —— 混合层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch24-prose-meets-code.html">第 24 章 —— 文稿与代码相遇</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch25-document-layering-L0-L4.html">第 25 章 —— 文档分层 L0–L4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch26-graph-guided-context-assembly.html">第 26 章 —— 图引导的上下文组装</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch27-harnessing-ai-coding.html">第 27 章 —— 用知识库驾驭 AI 编码</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch28-team-sdlc-integration.html">第 28 章 —— 团队协作与 SDLC 集成</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch29-ai-agents-on-the-kb.html">第 29 章 —— 在知识库上跑的 AI Agent</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part VII — Governance &amp; Outlook</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part7-governance-and-outlook/index.html">第七部分 —— 治理与展望</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch30-cost-privacy-security.html">第 30 章 —— 成本、隐私、安全</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch31-trust-provenance-and-red-teaming.html">第 31 章 —— 信任、出处与红队演练</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch32-outlook-and-open-problems.html">第 32 章 —— 展望与尚未解决的问题</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Appendices</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-a-example-wiki.html">附录 A —— 端到端：从杂乱文件夹到可发布 Wiki</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-b-example-code-kg.html">附录 B —— 示例：从一个 Go 仓库构建代码知识库</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-c-deepwiki-checklist.html">附录 C —— 自己动手做 DeepWiki 检查清单</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-d-glossary.html">附录 D —— 术语表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-e-bilingual-publishing.html">附录 E —— 发布一个双语知识库</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">参考文献</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../reference/index.html">参考文献：仓库级代码理解与软件知识库论文导读</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../reference/01-repoformer-selective-retrieval.html">Repoformer: Selective Retrieval for Repository-Level Code Completion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/02-codeplan-repository-level-planning.html">CodePlan: Repository-Level Coding using LLMs and Planning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/03-repograph-code-graph-navigation.html">RepoGraph: Enhancing AI Software Engineering with Repository-level Code Graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/04-repoagent-documentation-generation.html">RepoAgent: An LLM-Powered Open-Source Framework for Repository-level Code Documentation Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/05-repocoder-iterative-retrieval-generation.html">RepoCoder: Repository-Level Code Completion Through Iterative Retrieval and Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/06-llm-kg-synergy-repo-qa.html">Synergizing LLMs and Knowledge Graphs: A Novel Approach to Software Repository-Related Question Answering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/07-repo-level-prompt-generation.html">Repository-Level Prompt Generation for Large Language Models of Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/08-repobench-benchmarking.html">RepoBench: Benchmarking Repository-Level Code Auto-Completion Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/09-long-code-arena-benchmarks.html">Long Code Arena: A Set of Benchmarks for Long-Context Code Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/10-cgm-graph-integrated-llm.html">Code Graph Model (CGM): A Graph-Integrated Large Language Model for Repository-Level Software Engineering Tasks</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="下载此页面">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="下载源文件"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="列印成 PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="全屏模式"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>第 11 章 —— AI 起草、重写、翻译</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> 目录 </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why">Why —— 为什么</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what">What —— 是什么</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how">How —— 怎么做</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#task-brief">1. 先写 task brief，不直接让模型写正文</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">2. 将起草和改写分成两次调用</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">3. 改写时锁定“不可改字段”</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">4. 翻译保留术语表</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#review-gate">5. Review gate 状态机</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example —— 范例</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#common-mistakes">Common Mistakes —— 常见错误</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#conclusion">Conclusion —— 小结</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">参考文献</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="ai">
+<h1>第 11 章 —— AI 起草、重写、翻译<a class="headerlink" href="#ai" title="Link to this heading">#</a></h1>
+<p>本章展开第 10 章五角色分类法里的 <strong>drafter</strong>：AI 负责把人的意图、原始材料和局部约束变成一份可评审的文字制品。这里的关键词不是“自动生成文档”，而是<strong>把开始写的摩擦降下来</strong>，并且让每一次 AI 写作都留下足够的 provenance，进入同一条 <code class="docutils literal notranslate"><span class="pre">pending</span> <span class="pre">→</span> <span class="pre">approved</span></code> 人审闸。</p>
+<pre  class="mermaid">
+        flowchart LR
+    A[Intent\n人给目标和边界] --&gt; B[Sources\n原始材料与引用]
+    B --&gt; C[Draft\nAI 起草/改写/翻译]
+    C --&gt; D[Provenance\n模型、prompt hash、来源]
+    D --&gt; E[Pending\n进入人审队列]
+    E --&gt;|human edits| F[AI+Human diff]
+    F --&gt;|human approves| G[Approved]
+    E --&gt;|reject| H[Back to draft]
+    </pre><section id="why">
+<h2>Why —— 为什么<a class="headerlink" href="#why" title="Link to this heading">#</a></h2>
+<p>个人和小团队的 KB 失败，很少是因为大家完全不知道应该写什么。更常见的是：大家知道要写，甚至知道大概怎么写，但<strong>没有一个足够轻的动作把它写成第一页</strong>。第 10 章的林宇 runbook 例子就是这个形状：她知道数据预处理脚本失败时要先看输入路径、再看 schema、再看缓存，但把这些判断写成一份新人能照着做的 runbook，仍然要四十分钟。</p>
+<p>AI drafter 的价值首先不在于把 8 分内容写成 10 分内容，而在于把 <strong>0 页</strong> 变成 <strong>1 页 pending 草稿</strong>。这件事的边际收益很大：一个 pending 草稿至少能被搜索到、能被评论、能被改；一段只在脑子里的经验没有任何维护表面。RepoAgent 把仓库级文档建设拆成结构分析、文档生成和文档更新流水线 <span id="id1">[<a class="reference internal" href="../part7-governance-and-outlook/index.html#id30" title="Qinyu Luo, Yining Ye, Shihao Liang, Zhong Zhang, Yujia Qin, Yaxi Lu, Yesai Wu, Xin Cong, Yankai Lin, Yingli Zhang, Xiaoyin Che, Zhiyuan Liu, and Maosong Sun. Repoagent: an LLM-powered open-source framework for repository-level code documentation generation. 2024. URL: https://arxiv.org/abs/2402.16667, arXiv:2402.16667.">Luo <em>et al.</em>, 2024</a>]</span>，说明“让 AI 起草”只有在进入流水线之后才是工程能力，而不是一次漂亮的 prompt demo。</p>
+<p>第二个价值是<strong>把改写和翻译变成正常维护动作</strong>。知识库里的很多内容并不是从无到有，而是从“口语化会议纪要”改成“runbook”、从“中文草稿”改成“中英混排的内部说明”、从“旧版 API 名称”改成“新版术语”。这些动作需要风格一致，但不一定需要作者从空白页开始。Notion AI 这类工具把“写、找、问”放在同一个界面里 <span id="id2">[<a class="reference internal" href="../part1-foundations/ch03-diataxis-and-software-docs.html#id28" title="Notion Labs. Notion AI: ask, find, write with your wiki. 2023–present. Closed-source SaaS; LLM-assisted authoring and Q&amp;A over Notion workspaces. URL: https://www.notion.com/product/ai.">Notion Labs, 2023–present</a>]</span>，说明市场已经捕捉到这个需求；本章关心的是如何把同样能力放进一个可审计、可构建的文件式 KB。</p>
+<p>第三个价值是<strong>让人审变得具体</strong>。没有 AI 时，评审常常是“这页有没有人愿意写”；有 AI 后，评审变成“这 37 行 diff 是否忠于这些来源”。后者更窄，也更容易分配给小团队里的真人。</p>
+</section>
+<section id="what">
+<h2>What —— 是什么<a class="headerlink" href="#what" title="Link to this heading">#</a></h2>
+<p>drafter 覆盖三种动作，它们共享人审契约，但 review 难度不同：</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>动作</p></th>
+<th class="head text-left"><p>输入</p></th>
+<th class="head text-left"><p>输出</p></th>
+<th class="head text-left"><p>人审重点</p></th>
+<th class="head text-left"><p>风险</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p><strong>起草</strong></p></td>
+<td class="text-left"><p>意图 + 原始材料</p></td>
+<td class="text-left"><p>新页面或新段落</p></td>
+<td class="text-left"><p>事实是否有来源、步骤是否可执行</p></td>
+<td class="text-left"><p>幻觉事实、遗漏前提</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><strong>改写</strong></p></td>
+<td class="text-left"><p>旧文本 + 新目标读者</p></td>
+<td class="text-left"><p>同义但更清楚的文本</p></td>
+<td class="text-left"><p>是否改变语义、是否丢限定条件</p></td>
+<td class="text-left"><p>“润色”时悄悄改事实</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p><strong>翻译</strong></p></td>
+<td class="text-left"><p>源语言页面</p></td>
+<td class="text-left"><p>目标语言页面</p></td>
+<td class="text-left"><p>专有名词、引用、数字是否保留</p></td>
+<td class="text-left"><p>术语漂移、句法自然但概念错</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>这三种动作都不应该直接产出 <code class="docutils literal notranslate"><span class="pre">approved</span></code> 内容。第 10 章的人审契约在这里落实为三条具体规则：</p>
+<ol class="arabic simple">
+<li><p><strong>AI 产物先进入 <code class="docutils literal notranslate"><span class="pre">review_status:</span> <span class="pre">pending</span></code>。</strong> 如果作者还没准备好让别人审，可以先保存在工作分支；一旦进入主 KB，它就必须可见为 pending。</p></li>
+<li><p><strong>AI 不写最终 provenance。</strong> AI 可以建议标题、摘要和标签，但 <code class="docutils literal notranslate"><span class="pre">created_by</span></code>、<code class="docutils literal notranslate"><span class="pre">reviewed_by</span></code>、<code class="docutils literal notranslate"><span class="pre">last_approved_by</span></code> 这类字段只能由流水线或人写。</p></li>
+<li><p><strong>AI 不能删除已批准内容。</strong> 改写可以产生替代段落，但删除原段落必须是人的 diff。</p></li>
+</ol>
+<p>一个页面被 AI 起草后，最小 footer 应该长这样：</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>&lt;!-- PKB-metadata
+layer: author
+updated_by: ai
+ai_role: drafter
+ai_model: claude-sonnet-2026-04
+prompt_hash: sha256:7d9c...
+source_refs:
+  - notes/2026-05-12-data-pipeline-debug.md
+  - _audit/audio/2026-05-17-runbook-briefing.wav
+review_status: pending
+review_score: 0
+commit: HEAD
+--&gt;
+</pre></div>
+</div>
+<p>这里最重要的是 <code class="docutils literal notranslate"><span class="pre">source_refs</span></code> 和 <code class="docutils literal notranslate"><span class="pre">prompt_hash</span></code>。Buneman 等人关于 data provenance 的基本问题是 “why and where” —— 为什么这个结果出现、它来自哪里 <span id="id3">[<a class="reference internal" href="../part7-governance-and-outlook/ch31-trust-provenance-and-red-teaming.html#id38" title="Peter Buneman, Sanjeev Khanna, and Wang-Chiew Tan. Why and where: a characterization of data provenance. ICDT, 2001.">Buneman <em>et al.</em>, 2001</a>]</span>。AI 起草的 provenance 也一样：读者不需要知道模型每个 token 的 logprob，但必须能知道这页草稿由哪些材料推导而来。</p>
+</section>
+<section id="how">
+<h2>How —— 怎么做<a class="headerlink" href="#how" title="Link to this heading">#</a></h2>
+<section id="task-brief">
+<h3>1. 先写 task brief，不直接让模型写正文<a class="headerlink" href="#task-brief" title="Link to this heading">#</a></h3>
+<p>对 drafter 最有用的输入不是“帮我写一篇关于 X 的文档”，而是一份短 task brief：</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">task</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">draft_runbook</span>
+<span class="nt">target_file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">runbooks/data-preprocess-failure.md</span>
+<span class="nt">reader</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">new team member</span>
+<span class="nt">goal</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">debug preprocessing failures without waking the maintainer</span>
+<span class="nt">must_include</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">input path check</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">schema mismatch check</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cache invalidation step</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">when to escalate</span>
+<span class="nt">must_not_include</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">credentials</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">private dataset names</span>
+<span class="nt">sources</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">notes/2026-05-12-data-pipeline-debug.md</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">_audit/audio/2026-05-17-runbook-briefing.wav</span>
+<span class="nt">reviewer</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lin-yu</span>
+</pre></div>
+</div>
+<p>这份 brief 是人写的，也可以由一个 UI 帮忙生成，但它承担的是<strong>人的意图</strong>。AI 起草只能在这条边界内活动。没有 brief，模型会用“常见 runbook”填空；有 brief，模型被迫围绕具体来源写。</p>
+</section>
+<section id="id4">
+<h3>2. 将起草和改写分成两次调用<a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
+<p>一次调用同时“理解来源 + 规划结构 + 写正文 + 自查引用”，很容易让错误混在一起。更稳的做法是两步：</p>
+<ol class="arabic simple">
+<li><p><strong>plan pass</strong>：让模型只输出大纲、引用点和开放问题。</p></li>
+<li><p><strong>draft pass</strong>：把通过人或规则检查的大纲作为输入，再写正文。</p></li>
+</ol>
+<p>这一步看似慢，实际省 review 时间。评审人可以先看 12 行大纲是否对，再看 80 行正文是否执行了大纲；不用在 80 行正文里猜模型到底从哪里开始走偏。</p>
+</section>
+<section id="id5">
+<h3>3. 改写时锁定“不可改字段”<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
+<p>改写比起草更容易被低估。模型会把一句“不建议在默认路径下开启缓存”改成“默认情况下不应开启缓存”，语气更顺，语义却变了。改写 prompt 必须显式列出不可改字段：</p>
+<ul class="simple">
+<li><p>数字、日期、版本号；</p></li>
+<li><p>文件路径、命令、API 名；</p></li>
+<li><p>引用锚点；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">must</span></code> / <code class="docutils literal notranslate"><span class="pre">should</span></code> / <code class="docutils literal notranslate"><span class="pre">may</span></code> 这类规范词；</p></li>
+<li><p>否定词和范围限定词。</p></li>
+</ul>
+<p>如果改写触碰这些字段，输出必须带 <code class="docutils literal notranslate"><span class="pre">requires_human_review:</span> <span class="pre">true</span></code>。不要让“只是润色”绕过评审。</p>
+</section>
+<section id="id6">
+<h3>4. 翻译保留术语表<a class="headerlink" href="#id6" title="Link to this heading">#</a></h3>
+<p>翻译不是自然语言任务，而是术语一致性任务。小团队至少需要一个 <code class="docutils literal notranslate"><span class="pre">vocab/glossary.yaml</span></code>：</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">review_status</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">review_status</span>
+<span class="nt">provenance</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">溯源</span>
+<span class="nt">runbook</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">runbook</span>
+<span class="nt">source_refs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">source_refs</span>
+<span class="nt">drift</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">漂移</span>
+</pre></div>
+</div>
+<p>翻译 prompt 应该把这张表作为硬约束，而不是“参考风格”。术语表越短越好，但必须被测试：随机抽 10 个术语，确认译文没有把 <code class="docutils literal notranslate"><span class="pre">review_status</span></code> 翻成“审查状态”之类看似自然但破坏 schema 的词。</p>
+</section>
+<section id="review-gate">
+<h3>5. Review gate 状态机<a class="headerlink" href="#review-gate" title="Link to this heading">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>[AI drafts]
+    ↓
+review_status: pending  ← 出现在评审队列
+    ↓ (human reviews diff, decides)
+updated_by: ai+human     ← 人修改过草稿
+    ↓ (human approves)
+review_status: approved
+</pre></div>
+</div>
+<p>这里故意没有 <code class="docutils literal notranslate"><span class="pre">review_status:</span> <span class="pre">draft</span></code>。本书当前 footer contract 只把 <code class="docutils literal notranslate"><span class="pre">pending</span></code> 和 <code class="docutils literal notranslate"><span class="pre">approved</span></code> 当作可发布态；“draft”属于 frontmatter 的 <code class="docutils literal notranslate"><span class="pre">status</span></code>，不是 footer 的信任状态。AI 一旦修改了进入仓库的页面，就把 footer 打回 <code class="docutils literal notranslate"><span class="pre">pending</span></code>。人审通过后，才允许 <code class="docutils literal notranslate"><span class="pre">approved</span></code>。</p>
+</section>
+</section>
+<section id="example">
+<h2>Example —— 范例<a class="headerlink" href="#example" title="Link to this heading">#</a></h2>
+<p>林宇要写 <code class="docutils literal notranslate"><span class="pre">runbooks/data-preprocess-failure.md</span></code>。她没有从空白页开始，而是在手机里录了 37 秒语音：</p>
+<blockquote>
+<div><p>预处理失败先看输入路径，不要先重跑全量。第二步看 schema drift，尤其是 <code class="docutils literal notranslate"><span class="pre">sample_id</span></code> 和 <code class="docutils literal notranslate"><span class="pre">batch_id</span></code>。第三步清缓存，只清当前实验目录。还失败再看最近一次 policy 里对数据保留路径的改动。别让新人直接删 shared cache。</p>
+</div></blockquote>
+<p>流水线把语音转成 <code class="docutils literal notranslate"><span class="pre">_audit/audio/2026-05-17-runbook-briefing.wav</span></code> 和对应 transcript，然后生成上面的 task brief。plan pass 输出：</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Outline:
+1. Confirm input path and file count.
+2. Compare incoming schema with expected `sample_id`, `batch_id`.
+3. Clear only experiment-local cache.
+4. Check data-retention policy change.
+5. Escalate when shared cache appears involved.
+
+Open question:
+- Which command prints expected schema?
+</pre></div>
+</div>
+<p>林宇补上一条命令：<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">tools/print_expected_schema.py</span> <span class="pre">--experiment</span> <span class="pre">&lt;id&gt;</span></code>。draft pass 生成 640 字 runbook。她改了三处：</p>
+<ol class="arabic simple">
+<li><p>把“删除缓存”改成“移动到 <code class="docutils literal notranslate"><span class="pre">.trash/</span></code> 并保留 24 小时”；</p></li>
+<li><p>给 schema 检查加上真实命令；</p></li>
+<li><p>删除模型添加的一句“如果仍失败，联系平台团队”（这个小团队没有平台团队）。</p></li>
+</ol>
+<p>最终 diff 的 footer：</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>updated_by: ai+human
+ai_role: drafter
+ai_model: claude-sonnet-2026-04
+source_refs:
+  - _audit/audio/2026-05-17-runbook-briefing.wav
+  - policies/data-retention.md
+review_status: approved
+review_score: 4
+reviewed_by: lin-yu
+</pre></div>
+</div>
+<p>这页不是 AI 自动写进知识库的；它是 AI 把口头知识变成 pending 草稿，再由人把它变成 approved 页面。差别在这里。</p>
+</section>
+<section id="common-mistakes">
+<h2>Common Mistakes —— 常见错误<a class="headerlink" href="#common-mistakes" title="Link to this heading">#</a></h2>
+<ol class="arabic simple">
+<li><p><strong>没有来源就让模型写。</strong> 这会得到一篇像文档的文章，但它不是 KB 条目。KB 条目的最低要求是能回答“这句话从哪来”。</p></li>
+<li><p><strong>把改写当低风险。</strong> 改写最容易丢掉限定词。对规范、policy、runbook，改写必须和起草一样进 <code class="docutils literal notranslate"><span class="pre">pending</span></code>。</p></li>
+<li><p><strong>让 AI 写引用。</strong> AI 可以把来源材料映射到引用点，但引用 ID、文件路径、sha256 应由工具层填充。伪造引用比没有引用更危险。</p></li>
+<li><p><strong>翻译时忘记术语表。</strong> 术语漂移会让中英文版本看似等价、实际无法互相维护。</p></li>
+<li><p><strong>让 drafter 自己评审。</strong> 第 14 章会讲 judge，但 judge 只是辅助信号；drafter 的输出永远不能因为“模型自评通过”而 approved。</p></li>
+</ol>
+</section>
+<section id="conclusion">
+<h2>Conclusion —— 小结<a class="headerlink" href="#conclusion" title="Link to this heading">#</a></h2>
+<p>AI drafter 最适合做的不是替人做最终判断，而是把“我知道该写但还没写”的内容变成一份可评审 diff。起草、改写、翻译三种动作都要进入同一条人审闸：AI 写 <code class="docutils literal notranslate"><span class="pre">pending</span></code>，人改成 <code class="docutils literal notranslate"><span class="pre">ai+human</span></code>，人最后决定是否 <code class="docutils literal notranslate"><span class="pre">approved</span></code>。一旦把 provenance 做足，AI 起草就不再是一次不可追溯的写作外包，而是知识库流水线里的一个普通阶段。</p>
+</section>
+<section id="id7">
+<h2>参考文献<a class="headerlink" href="#id7" title="Link to this heading">#</a></h2>
+<div class="docutils container" id="id8">
+<div role="list" class="citation-list">
+<div class="citation" id="id85" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>Yang Liu, Dan Iter, Yichong Xu, Shuohang Wang, Ruochen Xu, and Chenguang Zhu. G-Eval: NLG evaluation using GPT-4 with better human alignment. In <em>Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing</em>. 2023. URL: <a class="reference external" href="https://arxiv.org/abs/2303.16634">https://arxiv.org/abs/2303.16634</a>.</p>
+</div>
+<div class="citation" id="id86" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></span>
+<p>Lianmin Zheng, Wei-Lin Chiang, Ying Sheng, Siyuan Zhuang, Zhanghao Wu, Yonghao Zhuang, Zi Lin, Zhuohan Li, Dacheng Li, Eric P. Xing, Hao Zhang, Joseph E. Gonzalez, and Ion Stoica. Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena. In <em>Advances in Neural Information Processing Systems 36 (NeurIPS 2023)</em>. 2023. URL: <a class="reference external" href="https://arxiv.org/abs/2306.05685">https://arxiv.org/abs/2306.05685</a>.</p>
+</div>
+</div>
+</div>
+<!-- PKB-metadata
+layer: author
+updated_by: human
+review_status: pending
+review_score: 0
+commit: HEAD
+-->
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="ch10-why-ai-as-author.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">第 10 章 —— 为什么让 AI 当作者</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="ch12-ai-for-metadata.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">第 12 章 —— AI 处理元数据：分类、打标签、实体与关系抽取</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 目录
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why">Why —— 为什么</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what">What —— 是什么</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how">How —— 怎么做</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#task-brief">1. 先写 task brief，不直接让模型写正文</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">2. 将起草和改写分成两次调用</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">3. 改写时锁定“不可改字段”</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">4. 翻译保留术语表</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#review-gate">5. Review gate 状态机</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example —— 范例</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#common-mistakes">Common Mistakes —— 常见错误</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#conclusion">Conclusion —— 小结</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">参考文献</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+作者： Walter Fan
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright AI 辅助创作 2026, Walter Fan.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    <p class="last-updated">
+  最后更新于 2026-11-10.
+  <br/>
+</p>
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

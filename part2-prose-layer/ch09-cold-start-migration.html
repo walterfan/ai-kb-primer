@@ -1,0 +1,1354 @@
+
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>第 9 章 —— 冷启动与批量迁移 &#8212; Use AI to build a knowledge base for a software project</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=591f613d" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=23f7fa08"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../_static/translations.js?v=beaddf03"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.2.0/dist/mermaid-layout-elk.esm.min.mjs"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";import elkLayouts from "https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.2.0/dist/mermaid-layout-elk.esm.min.mjs";mermaid.registerLayoutLoaders(elkLayouts);mermaid.initialize({startOnLoad:false});</script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+const defaultStyle = document.createElement('style');
+defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+`;
+document.head.appendChild(defaultStyle);
+
+const fullscreenStyle = document.createElement('style');
+fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+document.head.appendChild(fullscreenStyle);
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        return brightness < 128;
+    }
+    return false;
+};
+
+const load = async () => {
+    await mermaid.run();
+
+    const all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(load, 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(load, 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(load, 200);
+        return;
+    }
+
+    const darkTheme = isDarkTheme();
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    const modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    const modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    let previousScrollOffset = [window.scrollX, window.scrollY];
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    const allButtons = [];
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+
+        container.appendChild(fullscreenBtn);
+        allButtons.push(fullscreenBtn);
+    });
+
+    // Update theme classes when theme changes
+    const updateTheme = () => {
+        const dark = isDarkTheme();
+        allButtons.forEach(btn => {
+            if (dark) {
+                btn.classList.add('dark-theme');
+            } else {
+                btn.classList.remove('dark-theme');
+            }
+        });
+        if (dark) {
+            modal.classList.add('dark-theme');
+            modalContent.classList.add('dark-theme');
+            closeBtn.classList.add('dark-theme');
+        } else {
+            modal.classList.remove('dark-theme');
+            modalContent.classList.remove('dark-theme');
+            closeBtn.classList.remove('dark-theme');
+        }
+    };
+
+    // Watch for theme changes
+    const observer = new MutationObserver(updateTheme);
+    observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    observer.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style']
+    });
+};
+
+window.addEventListener("load", load);
+</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'part2-prose-layer/ch09-cold-start-migration';</script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="第三部分 —— 作者层" href="../part3-author-layer/index.html" />
+    <link rel="prev" title="第 8 章 —— 文稿层的运维模型" href="ch08-prose-operational-model.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+    <meta name="docbuild:last-update" content="2026-11-10"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Use AI to build a knowledge base for a software project</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">搜索</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Part I — Foundations</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part1-foundations/index.html">第一部分 —— 基础</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch01-why-kb-for-software.html">第 1 章 —— 为什么要给软件建一个知识库？</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch01a-quickstart-30min.html">第 1a 章 —— 30 分钟快速上手</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch02-ir-rag-primer.html">第 2 章 —— IR 与 RAG 入门</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch03-diataxis-and-software-docs.html">第 3 章 —— Diátaxis 与软件文档</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part II — The Prose Layer</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">第二部分 —— 文稿层</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="ch04-file-based-wiki.html">第 4 章 —— 一个基于文件的 wiki</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ch05-frontmatter-provenance-trust.html">第 5 章 —— 把 frontmatter 当作一份来源记录</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ch06-llm-classification-pipeline.html">第 6 章 —— 分类流水线</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ch07-publish-and-search.html">第 7 章 —— 发布与搜索</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ch08-prose-operational-model.html">第 8 章 —— 文稿层的运维模型</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">第 9 章 —— 冷启动与批量迁移</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part III — The Author Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part3-author-layer/index.html">第三部分 —— 作者层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch10-why-ai-as-author.html">第 10 章 —— 为什么让 AI 当作者</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch11-ai-drafting-and-rewriting.html">第 11 章 —— AI 起草、重写、翻译</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch12-ai-for-metadata.html">第 12 章 —— AI 处理元数据：分类、打标签、实体与关系抽取</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch13-ai-for-maintenance.html">第 13 章 —— AI 做维护：摘要、去重、过期与漂移检测</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch14-ai-as-judge.html">第 14 章 —— AI 作为评判者：评估生成质量与引用合规</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part IV — The Code Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part4-code-layer/index.html">第四部分 —— 代码层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch15-why-code-is-not-prose.html">第 15 章 —— 为什么代码不是文稿</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch16-parsing-and-entity-extraction.html">第 16 章 —— 解析与实体抽取</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch17-embeddings-and-vector-stores.html">第 17 章 —— 嵌入向量与向量存储</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch18-code-knowledge-graph.html">第 18 章 —— 代码知识图谱</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch19-hybrid-retrieval-and-rrf.html">第 19 章 —— 混合检索与 RRF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch20-prompt-and-generation.html">第 20 章 —— 提示词与生成</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part V — Operations &amp; Lifecycle</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part5-operations-lifecycle/index.html">第五部分 —— 运维与生命周期</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part5-operations-lifecycle/ch21-incremental-sync.html">第 21 章 —— 增量同步</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part5-operations-lifecycle/ch22-evaluation-and-benchmarks.html">第 22 章 —— 评测、基准与发布门禁</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part5-operations-lifecycle/ch23-maintenance-drift-and-link-rot.html">第 23 章 —— 维护、漂移与链接腐化</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part VI — The Hybrid Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part6-hybrid-layer/index.html">第六部分 —— 混合层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch24-prose-meets-code.html">第 24 章 —— 文稿与代码相遇</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch25-document-layering-L0-L4.html">第 25 章 —— 文档分层 L0–L4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch26-graph-guided-context-assembly.html">第 26 章 —— 图引导的上下文组装</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch27-harnessing-ai-coding.html">第 27 章 —— 用知识库驾驭 AI 编码</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch28-team-sdlc-integration.html">第 28 章 —— 团队协作与 SDLC 集成</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch29-ai-agents-on-the-kb.html">第 29 章 —— 在知识库上跑的 AI Agent</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part VII — Governance &amp; Outlook</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part7-governance-and-outlook/index.html">第七部分 —— 治理与展望</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch30-cost-privacy-security.html">第 30 章 —— 成本、隐私、安全</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch31-trust-provenance-and-red-teaming.html">第 31 章 —— 信任、出处与红队演练</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch32-outlook-and-open-problems.html">第 32 章 —— 展望与尚未解决的问题</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Appendices</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-a-example-wiki.html">附录 A —— 端到端：从杂乱文件夹到可发布 Wiki</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-b-example-code-kg.html">附录 B —— 示例：从一个 Go 仓库构建代码知识库</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-c-deepwiki-checklist.html">附录 C —— 自己动手做 DeepWiki 检查清单</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-d-glossary.html">附录 D —— 术语表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-e-bilingual-publishing.html">附录 E —— 发布一个双语知识库</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">参考文献</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../reference/index.html">参考文献：仓库级代码理解与软件知识库论文导读</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../reference/01-repoformer-selective-retrieval.html">Repoformer: Selective Retrieval for Repository-Level Code Completion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/02-codeplan-repository-level-planning.html">CodePlan: Repository-Level Coding using LLMs and Planning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/03-repograph-code-graph-navigation.html">RepoGraph: Enhancing AI Software Engineering with Repository-level Code Graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/04-repoagent-documentation-generation.html">RepoAgent: An LLM-Powered Open-Source Framework for Repository-level Code Documentation Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/05-repocoder-iterative-retrieval-generation.html">RepoCoder: Repository-Level Code Completion Through Iterative Retrieval and Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/06-llm-kg-synergy-repo-qa.html">Synergizing LLMs and Knowledge Graphs: A Novel Approach to Software Repository-Related Question Answering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/07-repo-level-prompt-generation.html">Repository-Level Prompt Generation for Large Language Models of Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/08-repobench-benchmarking.html">RepoBench: Benchmarking Repository-Level Code Auto-Completion Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/09-long-code-arena-benchmarks.html">Long Code Arena: A Set of Benchmarks for Long-Context Code Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/10-cgm-graph-integrated-llm.html">Code Graph Model (CGM): A Graph-Integrated Large Language Model for Repository-Level Software Engineering Tasks</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="下载此页面">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="下载源文件"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="列印成 PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="全屏模式"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>第 9 章 —— 冷启动与批量迁移</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> 目录 </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">为什么</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">是什么</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">怎么做</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#phase-1">Phase 1：盘点与分流</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#phase-2">Phase 2：源端导出</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#confluence-html">Confluence → 原始 HTML</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#notion-markdown">Notion → Markdown</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#jira-json">Jira → JSON</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#google-docs-docx">Google Docs → DOCX</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#phase-3">Phase 3：格式转换</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#phase-4">Phase 4：批量分类</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#phase-5">Phase 5：去重与冲突</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#phase-6">Phase 6：增量追赶</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">来源信任默认值</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">示例</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">常见错误</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">小结</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">参考文献</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="id1">
+<h1>第 9 章 —— 冷启动与批量迁移<a class="headerlink" href="#id1" title="Link to this heading">#</a></h1>
+<section id="id2">
+<h2>为什么<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
+<p>知识库最大的敌人不是技术，而是<strong>空白页面</strong>。</p>
+<p>一个典型的中型团队在决定&quot;建知识库&quot;之前，往往已经积累了：</p>
+<ul class="simple">
+<li><p>500+ 页 Confluence wiki（其中 60% 两年没人碰过）</p></li>
+<li><p>200+ 篇 Notion 文档（一半是 database 视图）</p></li>
+<li><p>1000+ 条 Jira ticket（epic description 里藏着架构决策）</p></li>
+<li><p>几十份 Google Docs（评审会议纪要、设计讨论稿）</p></li>
+</ul>
+<p>如果你的 KB 第一天只有空白模板，没有人会用它。<strong>冷启动的核心问题不是&quot;怎么导&quot;，而是&quot;怎么在导入过程中建立信任&quot;</strong> —— 导进来的东西必须有正确的 <code class="docutils literal notranslate"><span class="pre">verification_status</span></code>、合理的 <code class="docutils literal notranslate"><span class="pre">doc_type</span></code>、和真实的 <code class="docutils literal notranslate"><span class="pre">source_path</span></code>。</p>
+<p>本章把这个过程拆成六个阶段，每个阶段都有明确的入口条件和出口检查。</p>
+</section>
+<section id="id3">
+<h2>是什么<a class="headerlink" href="#id3" title="Link to this heading">#</a></h2>
+<pre  class="mermaid">
+        flowchart LR
+    A[&quot;Phase 1&lt;br/&gt;盘点与分流&quot;] --&gt; B[&quot;Phase 2&lt;br/&gt;源端导出&quot;]
+    B --&gt; C[&quot;Phase 3&lt;br/&gt;转换为 Markdown&quot;]
+    C --&gt; D[&quot;Phase 4&lt;br/&gt;批量分类&quot;]
+    D --&gt; E[&quot;Phase 5&lt;br/&gt;去重与冲突&quot;]
+    E --&gt; F[&quot;Phase 6&lt;br/&gt;增量追赶&quot;]
+    </pre><div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>阶段</p></th>
+<th class="head text-left"><p>输入</p></th>
+<th class="head text-left"><p>输出</p></th>
+<th class="head text-left"><p>关键决策</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p>Phase 1 盘点与分流</p></td>
+<td class="text-left"><p>所有源端页面列表</p></td>
+<td class="text-left"><p>keep / archive / discard 三分表</p></td>
+<td class="text-left"><p>什么值得迁移？</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>Phase 2 源端导出</p></td>
+<td class="text-left"><p>keep 列表</p></td>
+<td class="text-left"><p>原始文件（HTML / Markdown / JSON）</p></td>
+<td class="text-left"><p>导出粒度（全量 vs 增量）</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>Phase 3 格式转换</p></td>
+<td class="text-left"><p>原始文件</p></td>
+<td class="text-left"><p>带 frontmatter 的 <code class="docutils literal notranslate"><span class="pre">.md</span></code> 文件</p></td>
+<td class="text-left"><p>元数据映射规则</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>Phase 4 批量分类</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">.md</span></code> 文件</p></td>
+<td class="text-left"><p>带 <code class="docutils literal notranslate"><span class="pre">doc_type</span></code> 的页面</p></td>
+<td class="text-left"><p>LLM vs 启发式回退</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>Phase 5 去重与冲突</p></td>
+<td class="text-left"><p>分类后的页面</p></td>
+<td class="text-left"><p>去重后的唯一页面集</p></td>
+<td class="text-left"><p>同源 vs 跨源冲突</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>Phase 6 增量追赶</p></td>
+<td class="text-left"><p>KB + 源端变更流</p></td>
+<td class="text-left"><p>持续同步状态</p></td>
+<td class="text-left"><p>webhook vs 轮询</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="id4">
+<h2>怎么做<a class="headerlink" href="#id4" title="Link to this heading">#</a></h2>
+<section id="phase-1">
+<h3>Phase 1：盘点与分流<a class="headerlink" href="#phase-1" title="Link to this heading">#</a></h3>
+<p>在碰任何导出按钮之前，先做一次<strong>盘点</strong>：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Confluence: 用 REST API 拉页面清单</span>
+curl<span class="w"> </span>-u<span class="w"> </span>user:token<span class="w"> </span><span class="s2">&quot;https://wiki.example.com/rest/api/content?limit=500&amp;expand=version&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.results[] | {id, title, version: .version.number, lastUpdated: .version.when}&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>&gt;<span class="w"> </span>confluence_inventory.jsonl
+
+<span class="c1"># Notion: 用 Notion API 拉数据库</span>
+curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">&quot;https://api.notion.com/v1/search&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer </span><span class="nv">$NOTION_TOKEN</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Notion-Version: 2022-06-28&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;page_size&quot;: 100}&#39;</span><span class="w"> </span>&gt;<span class="w"> </span>notion_inventory.json
+</pre></div>
+</div>
+<p>然后按三个维度打分，决定 keep / archive / discard：</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>维度</p></th>
+<th class="head text-left"><p>权重</p></th>
+<th class="head text-left"><p>评分标准</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p><strong>新鲜度</strong></p></td>
+<td class="text-left"><p>40%</p></td>
+<td class="text-left"><p>最后更新距今 &lt; 6 月 = 3, &lt; 2 年 = 2, &gt; 2 年 = 1</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><strong>引用密度</strong></p></td>
+<td class="text-left"><p>30%</p></td>
+<td class="text-left"><p>被其他页面引用 ≥ 3 次 = 3, 1-2 次 = 2, 0 次 = 1</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p><strong>知识类型</strong></p></td>
+<td class="text-left"><p>30%</p></td>
+<td class="text-left"><p>ADR/runbook = 3, how-to/tutorial = 2, meeting notes = 1</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul class="simple">
+<li><p>综合分 ≥ 7：<strong>keep</strong> —— 迁入 KB</p></li>
+<li><p>综合分 4-6：<strong>archive</strong> —— 保留源端只读副本，不导入</p></li>
+<li><p>综合分 ≤ 3：<strong>discard</strong> —— 标记为废弃</p></li>
+</ul>
+<blockquote>
+<div><p><strong>经验法则</strong>：典型团队的 keep 率约 30-40%。如果你的 keep 率超过 70%，说明分流标准太松。</p>
+</div></blockquote>
+</section>
+<section id="phase-2">
+<h3>Phase 2：源端导出<a class="headerlink" href="#phase-2" title="Link to this heading">#</a></h3>
+<section id="confluence-html">
+<h4>Confluence → 原始 HTML<a class="headerlink" href="#confluence-html" title="Link to this heading">#</a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 方法一：REST API 逐页导出（推荐，可控性强）</span>
+<span class="k">for</span><span class="w"> </span>page_id<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">$(</span>cat<span class="w"> </span>keep_list.txt<span class="k">)</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span>curl<span class="w"> </span>-u<span class="w"> </span>user:token<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="s2">&quot;https://wiki.example.com/rest/api/content/</span><span class="si">${</span><span class="nv">page_id</span><span class="si">}</span><span class="s2">?expand=body.export_view,ancestors&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-o<span class="w"> </span><span class="s2">&quot;confluence_raw/</span><span class="si">${</span><span class="nv">page_id</span><span class="si">}</span><span class="s2">.json&quot;</span>
+<span class="w">  </span>sleep<span class="w"> </span><span class="m">0</span>.5<span class="w">  </span><span class="c1"># 限速，避免触发 429</span>
+<span class="k">done</span>
+
+<span class="c1"># 方法二：Confluence 空间导出（一次性，适合小空间）</span>
+<span class="c1"># Admin → Space Settings → Export → HTML</span>
+</pre></div>
+</div>
+</section>
+<section id="notion-markdown">
+<h4>Notion → Markdown<a class="headerlink" href="#notion-markdown" title="Link to this heading">#</a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Notion 原生导出：Settings → Export → Markdown &amp; CSV</span>
+<span class="c1"># 注意：database 页面会导出为 CSV，需要后处理</span>
+
+<span class="c1"># 更好的方式：用 notion2md 工具</span>
+pip<span class="w"> </span>install<span class="w"> </span>notion2md
+notion2md<span class="w"> </span>--token<span class="w"> </span><span class="nv">$NOTION_TOKEN</span><span class="w"> </span>--output<span class="w"> </span>notion_raw/
+</pre></div>
+</div>
+</section>
+<section id="jira-json">
+<h4>Jira → JSON<a class="headerlink" href="#jira-json" title="Link to this heading">#</a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># JQL 查询知识密集型 ticket</span>
+curl<span class="w"> </span>-u<span class="w"> </span>user:token<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s2">&quot;https://jira.example.com/rest/api/2/search?jql=project=PROJ+AND+type+in+(Epic,Story)+AND+resolution=Done&amp;maxResults=200&amp;fields=summary,description,comment,resolution,components&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-o<span class="w"> </span>jira_raw/tickets.json
+</pre></div>
+</div>
+</section>
+<section id="google-docs-docx">
+<h4>Google Docs → DOCX<a class="headerlink" href="#google-docs-docx" title="Link to this heading">#</a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 使用 Google Drive API 批量下载为 DOCX</span>
+<span class="c1"># 然后用 pandoc 转为 Markdown</span>
+<span class="k">for</span><span class="w"> </span>doc_id<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">$(</span>cat<span class="w"> </span>gdocs_keep.txt<span class="k">)</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span>curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer </span><span class="nv">$GCLOUD_TOKEN</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="s2">&quot;https://www.googleapis.com/drive/v3/files/</span><span class="si">${</span><span class="nv">doc_id</span><span class="si">}</span><span class="s2">/export?mimeType=application/vnd.openxmlformats-officedocument.wordprocessingml.document&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-o<span class="w"> </span><span class="s2">&quot;gdocs_raw/</span><span class="si">${</span><span class="nv">doc_id</span><span class="si">}</span><span class="s2">.docx&quot;</span>
+<span class="k">done</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="phase-3">
+<h3>Phase 3：格式转换<a class="headerlink" href="#phase-3" title="Link to this heading">#</a></h3>
+<p>核心任务是把各种格式转为<strong>带 frontmatter 的 Markdown</strong>。</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Confluence HTML → Markdown</span>
+<span class="k">for</span><span class="w"> </span>f<span class="w"> </span><span class="k">in</span><span class="w"> </span>confluence_raw/*.json<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span><span class="nv">page_id</span><span class="o">=</span><span class="k">$(</span>basename<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$f</span><span class="s2">&quot;</span><span class="w"> </span>.json<span class="k">)</span>
+<span class="w">  </span><span class="c1"># 提取 HTML body + 元数据</span>
+<span class="w">  </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.body.export_view.value&#39;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$f</span><span class="s2">&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>pandoc<span class="w"> </span>-f<span class="w"> </span>html<span class="w"> </span>-t<span class="w"> </span>markdown-raw_html<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--wrap<span class="o">=</span>none<span class="w"> </span>-o<span class="w"> </span><span class="s2">&quot;converted/</span><span class="si">${</span><span class="nv">page_id</span><span class="si">}</span><span class="s2">.md&quot;</span>
+<span class="w">  </span><span class="c1"># 注入 frontmatter</span>
+<span class="w">  </span>python3<span class="w"> </span>inject_frontmatter.py<span class="w"> </span><span class="s2">&quot;converted/</span><span class="si">${</span><span class="nv">page_id</span><span class="si">}</span><span class="s2">.md&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--source<span class="w"> </span><span class="s2">&quot;confluence&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--source-path<span class="w"> </span><span class="s2">&quot;https://wiki.example.com/pages/</span><span class="si">${</span><span class="nv">page_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--created-by<span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.version.by.displayName&#39;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$f</span><span class="s2">&quot;</span><span class="k">)</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--created-at<span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.version.when&#39;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$f</span><span class="s2">&quot;</span><span class="k">)</span><span class="s2">&quot;</span>
+<span class="k">done</span>
+
+<span class="c1"># Google Docs DOCX → Markdown</span>
+<span class="k">for</span><span class="w"> </span>f<span class="w"> </span><span class="k">in</span><span class="w"> </span>gdocs_raw/*.docx<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span>pandoc<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$f</span><span class="s2">&quot;</span><span class="w"> </span>-t<span class="w"> </span>markdown<span class="w"> </span>--extract-media<span class="o">=</span>_static/gdocs/<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-o<span class="w"> </span><span class="s2">&quot;converted/</span><span class="k">$(</span>basename<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$f</span><span class="s2">&quot;</span><span class="w"> </span>.docx<span class="k">)</span><span class="s2">.md&quot;</span>
+<span class="k">done</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">inject_frontmatter.py</span></code> 生成的 frontmatter 模板：</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nn">---</span>
+<span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;从</span><span class="nv"> </span><span class="s">Confluence</span><span class="nv"> </span><span class="s">迁移的页面标题&quot;</span>
+<span class="nt">status</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">draft</span>
+<span class="nt">authors</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;原始作者&quot;</span><span class="p p-Indicator">]</span>
+<span class="nt">last_verified_commit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">HEAD</span>
+<span class="nt">zh_status</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">none</span>
+<span class="nt">keywords</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="nt">source</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">confluence</span>
+<span class="nt">source_path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;https://wiki.example.com/pages/12345&quot;</span>
+<span class="nt">created_by</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;John</span><span class="nv"> </span><span class="s">Doe&quot;</span>
+<span class="nt">created_at</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2024-03-15T10:30:00Z&quot;</span>
+<span class="nt">migrated_at</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2026-04-26T12:00:00Z&quot;</span>
+<span class="nn">---</span>
+</pre></div>
+</div>
+</section>
+<section id="phase-4">
+<h3>Phase 4：批量分类<a class="headerlink" href="#phase-4" title="Link to this heading">#</a></h3>
+<p>复用第 6 章的分类流水线，但需要注意批量模式的特殊处理：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 不要一次性跑完所有页面！分批处理</span>
+ls<span class="w"> </span>converted/*.md<span class="w"> </span><span class="p">|</span><span class="w"> </span>split<span class="w"> </span>-l<span class="w"> </span><span class="m">50</span><span class="w"> </span>-<span class="w"> </span>batch_
+
+<span class="k">for</span><span class="w"> </span>batch<span class="w"> </span><span class="k">in</span><span class="w"> </span>batch_*<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span><span class="k">for</span><span class="w"> </span>f<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">$(</span>cat<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$batch</span><span class="s2">&quot;</span><span class="k">)</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">    </span>lazy-kb<span class="w"> </span>ingest<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$f</span><span class="s2">&quot;</span><span class="w"> </span>--classifier<span class="w"> </span>llm<span class="w"> </span>--dry-run<span class="w">  </span><span class="c1"># 先 dry-run 检查</span>
+<span class="w">  </span><span class="k">done</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Batch </span><span class="nv">$batch</span><span class="s2"> done. Sleeping 60s for rate limit...&quot;</span>
+<span class="w">  </span>sleep<span class="w"> </span><span class="m">60</span>
+<span class="k">done</span>
+
+<span class="c1"># 确认分类结果</span>
+lazy-kb<span class="w"> </span>status<span class="w"> </span>--format<span class="w"> </span>table<span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-20
+</pre></div>
+</div>
+<blockquote>
+<div><p><strong>成本预算</strong>：假设 300 页 × 平均 2k tokens/页 × <span class="math notranslate nohighlight">\(0.15/1M input tokens (GPT-4o-mini) ≈ \)</span>0.09。批量分类的成本几乎可以忽略。</p>
+</div></blockquote>
+</section>
+<section id="phase-5">
+<h3>Phase 5：去重与冲突<a class="headerlink" href="#phase-5" title="Link to this heading">#</a></h3>
+<p>同一份文档可能在 Confluence 和 Notion 里各有一份。去重算法：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">hashlib</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">content_hash</span><span class="p">(</span><span class="n">body</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;归一化后计算内容指纹&quot;&quot;&quot;</span>
+    <span class="n">normalized</span> <span class="o">=</span> <span class="n">body</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="n">normalized</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\s+&#39;</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="n">normalized</span><span class="p">)</span>  <span class="c1"># 压缩空白</span>
+    <span class="n">normalized</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;!\[.*?\]\(.*?\)&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">normalized</span><span class="p">)</span>  <span class="c1"># 移除图片</span>
+    <span class="k">return</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="n">normalized</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()[:</span><span class="mi">16</span><span class="p">]</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">dedup</span><span class="p">(</span><span class="n">pages</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Page</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Page</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;保留最新的版本&quot;&quot;&quot;</span>
+    <span class="n">seen</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Page</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">page</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">pages</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">created_at</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">content_hash</span><span class="p">(</span><span class="n">page</span><span class="o">.</span><span class="n">body</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">h</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
+            <span class="n">seen</span><span class="p">[</span><span class="n">h</span><span class="p">]</span> <span class="o">=</span> <span class="n">page</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># 记录冲突，保留较新的</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Duplicate: </span><span class="si">{</span><span class="n">page</span><span class="o">.</span><span class="n">source_path</span><span class="si">}</span><span class="s2"> ≈ </span><span class="si">{</span><span class="n">seen</span><span class="p">[</span><span class="n">h</span><span class="p">]</span><span class="o">.</span><span class="n">source_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">seen</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+</pre></div>
+</div>
+<p><strong>跨源冲突解决规则</strong>：</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>冲突类型</p></th>
+<th class="head text-left"><p>策略</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p>内容完全相同</p></td>
+<td class="text-left"><p>保留 <code class="docutils literal notranslate"><span class="pre">created_at</span></code> 较新的</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>内容相似（hash 不同但标题相同）</p></td>
+<td class="text-left"><p>手动审核，标记为 L3</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>同一主题不同视角</p></td>
+<td class="text-left"><p>两份都保留，在 frontmatter 中互相引用</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="phase-6">
+<h3>Phase 6：增量追赶<a class="headerlink" href="#phase-6" title="Link to this heading">#</a></h3>
+<p>迁移不是一次性的。从你开始导出到完成分类，源端可能已经有了新变更。</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># cron_catch_up.yaml — 每日增量追赶</span>
+<span class="nt">schedule</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0</span><span class="nv"> </span><span class="s">2</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*&quot;</span><span class="w">  </span><span class="c1"># 每天凌晨 2 点</span>
+<span class="nt">tasks</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">confluence-catchup</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">webhook</span><span class="w">  </span><span class="c1"># Confluence 支持 webhook</span>
+<span class="w">    </span><span class="nt">endpoint</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/api/webhooks/confluence</span>
+<span class="w">    </span><span class="nt">filter</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;space</span><span class="nv"> </span><span class="s">=</span><span class="nv"> </span><span class="s">PROJ</span><span class="nv"> </span><span class="s">AND</span><span class="nv"> </span><span class="s">lastModified</span><span class="nv"> </span><span class="s">&gt;</span><span class="nv"> </span><span class="s">${LAST_SYNC}&quot;</span>
+
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jira-catchup</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">polling</span><span class="w">  </span><span class="c1"># Jira 用轮询</span>
+<span class="w">    </span><span class="nt">jql</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;project</span><span class="nv"> </span><span class="s">=</span><span class="nv"> </span><span class="s">PROJ</span><span class="nv"> </span><span class="s">AND</span><span class="nv"> </span><span class="s">updated</span><span class="nv"> </span><span class="s">&gt;</span><span class="nv"> </span><span class="s">-1d&quot;</span>
+<span class="w">    </span><span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">24h</span>
+
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">notion-catchup</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">polling</span><span class="w">  </span><span class="c1"># Notion API 用 last_edited_time 过滤</span>
+<span class="w">    </span><span class="nt">filter</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;last_edited_time</span><span class="nv"> </span><span class="s">&gt;</span><span class="nv"> </span><span class="s">${LAST_SYNC}&quot;</span>
+<span class="w">    </span><span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">12h</span>
+</pre></div>
+</div>
+<p>追赶阶段的页面与首次导入走同样的 Phase 3-5 流水线，但 <code class="docutils literal notranslate"><span class="pre">migrated_at</span></code> 字段更新为当前时间。</p>
+</section>
+</section>
+<section id="id5">
+<h2>来源信任默认值<a class="headerlink" href="#id5" title="Link to this heading">#</a></h2>
+<p>不同来源的文档，信任起点不同：</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>来源</p></th>
+<th class="head text-left"><p>默认 layer</p></th>
+<th class="head text-left"><p>review_status</p></th>
+<th class="head text-left"><p>verification_status</p></th>
+<th class="head text-left"><p>理由</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p><strong>OpenSpec / ADR</strong></p></td>
+<td class="text-left"><p>L1</p></td>
+<td class="text-left"><p>approved</p></td>
+<td class="text-left"><p>supported</p></td>
+<td class="text-left"><p>已经过正式评审流程</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><strong>Confluence（人写）</strong></p></td>
+<td class="text-left"><p>L1</p></td>
+<td class="text-left"><p>pending</p></td>
+<td class="text-left"><p>unreviewed</p></td>
+<td class="text-left"><p>未经迁移后验证</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p><strong>Notion（混合）</strong></p></td>
+<td class="text-left"><p>L2</p></td>
+<td class="text-left"><p>pending</p></td>
+<td class="text-left"><p>unreviewed</p></td>
+<td class="text-left"><p>可能含 AI 生成内容</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><strong>Jira ticket</strong></p></td>
+<td class="text-left"><p>L1</p></td>
+<td class="text-left"><p>pending</p></td>
+<td class="text-left"><p>unreviewed</p></td>
+<td class="text-left"><p>上下文可能已过时</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p><strong>Google Docs</strong></p></td>
+<td class="text-left"><p>L2</p></td>
+<td class="text-left"><p>pending</p></td>
+<td class="text-left"><p>uncertain</p></td>
+<td class="text-left"><p>多人协作，出处不清</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><strong>AI 生成计划</strong></p></td>
+<td class="text-left"><p>L3</p></td>
+<td class="text-left"><p>pending</p></td>
+<td class="text-left"><p>unreviewed</p></td>
+<td class="text-left"><p>始终需要人类审核</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<blockquote>
+<div><p><strong>铁律</strong>：任何自动导入的页面，<code class="docutils literal notranslate"><span class="pre">review_status</span></code> <strong>一律设为 <code class="docutils literal notranslate"><span class="pre">pending</span></code></strong>。绝对不能因为 Confluence 上&quot;看起来像是被审核过的&quot;就设为 <code class="docutils literal notranslate"><span class="pre">approved</span></code>。</p>
+</div></blockquote>
+</section>
+<section id="id6">
+<h2>示例<a class="headerlink" href="#id6" title="Link to this heading">#</a></h2>
+<p>假设 Acme 团队决定迁移到 KB。他们的存量：</p>
+<ul class="simple">
+<li><p>Confluence：50 页（PROJ 空间）</p></li>
+<li><p>Notion：30 篇文档（工程部 workspace）</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Phase 1: 盘点
+  Confluence 50 页 → keep 18, archive 20, discard 12
+  Notion 30 页 → keep 12, archive 10, discard 8
+  合计 keep: 30 页
+
+Phase 2: 导出
+  Confluence: REST API 逐页导出 → 18 个 JSON 文件
+  Notion: notion2md 导出 → 12 个 .md 文件
+  耗时: ~15 分钟
+
+Phase 3: 转换
+  pandoc 转换 + frontmatter 注入
+  18 + 12 = 30 个标准 .md 文件
+  耗时: ~10 分钟（脚本自动化）
+
+Phase 4: 分类
+  30 页 × LLM 分类 → 8 tutorial, 10 how-to, 7 reference, 5 explanation
+  成本: 30 × 2k tokens × $0.15/1M ≈ $0.01
+  耗时: ~5 分钟
+
+Phase 5: 去重
+  发现 3 对跨源重复 → 保留较新版本
+  最终: 27 个唯一页面
+
+Phase 6: 追赶
+  设置 Confluence webhook + Notion 轮询
+  第一周捕获 2 个更新页面
+</pre></div>
+</div>
+<p><strong>从零到一个 27 页的可搜索 KB，总耗时约 1 小时，成本 &lt; $0.10。</strong></p>
+</section>
+<section id="id7">
+<h2>常见错误<a class="headerlink" href="#id7" title="Link to this heading">#</a></h2>
+<ol class="arabic simple">
+<li><p><strong>什么都迁</strong>。不做 Phase 1 分流，把 500 页全导进来。结果：KB 充满过期内容，搜索质量暴跌，用户失去信任。</p></li>
+<li><p><strong>丢失页面层级</strong>。Confluence 的 parent-child 关系在导出时被拍平。应该把 <code class="docutils literal notranslate"><span class="pre">ancestors</span></code> 字段映射为目录结构。</p></li>
+<li><p><strong>信任默认值设太高</strong>。导入的页面全部标记为 <code class="docutils literal notranslate"><span class="pre">approved</span></code>。后果：stale 内容被当作权威来源。<strong>一律设为 <code class="docutils literal notranslate"><span class="pre">pending</span></code></strong>。</p></li>
+<li><p><strong>忽略附件和图片</strong>。Confluence 页面嵌的图（附件存储）在 HTML 导出里是相对路径。必须下载附件并映射到 <code class="docutils literal notranslate"><span class="pre">_static/</span></code> 目录。</p></li>
+<li><p><strong>一次性跑完所有分类</strong>。300 页同时发给 LLM API，触发 429 限速。应该分批处理（每批 50 页，间隔 60 秒）。</p></li>
+<li><p><strong>不处理 Confluence 宏</strong>。<code class="docutils literal notranslate"><span class="pre">{code}</span></code>, <code class="docutils literal notranslate"><span class="pre">{panel}</span></code>, <code class="docutils literal notranslate"><span class="pre">{expand}</span></code>, <code class="docutils literal notranslate"><span class="pre">{toc}</span></code> 等 Confluence 宏在 HTML 导出中会变成复杂的 <code class="docutils literal notranslate"><span class="pre">div</span></code> 结构。pandoc 默认丢弃它们。需要预处理脚本把宏转为等价 Markdown。</p></li>
+<li><p><strong>忘记增量追赶</strong>。迁移耗时一周，这一周源端新增了 10 页修改。如果不做 Phase 6，KB 从第一天就是过时的。</p></li>
+</ol>
+</section>
+<section id="id8">
+<h2>小结<a class="headerlink" href="#id8" title="Link to this heading">#</a></h2>
+<p>冷启动不是技术问题，是<strong>信任建设问题</strong>。六阶段框架确保：</p>
+<ol class="arabic simple">
+<li><p><strong>只迁有价值的</strong>（Phase 1 分流）</p></li>
+<li><p><strong>保留出处链</strong>（Phase 3 frontmatter 注入）</p></li>
+<li><p><strong>诚实标记信任级别</strong>（Phase 4-5 默认 pending）</p></li>
+<li><p><strong>不掉队</strong>（Phase 6 增量追赶）</p></li>
+</ol>
+<p>迁移完成后的 KB，每一页都能回答三个问题：“这是从哪来的？”“谁审核过？”“最后一次验证是什么时候？”</p>
+</section>
+<section id="id9">
+<h2>参考文献<a class="headerlink" href="#id9" title="Link to this heading">#</a></h2>
+<span class="target" id="id10"></span><!-- PKB-metadata
+layer: L2
+updated_by: ai
+review_status: pending
+review_score: 0
+commit: HEAD
+-->
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="ch08-prose-operational-model.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">第 8 章 —— 文稿层的运维模型</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../part3-author-layer/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">第三部分 —— 作者层</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 目录
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">为什么</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">是什么</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">怎么做</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#phase-1">Phase 1：盘点与分流</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#phase-2">Phase 2：源端导出</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#confluence-html">Confluence → 原始 HTML</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#notion-markdown">Notion → Markdown</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#jira-json">Jira → JSON</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#google-docs-docx">Google Docs → DOCX</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#phase-3">Phase 3：格式转换</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#phase-4">Phase 4：批量分类</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#phase-5">Phase 5：去重与冲突</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#phase-6">Phase 6：增量追赶</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">来源信任默认值</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">示例</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">常见错误</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">小结</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">参考文献</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+作者： Walter Fan
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright AI 辅助创作 2026, Walter Fan.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    <p class="last-updated">
+  最后更新于 2026-11-10.
+  <br/>
+</p>
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

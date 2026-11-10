@@ -1,0 +1,1505 @@
+
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>第 8 章 —— 文稿层的运维模型 &#8212; Use AI to build a knowledge base for a software project</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=591f613d" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=23f7fa08"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../_static/translations.js?v=beaddf03"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.2.0/dist/mermaid-layout-elk.esm.min.mjs"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";import elkLayouts from "https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.2.0/dist/mermaid-layout-elk.esm.min.mjs";mermaid.registerLayoutLoaders(elkLayouts);mermaid.initialize({startOnLoad:false});</script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+const defaultStyle = document.createElement('style');
+defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+`;
+document.head.appendChild(defaultStyle);
+
+const fullscreenStyle = document.createElement('style');
+fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+document.head.appendChild(fullscreenStyle);
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        return brightness < 128;
+    }
+    return false;
+};
+
+const load = async () => {
+    await mermaid.run();
+
+    const all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(load, 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(load, 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(load, 200);
+        return;
+    }
+
+    const darkTheme = isDarkTheme();
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    const modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    const modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    let previousScrollOffset = [window.scrollX, window.scrollY];
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    const allButtons = [];
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+
+        container.appendChild(fullscreenBtn);
+        allButtons.push(fullscreenBtn);
+    });
+
+    // Update theme classes when theme changes
+    const updateTheme = () => {
+        const dark = isDarkTheme();
+        allButtons.forEach(btn => {
+            if (dark) {
+                btn.classList.add('dark-theme');
+            } else {
+                btn.classList.remove('dark-theme');
+            }
+        });
+        if (dark) {
+            modal.classList.add('dark-theme');
+            modalContent.classList.add('dark-theme');
+            closeBtn.classList.add('dark-theme');
+        } else {
+            modal.classList.remove('dark-theme');
+            modalContent.classList.remove('dark-theme');
+            closeBtn.classList.remove('dark-theme');
+        }
+    };
+
+    // Watch for theme changes
+    const observer = new MutationObserver(updateTheme);
+    observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    observer.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style']
+    });
+};
+
+window.addEventListener("load", load);
+</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'part2-prose-layer/ch08-prose-operational-model';</script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="第 9 章 —— 冷启动与批量迁移" href="ch09-cold-start-migration.html" />
+    <link rel="prev" title="第 7 章 —— 发布与搜索" href="ch07-publish-and-search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+    <meta name="docbuild:last-update" content="2026-11-10"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Use AI to build a knowledge base for a software project</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">搜索</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Part I — Foundations</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part1-foundations/index.html">第一部分 —— 基础</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch01-why-kb-for-software.html">第 1 章 —— 为什么要给软件建一个知识库？</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch01a-quickstart-30min.html">第 1a 章 —— 30 分钟快速上手</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch02-ir-rag-primer.html">第 2 章 —— IR 与 RAG 入门</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch03-diataxis-and-software-docs.html">第 3 章 —— Diátaxis 与软件文档</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part II — The Prose Layer</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">第二部分 —— 文稿层</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="ch04-file-based-wiki.html">第 4 章 —— 一个基于文件的 wiki</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ch05-frontmatter-provenance-trust.html">第 5 章 —— 把 frontmatter 当作一份来源记录</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ch06-llm-classification-pipeline.html">第 6 章 —— 分类流水线</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ch07-publish-and-search.html">第 7 章 —— 发布与搜索</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">第 8 章 —— 文稿层的运维模型</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ch09-cold-start-migration.html">第 9 章 —— 冷启动与批量迁移</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part III — The Author Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part3-author-layer/index.html">第三部分 —— 作者层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch10-why-ai-as-author.html">第 10 章 —— 为什么让 AI 当作者</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch11-ai-drafting-and-rewriting.html">第 11 章 —— AI 起草、重写、翻译</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch12-ai-for-metadata.html">第 12 章 —— AI 处理元数据：分类、打标签、实体与关系抽取</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch13-ai-for-maintenance.html">第 13 章 —— AI 做维护：摘要、去重、过期与漂移检测</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch14-ai-as-judge.html">第 14 章 —— AI 作为评判者：评估生成质量与引用合规</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part IV — The Code Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part4-code-layer/index.html">第四部分 —— 代码层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch15-why-code-is-not-prose.html">第 15 章 —— 为什么代码不是文稿</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch16-parsing-and-entity-extraction.html">第 16 章 —— 解析与实体抽取</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch17-embeddings-and-vector-stores.html">第 17 章 —— 嵌入向量与向量存储</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch18-code-knowledge-graph.html">第 18 章 —— 代码知识图谱</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch19-hybrid-retrieval-and-rrf.html">第 19 章 —— 混合检索与 RRF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch20-prompt-and-generation.html">第 20 章 —— 提示词与生成</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part V — Operations &amp; Lifecycle</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part5-operations-lifecycle/index.html">第五部分 —— 运维与生命周期</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part5-operations-lifecycle/ch21-incremental-sync.html">第 21 章 —— 增量同步</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part5-operations-lifecycle/ch22-evaluation-and-benchmarks.html">第 22 章 —— 评测、基准与发布门禁</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part5-operations-lifecycle/ch23-maintenance-drift-and-link-rot.html">第 23 章 —— 维护、漂移与链接腐化</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part VI — The Hybrid Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part6-hybrid-layer/index.html">第六部分 —— 混合层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch24-prose-meets-code.html">第 24 章 —— 文稿与代码相遇</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch25-document-layering-L0-L4.html">第 25 章 —— 文档分层 L0–L4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch26-graph-guided-context-assembly.html">第 26 章 —— 图引导的上下文组装</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch27-harnessing-ai-coding.html">第 27 章 —— 用知识库驾驭 AI 编码</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch28-team-sdlc-integration.html">第 28 章 —— 团队协作与 SDLC 集成</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch29-ai-agents-on-the-kb.html">第 29 章 —— 在知识库上跑的 AI Agent</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part VII — Governance &amp; Outlook</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part7-governance-and-outlook/index.html">第七部分 —— 治理与展望</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch30-cost-privacy-security.html">第 30 章 —— 成本、隐私、安全</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch31-trust-provenance-and-red-teaming.html">第 31 章 —— 信任、出处与红队演练</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch32-outlook-and-open-problems.html">第 32 章 —— 展望与尚未解决的问题</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Appendices</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-a-example-wiki.html">附录 A —— 端到端：从杂乱文件夹到可发布 Wiki</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-b-example-code-kg.html">附录 B —— 示例：从一个 Go 仓库构建代码知识库</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-c-deepwiki-checklist.html">附录 C —— 自己动手做 DeepWiki 检查清单</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-d-glossary.html">附录 D —— 术语表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-e-bilingual-publishing.html">附录 E —— 发布一个双语知识库</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">参考文献</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../reference/index.html">参考文献：仓库级代码理解与软件知识库论文导读</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../reference/01-repoformer-selective-retrieval.html">Repoformer: Selective Retrieval for Repository-Level Code Completion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/02-codeplan-repository-level-planning.html">CodePlan: Repository-Level Coding using LLMs and Planning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/03-repograph-code-graph-navigation.html">RepoGraph: Enhancing AI Software Engineering with Repository-level Code Graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/04-repoagent-documentation-generation.html">RepoAgent: An LLM-Powered Open-Source Framework for Repository-level Code Documentation Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/05-repocoder-iterative-retrieval-generation.html">RepoCoder: Repository-Level Code Completion Through Iterative Retrieval and Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/06-llm-kg-synergy-repo-qa.html">Synergizing LLMs and Knowledge Graphs: A Novel Approach to Software Repository-Related Question Answering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/07-repo-level-prompt-generation.html">Repository-Level Prompt Generation for Large Language Models of Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/08-repobench-benchmarking.html">RepoBench: Benchmarking Repository-Level Code Auto-Completion Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/09-long-code-arena-benchmarks.html">Long Code Arena: A Set of Benchmarks for Long-Context Code Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/10-cgm-graph-integrated-llm.html">Code Graph Model (CGM): A Graph-Integrated Large Language Model for Repository-Level Software Engineering Tasks</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="下载此页面">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="下载源文件"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="列印成 PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="全屏模式"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>第 8 章 —— 文稿层的运维模型</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> 目录 </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">为什么</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">是什么</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#c1">C1 —— 固定的页面集</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#c2-footer">C2 —— 元数据 footer</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#c3">C3 —— 三级更新策略</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#c4">C4 —— 校验闸</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id7"><strong>为什么恰好是四个角？</strong></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">怎么做</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">示例</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">这个模型 <em>并没有</em> 解决的问题</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id12">一页总览第二部分 —— 一张跳转清单</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id13"><strong>存储与仓库卫生</strong>（第 4 章）</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id14"><strong>来源与信任</strong>（第 5 章）</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id15"><strong>分类流水线</strong>（第 6 章）</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id16"><strong>搜索与发布</strong>（第 7 章）</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id17"><strong>运维模型</strong>（第 8 章）</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id18">结论</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id19">参考文献</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="id1">
+<h1>第 8 章 —— 文稿层的运维模型<a class="headerlink" href="#id1" title="Link to this heading">#</a></h1>
+<p>本章一页速览 —— 四个角合在一起，让一个知识库可以回答 <em>“这段文稿在当前 commit 上是不是正确的？有没有人知道？”</em> ；再走一个具体场景，把一次 API 变更怎么穿过这四个角<strong>一笔画完</strong>；最后再诚实地列一份 —— 这个模型 <em>并不</em> 声称自己能解决的那些问题：</p>
+<pre  class="mermaid">
+        mindmap
+  root((4 corners))
+    C1 Page set
+      Small, stable, opinionated
+      Shape readers remember
+      Shape tools target
+    C2 Footer
+      last_updated, commit
+      updated_by (human, ai, ai+human)
+      review_status (pending, approved)
+      review_score (0-5)
+      reviewed_by
+    C3 Three levels
+      L1 Mechanical (script, 0 tokens)
+      L2 Bounded-LLM (~1-5 k tokens)
+      L3 Human-led (variable)
+      Rule first, LLM second
+      AI always pending
+    C4 Gates
+      Hard gates (block publish)
+      Soft gates (warn only)
+      Footer well-formed
+      file:line resolves
+      No TODO markers
+    Not solved here
+      Correctness (gates check form, not truth)
+      Reader prioritisation
+      Cross-page conflicts
+      Semantic equivalence between prose and code
+    </pre><p>一个 LLM<strong>刚刚重写了</strong>你知识库里 <strong>412 个页面</strong>。它们<strong>全部能 build</strong>、<strong>全部有规格良好的 frontmatter</strong>、<strong>全部渲染时一条坏链接都没有</strong>。周五下午，你的 manager 发了一条消息 —— <strong>三行字，一个问题</strong>： <em>这些页面现在，我们能信了吗？</em></p>
+<p>你读了前三页，看上去没问题。你打开<strong>第四页</strong>。它描述的是<strong>六周前就已经废弃的一套工作流</strong>。<strong>第五页</strong>用的<strong>函数名</strong>，是<strong>在同一个触发这次重生成的 PR 里被改掉的</strong>。<strong>第六页</strong>完美。你<strong>还有 406 页</strong>，离 17:00 的 standup <strong>大约 90 分钟</strong>。<strong>哪几页</strong>必须让人<strong>在周一早晨之前看过</strong>？你又怎么<strong>告诉你的 manager</strong> <em>“我们还不知道”</em> —— 让这句话<strong>听起来像专业</strong>，<strong>不像束手无策</strong>？</p>
+<p><strong>第 4–7 章</strong>把文稿<strong>装了进来</strong>。这一章讲的是<strong>蜜月期结束之后那第一个周一发生的事</strong>：<strong>一个内容廉价、信任昂贵的知识库</strong>。下面这个<strong>四角模型</strong>，就是让你<strong>用三行字回答你 manager 的那个问题</strong> —— 并且<strong>更重要的是</strong>：<strong>让你诚实地回答它</strong>。</p>
+<section id="id2">
+<h2>为什么<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
+<p>第 4 到第 7 章讲的都是 <em>把文稿收进来</em> ：基于文件的 wiki，frontmatter 加 footer 的契约，分类流水线，以及一个带搜索的已构建站点。这四章里的一切都是单向流水线 —— 进来一个东西，产出一个东西，章节就结束了。</p>
+<p>真实世界的知识库不会到这里就结束。文稿底下的代码每天都在变。架构页描述的那个函数被改名了。runbook 描述的那个流程多了一个步骤。reference 页声称返回 JSON 的公开 API，现在还会发 Server-Sent Events。这些东西对任何维护过文档的人来说都不是新闻。<strong>真正的新闻</strong>是：既然 LLM 已经便宜到可以用几分钱改写一页文档，<strong>约束条件已经转移了</strong>。问题不再是 <em>“改文档还划不划算？”</em> —— 几乎一直划算。问题变成了 <em>“这次改动有没有被人签字确认？如果有，是哪位人，在什么时候签的？”</em> 瓶颈不是 embedding 成本，也不是 LLM 成本；以 <code class="docutils literal notranslate"><span class="pre">text-embedding-3-small</span></code> 在 2024 年的价格来算，把一个 10 万行代码的仓库整体重新 embed 一遍也就一美元以内 <span id="id3">[<a class="reference internal" href="../part7-governance-and-outlook/ch30-cost-privacy-security.html#id72" title="OpenAI. OpenAI text embeddings v3 (text-embedding-3-small and text-embedding-3-large). 2024. The \texttt text-embedding-3-small launch announcement lists a 5× price reduction relative to \texttt text-embedding-ada-002 (from \$0.0001 to \$0.00002 per 1K tokens) at higher retrieval quality. URL: https://openai.com/index/new-embedding-models-and-api-updates/.">OpenAI, 2024</a>]</span> 。瓶颈是 <strong>人类的注意力</strong>。一个每周扔出 400 文件 pull request 的知识库，最后谁都不信 —— 不是因为它写错了，而是因为没人有空去确认它写对了。</p>
+<p>这一章要介绍的是本书后面所有章节都要依赖的那个<strong>运维模型</strong>。它是作者在一个私人project-knowledge-base 工具集里一点点打磨出来的那套纪律的一个具象化<span id="id4">[<a class="reference internal" href="../part7-governance-and-outlook/ch31-trust-provenance-and-red-teaming.html#id89" title="Walter (Yamin) Fan. Project knowledge base skill: an opinionated operational model for software documentation. Self-published; private toolkit, 2026. Methodology and operational patterns developed by the author in parallel with this book; not publicly released. Cited throughout for the three-level update strategy, the PKB-metadata footer schema, the hard/soft verification-gate catalog, and the opinionated ten-page documentation set. Chapter prose adapts these ideas in the book's voice; command names and employer-internal infrastructure from the toolkit are deliberately omitted.">Fan, 2026</a>]</span> ；这一章负责给那套结构起名字、讲清楚骨架，第 14–16 章再把每一块展开到可运维的颗粒度。这套模型<strong>刚好有四个角</strong>。本书后面一切关于“文稿层怎么保持正确”的论断，归根结底都能归约到其中某一个角。</p>
+</section>
+<section id="id5">
+<h2>是什么<a class="headerlink" href="#id5" title="Link to this heading">#</a></h2>
+<p>这个模型就是四个角的集合。把它们摆在一起，要回答的是 <em>“这段文稿在当前这个 commit 上是不是正确的？有没有人知道？”</em> 每个角都有一个短标签（C1–C4），其他章节在引用它们时用标签就够了，不用把模型再重述一遍：</p>
+<ul class="simple">
+<li><p><strong>C1 —— 固定的页面集。</strong> <em>一个知识库应该有哪些页面？</em></p></li>
+<li><p><strong>C2 —— 元数据 footer。</strong> <em>这一页，现在还值不值得信？</em></p></li>
+<li><p><strong>C3 —— 三级更新策略。</strong> <em>让它保持正确，代价由谁来付？</em></p></li>
+<li><p><strong>C4 —— 校验闸。</strong> <em>发布之前，有哪些条件必须成立？</em></p></li>
+</ul>
+<section id="c1">
+<h3>C1 —— 固定的页面集<a class="headerlink" href="#c1" title="Link to this heading">#</a></h3>
+<p>一个让目录随便长的知识库，很快就会长出一个谁都不搜的 <code class="docutils literal notranslate"><span class="pre">misc/</span></code> 文件夹。一个肯承诺“就这几页”的知识库，则给了读者一个能记住的形状、也给了工具一个可以瞄准的形状。第 3 章 <em>One opinionated instantiation</em> 那一节已经提过十页的建议清单（ <code class="docutils literal notranslate"><span class="pre">overview</span></code> 、 <code class="docutils literal notranslate"><span class="pre">quick-start</span></code> 、 <code class="docutils literal notranslate"><span class="pre">architecture</span></code> 、<code class="docutils literal notranslate"><span class="pre">repo-map</span></code> 、 <code class="docutils literal notranslate"><span class="pre">data-and-api</span></code> 、 <code class="docutils literal notranslate"><span class="pre">workflows</span></code> 、<code class="docutils literal notranslate"><span class="pre">conventions</span></code> 、 <code class="docutils literal notranslate"><span class="pre">testing</span></code> 、 <code class="docutils literal notranslate"><span class="pre">runbook</span></code> 、 <code class="docutils literal notranslate"><span class="pre">observability</span></code> ）。C1 就是那张清单 —— 被抬到运维模型里的一个角的位置。内容留在第 3 章，<strong>规则</strong>留在这里。<strong>有 <em>某一套</em> 稳定的页面集，比争论“到底哪一套”要重要得多。</strong></p>
+</section>
+<section id="c2-footer">
+<h3>C2 —— 元数据 footer<a class="headerlink" href="#c2-footer" title="Link to this heading">#</a></h3>
+<p>第 5 章已经介绍过：每一张内容页都以一段 HTML-comment footer 收尾，这段 footer 有六个字段：</p>
+<div class="highlight-markdown notranslate"><div class="highlight"><pre><span></span>&lt;!-- PKB-metadata
+last_updated: 2026-04-14
+commit: 4a1c92b
+updated_by: ai            # human | ai | ai+human
+review_status: pending    # pending | approved
+review_score: 0           # 0-5
+reviewed_by:              # empty until a human reviews
+--&gt;
+</pre></div>
+</div>
+<p>C2 的目的是让<strong>过时这件事变得可观测</strong>。没有 footer 时，一个知识库要回答“这页是不是过期了？”只能把正文再读一遍、再找个人问一问 —— 这件事<strong>又贵又慢</strong>，而它恰恰是当初建知识库时想解决的事。有了 footer 之后，一段脚本就可以把 <code class="docutils literal notranslate"><span class="pre">commit:</span></code> 和 <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">rev-parse</span> <span class="pre">--short</span> <span class="pre">HEAD</span></code> 对一下，一个评审人可以一眼筛出所有 <code class="docutils literal notranslate"><span class="pre">review_status:</span> <span class="pre">pending</span></code> 的页，一个 LLM agent（第 29 章）甚至可以拒绝引用 <code class="docutils literal notranslate"><span class="pre">review_score</span></code> 低于某个阈值的页。完整的 schema 在第 5 章；C4 让“footer 必须存在”变成一道构建闸；C3 规定哪些值<strong>可以</strong>由谁来设置。</p>
+</section>
+<section id="c3">
+<h3>C3 —— 三级更新策略<a class="headerlink" href="#c3" title="Link to this heading">#</a></h3>
+<p>当底下发生变化时，到底<strong>由谁</strong>（或者<strong>由什么</strong>）来更新文档？朴素的做法往往坍塌到两种：“让人写”（太慢，基本没人真在做），或者“让 LLM 把全部重新生成一遍”（太吵，评审人淹没在改动里）。两种都不成立。作者在那个私人 skill <span id="id6">[<a class="reference internal" href="../part7-governance-and-outlook/ch31-trust-provenance-and-red-teaming.html#id89" title="Walter (Yamin) Fan. Project knowledge base skill: an opinionated operational model for software documentation. Self-published; private toolkit, 2026. Methodology and operational patterns developed by the author in parallel with this book; not publicly released. Cited throughout for the three-level update strategy, the PKB-metadata footer schema, the hard/soft verification-gate catalog, and the opinionated ten-page documentation set. Chapter prose adapts these ideas in the book's voice; command names and employer-internal infrastructure from the toolkit are deliberately omitted.">Fan, 2026</a>]</span> 里把更新拆成了<strong>三级</strong>，每一级对应的成本和所需的执行者都不同：</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head text-right"><p>级别</p></th>
+<th class="head"><p>触发条件</p></th>
+<th class="head"><p>执行者</p></th>
+<th class="head text-right"><p>Token 成本</p></th>
+<th class="head"><p>典型例子</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-right"><p><strong>L1</strong> 机械级</p></td>
+<td><p>文件重命名；链接失效；commit SHA 漂了；repo-map 里多了或少了文件</p></td>
+<td><p>脚本（不用 LLM）</p></td>
+<td class="text-right"><p><strong>0</strong></p></td>
+<td><p>重新盖章 footer 里的 <code class="docutils literal notranslate"><span class="pre">commit:</span></code> ；修掉坏掉的 <code class="docutils literal notranslate"><span class="pre">]()</span></code> 链接；用 <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">ls-files</span></code> 重新生成 <code class="docutils literal notranslate"><span class="pre">repo-map.md</span></code></p></td>
+</tr>
+<tr class="row-odd"><td class="text-right"><p><strong>L2</strong> 受限 LLM</p></td>
+<td><p>内容漂了， <em>但是</em> 这次漂移只局限在某一页的 diff 里</p></td>
+<td><p>上下文非常窄的 LLM：一页内容 + 它的 diff + 它的 footer</p></td>
+<td class="text-right"><p>~1–5 k tokens</p></td>
+<td><p>函数签名改了；重新生成 <code class="docutils literal notranslate"><span class="pre">data-and-api.md</span></code> 里引用到它的那<strong>一段</strong></p></td>
+</tr>
+<tr class="row-even"><td class="text-right"><p><strong>L3</strong> 人工主导</p></td>
+<td><p>架构变更、新写一份 ADR、横跨多个模块的重构、涉及安全性的内容</p></td>
+<td><p>人写，LLM 做文字润色</p></td>
+<td class="text-right"><p>浮动；受人本身的上限约束</p></td>
+<td><p>把一个服务拆成两个之后，重写 <code class="docutils literal notranslate"><span class="pre">architecture.md</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>有两条规则让这三级用起来是安全的：</p>
+<ol class="arabic simple">
+<li><p><strong>先走规则，后用 LLM。</strong> 每一次变更从 L1 开始。如果 L1 能搞定，一个 token 都不花。只有 L1 解决不了的才落到 L2；只有 L2 也搞不定的结构性变更才落到 L3。</p></li>
+<li><p><strong>AI 永远设回 pending。</strong> 当任何自动化路径（L1 或 L2）修改了一页时，<code class="docutils literal notranslate"><span class="pre">review_status</span></code> 设为 <code class="docutils literal notranslate"><span class="pre">pending</span></code>，<code class="docutils literal notranslate"><span class="pre">review_score</span></code> 设为 <code class="docutils literal notranslate"><span class="pre">0</span></code>，<code class="docutils literal notranslate"><span class="pre">reviewed_by</span></code> 清空。只有人 —— L3 或后续的评审 —— 才能设 <code class="docutils literal notranslate"><span class="pre">approved</span></code> 或非零分数。这条规则在第 5 章声明，在第 22 章强制执行。</p></li>
+</ol>
+<p>第 23 章会完整展开这个主题，包括一棵决策树，用来把每次改动分流到三级里的某一级，还有一张对比表：把这套策略和“一改就把整个仓库重新 embed 一遍”的朴素做法在成本上算给你看。</p>
+</section>
+<section id="c4">
+<h3>C4 —— 校验闸<a class="headerlink" href="#c4" title="Link to this heading">#</a></h3>
+<p><strong>一道没人强制执行的闸，就不是闸。</strong> C4 要讲的是：运维模型嘴上说出的每一条承诺 —— <em>“footer 必须存在”、“footer 里的字段必须合法”、“每一个 file-line 引用在当前 commit 上都能解析出来”、“不能留下任何裸的 <code class="docutils literal notranslate"><span class="pre">[TODO]</span></code> 标记”</em> —— 都是一段跑在 CI 上的机械检查，要么作为<strong>硬闸</strong>（不通过就拦住发布），要么作为<strong>软闸</strong>（只报警、不拦）。完整的清单在第 22 章。</p>
+<p>是<strong>闸系统</strong>让 C2 和 C3 从文字变成现实。没有闸，footer 只是<strong>建议</strong>；有了闸，footer 是<strong>契约</strong>。没有闸，“AI 永远设回 pending”只是<strong>一个愿望</strong>；有了闸，任何一页如果带着 <code class="docutils literal notranslate"><span class="pre">review_status:</span> <span class="pre">approved</span></code> 却没有对应的人类 <code class="docutils literal notranslate"><span class="pre">reviewed_by</span></code> ，构建就会失败。</p>
+</section>
+<section id="id7">
+<h3><strong>为什么恰好是四个角？</strong><a class="headerlink" href="#id7" title="Link to this heading">#</a></h3>
+<p><strong>读到这里的读者，有一个合理的问题</strong>： <em>为什么是四？又为什么是这四个？</em> “<strong>因为经验告诉我是这样</strong>”是<strong>诚实的答案</strong>，但<strong>不是一个令人满足的答案</strong>。<strong>结构性的答案</strong>是：这<strong>四个角</strong>，<strong>恰好是****戴明 Plan–Do–Check–Act 循环</strong> <span id="id8">[<a class="reference internal" href="../part7-governance-and-outlook/ch30-cost-privacy-security.html#id54" title="W. Edwards Deming. Out of the Crisis. MIT Press, 1986. Formalised the Plan-Do-Check-Act cycle. Used in Chapter 7a to justify why the four-corner operational model is structurally complete: each corner answers one phase of PDCA applied to a prose-layer artefact.">Deming, 1986</a>]</span> <strong>特化到一份文稿层制品上</strong>的<strong>四个相位</strong>。<strong>每个角</strong>回答<strong>一个相位</strong>；<strong>任意拆掉一个</strong>，<strong>整个循环就断掉</strong>。</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>PDCA 相位</p></th>
+<th class="head"><p>它回答的问题</p></th>
+<th class="head"><p>回答它的那个角</p></th>
+<th class="head"><p>如果缺了这个角</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Plan</strong> —— 应该存在哪些东西？</p></td>
+<td><p><em>一个知识库应该有哪些页面？</em></p></td>
+<td><p><strong>C1</strong> 固定的页面集</p></td>
+<td><p><strong>自由形式的文件夹</strong>；一个<strong>会扩散转移</strong>的 <code class="docutils literal notranslate"><span class="pre">misc/</span></code> 目录。</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Do</strong> —— 它怎么被更新？</p></td>
+<td><p><em>谁 —— 或者什么 —— 在做这次更新，代价是多少？</em></p></td>
+<td><p><strong>C3</strong> 三级更新策略</p></td>
+<td><p><strong>要么</strong>每一次变更都过一遍 LLM，<strong>要么一次都不过</strong>；<strong>要么代价无界</strong>，<strong>要么知识库变腐</strong>。</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Check</strong> —— 这次更新可以被接受吗？</p></td>
+<td><p><em>发布这次更新之前，哪些条件必须成立？</em></p></td>
+<td><p><strong>C4</strong> 校验闸</p></td>
+<td><p>规则停留在“<strong>政策</strong>”层面、<strong>不被强制</strong> —— 也就是<strong>最终被忽略</strong>。</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Act</strong> —— 关于这一页，我们学到了什么？</p></td>
+<td><p><em>这一页，此时此刻，还被相信吗？被谁相信？相信到什么程度？</em></p></td>
+<td><p><strong>C2</strong> 元数据 footer</p></td>
+<td><p><strong>腐化是不可见的</strong>；<strong>评审状态活在某个工程师的脑子里</strong>。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>从这张映射</strong>出发，可以<strong>得出三点观察</strong>。</p>
+<p><strong>这个模型是结构性地完整的，不是偶然地完整。</strong> <strong>任何</strong>一套围绕“<strong>代码在变，文档得保持正确</strong>”构建的运维纪律，都<strong>必须</strong>对每一个相位<strong>恰好给出一个答案</strong>。<strong>两角系统</strong>（<strong>只有</strong> <em>Plan + Do</em> ：“<strong>我们有模板，我们写更新</strong>”）是<strong>业界默认的形状</strong>，也是<strong>默认的失败形状</strong> —— <strong>缺了</strong> <em>Check</em> ，<strong>模板会悄无声息地腐烂</strong>；<strong>缺了</strong> <em>Act</em> ，<strong>知识库分不清自己和自己产生的排泄物</strong>。<strong>三角系统</strong>（ <em>Plan + Do + Check</em> ：<strong>模板 + 流程 + CI</strong>）是<strong>多数成熟团队能走到的位置</strong>；但<strong>它们依然脆弱</strong> —— <strong>因为</strong> <em>Act</em> ，<strong>那份按页记忆的功能</strong>，<strong>没有被机械化</strong>。<strong>加上 C2</strong> —— <strong>一段人能读、脚本能过滤的 footer</strong> —— <strong>就是最后那一个角</strong>，<strong>也是最便宜的那一个</strong>。</p>
+<p><strong>四个角是相互独立的，也是全都承重的。</strong> 它们<strong>相互独立</strong> —— <strong>因为每一个都回答 PDCA 的一个不同相位</strong>，而<strong>任何一个角的机制****都没法替代另一个角</strong>：<strong>一份信息丰富的 footer</strong> （C2）<strong>不会告诉你****应该存在什么东西</strong>（C1）；<strong>一道严格的校验闸</strong>（C4）<strong>不会告诉你****谁来付这次更新的代价</strong>（C3）。它们<strong>都承重</strong> —— <strong>像一张凳子的四条腿</strong> —— <strong>抽掉任意一条</strong>，<strong>整个结构就塌</strong>。<strong>有固定页面集、有 footer、有闸</strong>，<strong>但没有更新策略</strong>的知识库（<strong>缺 C3</strong>），<strong>在第一次代码变更之前都能工作</strong>，<strong>然后立刻被无人预算去修的 <code class="docutils literal notranslate"><span class="pre">pending</span></code> 页面淹没</strong>。<strong>三套机制都有、但没有固定形状</strong>的知识库（<strong>缺 C1</strong>），<strong>没法告诉读者 <em>该到哪里看</em></strong> ，于是<strong>C2、C3、C4 都没有被足够频繁地行使</strong>，<strong>也就无法保持诚实</strong>。</p>
+<p><strong>这组对应也解释了第五部分接下来讲述它们的 <em>次序</em> 。</strong> <strong>第 21 章</strong>走<strong>变更检测</strong>，这本身是<strong>一次由</strong> <em>Act</em> 观测（C2 footer 的 SHA diff）<strong>所触发的</strong> <em>Do</em> 操作（C3）。<strong>第 22 章</strong>把<strong>闸变成真</strong>（C4）。<strong>第 23 章</strong>把<strong>三级更新</strong>连起来（<strong>真正意义上的 C3</strong>）。这本书搭建的循环是 <strong>Do → Check → Act → 再回到 Plan</strong> —— <strong>因为这才是****这个循环在运维时间上真正运行的次序</strong>； <em>Plan</em> 角（C1）<strong>是边界条件，不是周期性的一步</strong>。</p>
+<p><strong>这张映射并不是一次关于最小性的形式证明</strong> —— <strong>PDCA 本身</strong>也<strong>只是一套启发式、不是一个定理</strong>。但它<strong>给了四个角一个读者可以推理的形状</strong>，并且<strong>更重要的是</strong>：<strong>一个读者可以 <em>拒绝</em> 的形状</strong>：<strong>如果一个团队****发现自己的知识库真的需要第五个角</strong>，<strong>有效的做法不是把它硬塞进 C1–C4 里的某一个</strong>，<strong>而是扩展这个循环</strong>。<strong>这个模型是地板，不是天花板。</strong></p>
+</section>
+</section>
+<section id="id9">
+<h2>怎么做<a class="headerlink" href="#id9" title="Link to this heading">#</a></h2>
+<p>这四个角怎么串起来？我们走一个具体的场景就清楚了。假设代码库里一个公开 API 路由改了 —— <code class="docutils literal notranslate"><span class="pre">/api/v1/pages</span></code> 这个 endpoint 多了一个查询参数。接下来按顺序会发生什么：</p>
+<ol class="arabic simple">
+<li><p><strong>变更检测（第 21 章，通过 C2）。</strong> 一个夜间任务把 <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">HEAD</span></code> 和每个 footer 中 <code class="docutils literal notranslate"><span class="pre">commit:</span></code> 值的集合做 diff。它发现 <code class="docutils literal notranslate"><span class="pre">data-and-api.md</span></code> 和 <code class="docutils literal notranslate"><span class="pre">api-reference.md</span></code> 里列的都是旧的 commit，并且 diff 触及了 <code class="docutils literal notranslate"><span class="pre">api-reference.md</span></code> 以 <code class="docutils literal notranslate"><span class="pre">file:line</span></code> 引用的代码。两个候选页面。</p></li>
+<li><p><strong>L1 分流（C3）。</strong> 任务对两个候选跑 L1 检查。对 <code class="docutils literal notranslate"><span class="pre">data-and-api.md</span></code>，唯一的漂移是 footer SHA —— 正文仍然正确描述了那条路由。L1 重新盖章 footer：<code class="docutils literal notranslate"><span class="pre">commit:</span></code> 刷新，<code class="docutils literal notranslate"><span class="pre">last_updated:</span></code> 刷新，<code class="docutils literal notranslate"><span class="pre">updated_by:</span> <span class="pre">ai</span></code>，<code class="docutils literal notranslate"><span class="pre">review_status:</span> <span class="pre">pending</span></code>（AI 永远设回 pending 规则），<code class="docutils literal notranslate"><span class="pre">review_score:</span> <span class="pre">0</span></code>。零 token 消耗。对 <code class="docutils literal notranslate"><span class="pre">api-reference.md</span></code>，漂移是实质性的 —— 有一段引用了旧的参数列表。L1 修不了这个；它升级。</p></li>
+<li><p><strong>L2 分流（C3）。</strong> 用极窄的上下文调用 LLM：当前 <code class="docutils literal notranslate"><span class="pre">api-reference.md</span></code> 正文（~2 kB）、相关的代码 diff（~300 B）和页面的 footer。它返回受影响的那一段的新版本。footer 按同一条规则重新盖章：<code class="docutils literal notranslate"><span class="pre">review_status:</span> <span class="pre">pending</span></code>，<code class="docutils literal notranslate"><span class="pre">reviewed_by:</span></code> 清空。成本：约 2.3 k token —— 不到一美分。</p></li>
+<li><p><strong>闸运行（C4）。</strong> 发布之前，硬闸触发。footer 在两个页面上都存在且格式良好：通过。<code class="docutils literal notranslate"><span class="pre">api-reference.md</span></code> 里的每一个 <code class="docutils literal notranslate"><span class="pre">file:line</span></code> 引用在当前 commit 上都能解析（包括新参数 —— L2 刚刚引用了它）：通过。没有引入 <code class="docutils literal notranslate"><span class="pre">[TODO]</span></code> 标记：通过。Mermaid 图没变动且仍然可以解析：通过。发布继续。</p></li>
+<li><p><strong>人工评审（C3 L3 → C2）。</strong> 评审人在知识库的评审仪表盘上看到两页 <code class="docutils literal notranslate"><span class="pre">review_status:</span> <span class="pre">pending</span></code>，读了两份 diff（不是 400 个文件 —— 只有两个），批准两者，并分别设 <code class="docutils literal notranslate"><span class="pre">review_score:</span> <span class="pre">4</span></code>。下一次 L1 检查这两页时，会让 <code class="docutils literal notranslate"><span class="pre">review_status</span></code> 保持在 <code class="docutils literal notranslate"><span class="pre">approved</span></code>，因为正文没有发生变更。</p></li>
+</ol>
+<p>以上这段序列里，没有任何一步是实验。每一步不是一段脚本就是一条规则，而它们存在的唯一原因是四个角里某一个角把它安排在那里。变更检测能跑起来，是因为 C2 让过时这件事变得可观测。分流能跑起来，是因为 C3 给三级都赋予了稳定的含义。发布能发出去，是因为 C4 拒绝放行任何一张格式不对的页。而下一个打开这份文档的人，只要看任何一张页的 footer ，就能在不问任何人的情况下知道：这一页被 LLM 改过，而且有一个具名的人已经签过字了。</p>
+</section>
+<section id="id10">
+<h2>示例<a class="headerlink" href="#id10" title="Link to this heading">#</a></h2>
+<p>把这个循环收缩到最小可用形态：跟踪一张页的 footer 在一周里的变化，讲的就是下面这段：</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Monday  08:00  commit: a1b2c3d4  updated_by: human  review_status: approved   reviewed_by: alice
+                 (page written by Alice; nothing else changes all week)
+
+Monday  08:15  commit: a1b2c3d4  updated_by: human  review_status: approved   reviewed_by: alice
+                 (L1 runs against HEAD; commit still matches; no change)
+
+Wednesday 14:30  commit: 4a1c92b  updated_by: ai    review_status: pending    reviewed_by:
+                 (API changed; L2 regenerated one paragraph; footer reset)
+
+Thursday 10:05  commit: 4a1c92b  updated_by: ai+human  review_status: approved  review_score: 4  reviewed_by: alice
+                 (Alice read the L2 diff and approved)
+
+Friday  23:00  commit: 9f8e7d6c  updated_by: human  review_status: pending   reviewed_by:
+                 (an unrelated refactor moved a linked file; L1 fixed the broken link;
+                  review resets because the body was touched)
+</pre></div>
+</div>
+<p>五个状态、一张页、一段完整的审计轨迹，全都躺在它自己的 footer 里。没有任何附表，没有任何 CI 数据库，没有任何评审电子表。一个人用 <code class="docutils literal notranslate"><span class="pre">cat</span></code> 或 <code class="docutils literal notranslate"><span class="pre">vim</span></code> 打开文件，就能把整段历史看完。一个脚本在查询这个知识库时，拿到的是一套<strong>封闭词汇表</strong>：<code class="docutils literal notranslate"><span class="pre">approved</span> <span class="pre">|</span> <span class="pre">pending</span></code> ， <code class="docutils literal notranslate"><span class="pre">human</span> <span class="pre">|</span> <span class="pre">ai</span> <span class="pre">|</span> <span class="pre">ai+human</span></code> ， <code class="docutils literal notranslate"><span class="pre">0–5</span></code> —— 可以零歧义地筛选。</p>
+<p>L1/L2/L3 完整的分流器、决定哪些页面算候选的变更检测层、以及闸规则的完整清单，是接下来三章的主题。</p>
+</section>
+<section id="id11">
+<h2>这个模型 <em>并没有</em> 解决的问题<a class="headerlink" href="#id11" title="Link to this heading">#</a></h2>
+<p>四个角做的事，是让一个知识库<strong>关于自己正确性的那些说法</strong>变得可审计。它们<strong>并不</strong>因此就让那些说法 <em>变成真话</em> 。这个区分值得专门说一遍，因为很多团队把运维模型当成<strong>全部的活</strong>，而不是<strong>支撑那些活的脚手架</strong>，结果漂到一种具体而又可避免的失败形态：每一页的 footer 都写着 <code class="docutils literal notranslate"><span class="pre">approved</span></code> ，而内容仍然是错的。</p>
+<p>有四条边界值得点名说清楚。</p>
+<ol class="arabic simple">
+<li><p><strong>Gates check <em>form</em>, not <em>truth</em>.</strong> The verification gates in
+C4 能机械地确认 footer 存在、<code class="docutils literal notranslate"><span class="pre">file:line</span></code> 引用在当前 commit 上能解析、以及没有留下 <code class="docutils literal notranslate"><span class="pre">[TODO]</span></code> 标记。但它们无法确认紧挨在 <code class="docutils literal notranslate"><span class="pre">file:line</span></code> 锚点旁边的那段文字<em>是不是</em>对它所指向的那个函数的正确描述。那种检查需要的要么是一个读了那页的人，要么是一个交叉阅读了代码的 LLM —— 而这恰恰是三级更新策略（C3）去分派的东西，但分派器本身对语义真理的验证能力，并不比编译器对&quot;一个函数是否真的做了它名字所声称的事&quot;的验证能力更强。</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">approved</span></code> means “a human read this diff”, not “this is
+正确的”。</strong> &quot;AI 永远设回 pending&quot;规则确保了一份 <code class="docutils literal notranslate"><span class="pre">approved</span></code> 的页面是由一个具名的人签了字的，闸目录确保了这个人看的是当前 commit。但这两个机制都无法阻止一个评审人批准了一份有微妙错误的 L2 重写 —— 因为评审人赶时间，或者因为错误藏在评审人不熟悉的领域角落。这个模型让评审变得<em>可追溯</em>，而不是<em>不可犯错</em>。第 22 章为安全敏感页面增加了双评审人规则；低风险页面保持单评审人路径，审计轨迹作为补偿控制。</p></li>
+<li><p><strong>这个模型不会替读者排优先级。</strong> 一个有一万页、footer 全是 <code class="docutils literal notranslate"><span class="pre">approved</span></code> 的知识库，仍然迫使读者自己决定先读哪一页。排序、策展、废弃机制和 Diátaxis 结构（第 3 章）才是让知识库<em>好用</em>的东西；运维模型让它<em>可信</em>。这是两个独立的性质，单独一个都不够。一本书的索引不是目录。</p></li>
+<li><p><strong>跨页冲突不在范围内。</strong> 如果 <code class="docutils literal notranslate"><span class="pre">architecture.md</span></code> 和 <code class="docutils literal notranslate"><span class="pre">runbook.md</span></code> 描述的是同一个系统却互相矛盾，两者可以同时以 <code class="docutils literal notranslate"><span class="pre">review_status:</span> <span class="pre">approved</span></code> 和 <code class="docutils literal notranslate"><span class="pre">verification_status:</span> <span class="pre">supported</span></code> 的状态待在知识库里。检测这种矛盾需要把页面互相比对，而四角模型不做这件事。第 25 章的文档分层四元组和第 29 章的 agent 可访问知识库合在一起开始解决这个问题 —— 一个读了两页的 agent 可以<em>注意到</em>冲突 —— 但仅凭文稿层运维模型做不到。一个有矛盾页面的知识库，是一个运维模型在正常工作的知识库；需要去捕获矛盾的，是<em>编辑</em>模型。</p></li>
+</ol>
+<p>把这四个角看得恰当的方式是：它们是一个知识库<strong>为了不再对自己说谎</strong>所需要的那套纪律。至于它<strong>关于它所描述的那个软件</strong>是不是也在说真话，那是另一个更大的问题 —— 因为那个问题没法机械回答，所以“让人类的注意力变得可追责”的那套脚手架，才是一个随着时间推移、<strong>替你一点点把那个问题答出来</strong>的东西。</p>
+</section>
+<section id="id12">
+<h2>一页总览第二部分 —— 一张跳转清单<a class="headerlink" href="#id12" title="Link to this heading">#</a></h2>
+<p><strong>横跨这五章</strong>，<strong>第二部分</strong>一共编目了<strong>大约二十几种****失败模式、误解、和接线错误</strong>。<strong>对于那些 <em>已经部署过一个知识库之后</em> 回头翻这本书</strong>、<strong>正在试图诊断一个具体症状的读者</strong>，下面这张表是<strong>一份单页索引</strong> —— <strong>按团队实际看到的症状组织</strong>，<strong>而不是按它住在哪一章组织</strong>。</p>
+<section id="id13">
+<h3><strong>存储与仓库卫生</strong>（第 4 章）<a class="headerlink" href="#id13" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>你看到的症状</strong></p></th>
+<th class="head"><p><strong>根本原因</strong></p></th>
+<th class="head"><p><strong>一句话的补救</strong></p></th>
+<th class="head"><p><strong>去哪里看</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>克隆一个月比一个月慢</strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">content/</span></code> 里被提交了二进制大块</p></td>
+<td><p>CI 对文件大小设硬上限；<strong>少数合理的二进制</strong>走 Git LFS</p></td>
+<td><p>第 4 章 §“Common mistakes” #1</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>代码里指向 wiki 页面的外链</strong>在一次改名之后全挂</p></td>
+<td><p><strong>改了 slug 却没有重定向表</strong></p></td>
+<td><p>把 <code class="docutils literal notranslate"><span class="pre">redirects.yaml</span></code> check in；<strong>CI 拒绝任何会打破仍被引用 URL 的 PR</strong></p></td>
+<td><p>第 4 章 §“Common mistakes” #2</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>PR UI 根本没法有效展示的合并冲突</strong></p></td>
+<td><p>两个作者<strong>并行重写</strong>了同一个文件</p></td>
+<td><p>把<strong>高频变动</strong>的页面当作 <em>有 owner</em> 的；<strong>现场事故文档</strong>用共享文档，<strong>事后再导入</strong></p></td>
+<td><p>第 4 章 §“Common mistakes” #3</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>按读者的历史/自动保存/评论</strong>把仓库撑大</p></td>
+<td><p><strong>把“万物皆文件”过度延伸到可变的运维状态上</strong></p></td>
+<td><p><strong>可变状态住在旁边的数据库里</strong>；<strong>文件只放内容</strong></p></td>
+<td><p>第 4 章 §“Common mistakes” #4</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>尽管有 PR 纪律，文档依然和代码漂移</strong></p></td>
+<td><p><strong>文档评审走在一条和代码评审不同的沟通线上</strong></p></td>
+<td><p>docs-as-code <strong>通过康威定律 / Parnas 共处一地把两者重新对齐</strong></p></td>
+<td><p>第 4 章 §“Why docs-as-code really works”</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="id14">
+<h3><strong>来源与信任</strong>（第 5 章）<a class="headerlink" href="#id14" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>你看到的症状</strong></p></th>
+<th class="head"><p><strong>根本原因</strong></p></th>
+<th class="head"><p><strong>一句话的补救</strong></p></th>
+<th class="head"><p><strong>去哪里看</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>一份老的审计记录悄无声息地丢了作者</strong></p></td>
+<td><p>在一次批量迁移里，<code class="docutils literal notranslate"><span class="pre">created_by</span></code> 被当作<strong>可变的</strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">created</span></code>、<code class="docutils literal notranslate"><span class="pre">created_by</span></code>、<code class="docutils literal notranslate"><span class="pre">source</span></code> <strong>冻结</strong>；<strong>只能通过显式的 PR 更正</strong></p></td>
+<td><p>第 5 章 §“Common mistakes” #1</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">content/</span></code> 的 <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">log</span></code> 被<strong>评审状态切换</strong>淹没</p></td>
+<td><p><strong>评审状态</strong>住在 frontmatter 里，<strong>而不是自己的独立块里</strong></p></td>
+<td><p><strong>拆成</strong>：frontmatter（<strong>谱系</strong>）+ footer（<strong>评审状态</strong>）</p></td>
+<td><p>第 5 章 §“Common mistakes” #2</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>生产的知识库里现在有 <code class="docutils literal notranslate"><span class="pre">approved</span></code> 页面</strong>，<strong>没有人类看过</strong></p></td>
+<td><p><strong><code class="docutils literal notranslate"><span class="pre">approved</span></code> + <code class="docutils literal notranslate"><span class="pre">reviewed_by</span></code> 上没有硬闸</strong></p></td>
+<td><p><strong>CI 闸拒绝</strong>：<code class="docutils literal notranslate"><span class="pre">approved</span></code> <strong>而没有对应的人类 <code class="docutils literal notranslate"><span class="pre">reviewed_by</span></code></strong></p></td>
+<td><p>第 5 章 §“Common mistakes” #3</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">doc_type</span></code> 的<strong>词汇表</strong>已经漂成<strong>一个乱糟糟的长列表</strong></p></td>
+<td><p><strong>校验器里没有把枚举闭合</strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">doc_type</span></code> 是一个 <em>封闭</em> 的枚举；<strong>在校验时拒绝未知值</strong></p></td>
+<td><p>第 5 章 §“Common mistakes” #4</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>被标记 <code class="docutils literal notranslate"><span class="pre">supported</span></code> 的页面</strong>，<strong>对应的 commit 已经被 rebase 改写过两次</strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">verification_status</span></code> <strong>没有相对</strong> <code class="docutils literal notranslate"><span class="pre">commit</span></code> <strong>被重新评估</strong></p></td>
+<td><p><strong>腐化探测器</strong>在 footer 的 <code class="docutils literal notranslate"><span class="pre">commit</span></code><strong>不再匹配它所引用的代码时</strong>，<strong>把信任降级</strong></p></td>
+<td><p>第 5 章 §“Common mistakes” #5</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">source.uri</span></code> 指向<strong>一个 404</strong>，<strong>或者一个悄悄被改了措辞的 URL</strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">source</span></code> <strong>没有 <code class="docutils literal notranslate"><span class="pre">ref</span></code></strong></p></td>
+<td><p><strong>每一个</strong> <code class="docutils literal notranslate"><span class="pre">source.uri</span></code> <strong>都必须带一个</strong> <code class="docutils literal notranslate"><span class="pre">ref</span></code> ：commit SHA、Wayback 快照、或内容 hash</p></td>
+<td><p>第 5 章 §“Common mistakes” #6</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="id15">
+<h3><strong>分类流水线</strong>（第 6 章）<a class="headerlink" href="#id15" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>你看到的症状</strong></p></th>
+<th class="head"><p><strong>根本原因</strong></p></th>
+<th class="head"><p><strong>一句话的补救</strong></p></th>
+<th class="head"><p><strong>去哪里看</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>导入进来的页面</strong>被归到 <code class="docutils literal notranslate"><span class="pre">security-architecture</span></code> ，<strong>且信任是</strong> <code class="docutils literal notranslate"><span class="pre">supported</span></code></p></td>
+<td><p><strong>通过导入内容注入 prompt</strong></p></td>
+<td><p><strong>给分类器的输入上界限</strong>；<strong>显式标注不可信内容</strong>； <code class="docutils literal notranslate"><span class="pre">verification_status</span></code> <strong>不在 LLM 的输出 schema 里</strong></p></td>
+<td><p>第 6 章 §“LLM 的失败模式” #1</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong><code class="docutils literal notranslate"><span class="pre">content/</span></code> 里出现了一个新编出来的类别</strong></p></td>
+<td><p><strong>幻觉出来的标签</strong>（<strong>封闭枚举没有被强制</strong>）</p></td>
+<td><p><strong>调用方拒绝枚举之外的标签</strong>；<strong>回退到启发式分类器</strong></p></td>
+<td><p>第 6 章 §“LLM 的失败模式” #2</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>几个月下来，类别分布在缓慢漂移</strong></p></td>
+<td><p><strong>模型的静默升级</strong>，<strong>或者语料的漂移</strong></p></td>
+<td><p><strong>往仓库里 check 一个 ~50 页的 gold set</strong>；<strong>夜间 CI diff 标签</strong></p></td>
+<td><p>第 6 章 §“LLM 的失败模式” #3</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>周末一半的 ingest 悄无声息地走了启发式</strong></p></td>
+<td><p><strong>JSON 模式解析失败被记了日志，但没有被做成度量</strong></p></td>
+<td><p><strong>用结构化输出 API</strong>；<strong>把解析失败当成一等公民的度量</strong></p></td>
+<td><p>第 6 章 §“LLM 的失败模式” #4</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>ingest 批次的成本一夜之间爆炸</strong></p></td>
+<td><p><strong>供应商定价 / 限流变了</strong></p></td>
+<td><p><strong>每批次硬预算</strong>：最大 token、最大墙钟时间、<strong>中止并 commit 部分结果</strong></p></td>
+<td><p>第 6 章 §“LLM 的失败模式” #5</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>一年之后，导入页面里的图片 404</strong></p></td>
+<td><p><strong>导入器没有重写资源 URL</strong></p></td>
+<td><p><strong>由 <em>ingest 路径</em> （同一个函数）负责 URL 重写</strong>；<strong>每个导入器都流经它</strong></p></td>
+<td><p>第 6 章 §“LLM 的失败模式” #6</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>团队把 Diátaxis 标签当作 ground truth</strong></p></td>
+<td><p>分类 <em>就是</em> 一次有损投影</p></td>
+<td><p><strong>把分类器的不确定性记录下来</strong>；<strong>低置信度路由到人审</strong>；<strong>把 <code class="docutils literal notranslate"><span class="pre">unreviewed</span></code> 当作诚实的默认值</strong></p></td>
+<td><p>第 6 章 §“A note on what classification <em>is</em>”</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="id16">
+<h3><strong>搜索与发布</strong>（第 7 章）<a class="headerlink" href="#id16" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>你看到的症状</strong></p></th>
+<th class="head"><p><strong>根本原因</strong></p></th>
+<th class="head"><p><strong>一句话的补救</strong></p></th>
+<th class="head"><p><strong>去哪里看</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>用户搜</strong> <code class="docutils literal notranslate"><span class="pre">throttle</span> <span class="pre">incoming</span> <span class="pre">traffic</span></code> ，<strong>零结果</strong></p></td>
+<td><p><strong>和 identifier-literal 之间的词汇失配</strong></p></td>
+<td><p><strong>先把 frontmatter 的</strong> <code class="docutils literal notranslate"><span class="pre">tags:</span></code> <strong>变丰富</strong>；<strong>等这招也不行时再上 dense retrieval</strong></p></td>
+<td><p>第 7 章 §“这个小引擎会在哪里失败” #1</p></td>
+</tr>
+<tr class="row-odd"><td><p>在中文语料上搜 <code class="docutils literal notranslate"><span class="pre">配置文件</span></code> <strong>返回零结果</strong></p></td>
+<td><p><strong>没有分词</strong>；<code class="docutils literal notranslate"><span class="pre">unicode.IsLetter</span></code> <strong>不会切分</strong></p></td>
+<td><p>把 <code class="docutils literal notranslate"><span class="pre">tokenize</span></code> <strong>换成</strong>一个中文分词器（<code class="docutils literal notranslate"><span class="pre">go-jieba</span></code> 、<code class="docutils literal notranslate"><span class="pre">kagome</span></code>）</p></td>
+<td><p>第 7 章 §“这个小引擎会在哪里失败” #2</p></td>
+</tr>
+<tr class="row-even"><td><p><strong><code class="docutils literal notranslate"><span class="pre">recieve</span></code> 返回零结果，用户抓狂</strong></p></td>
+<td><p><strong>没有拼写容错</strong></p></td>
+<td><p><strong>词数在 ~10 万以内</strong>：<strong>进程内做 fuzzy matching</strong>；<strong>超过之后换 Meilisearch</strong></p></td>
+<td><p>第 7 章 §“这个小引擎会在哪里失败” #3</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>冗长但不相关的页面</strong>排在<strong>聚焦的页面</strong>前面</p></td>
+<td><p><strong>打分用的是词命中数，没有长度归一化</strong></p></td>
+<td><p><strong>在 <code class="docutils literal notranslate"><span class="pre">title</span></code> 上做字段加权</strong>；<strong>这个模式持续出现时</strong>，<strong>升级到 BM25</strong></p></td>
+<td><p>第 7 章 §“这个小引擎会在哪里失败” #4</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>增量索引陈旧，但 debug 又很难</strong></p></td>
+<td><p><strong>增量更新</strong>就是<strong>大多数数据库型 wiki 的失败模式</strong></p></td>
+<td><p><strong>写的时候整张表重建</strong>；在这个规模上只是毫秒级</p></td>
+<td><p>第 7 章 §“接线搜索时的常见错误” #1</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>在线服务和静态站点返回不同的结果</strong></p></td>
+<td><p><strong>两层搜索在并行运行</strong></p></td>
+<td><p><strong>阶梯是一条 <em>序列</em> —— 只选一层，只保留一个接口</strong></p></td>
+<td><p>第 7 章 §“接线搜索时的常见错误” #2</p></td>
+</tr>
+<tr class="row-even"><td><p><strong><code class="docutils literal notranslate"><span class="pre">contradicted</span></code> 的页面在默认搜索里冒出来</strong></p></td>
+<td><p><strong>信任字段还没被当成检索用的元数据</strong></p></td>
+<td><p><strong>查询时按 <code class="docutils literal notranslate"><span class="pre">verification_status</span></code> 过滤</strong>；<strong>给一个显式的“包括已过时页面”开关</strong></p></td>
+<td><p>第 7 章 §“接线搜索时的常见错误” #3</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>组织把 Sphinx 的客户端搜索给已登录用户用</strong></p></td>
+<td><p><strong>静态搜索看不见 frontmatter / 信任字段</strong></p></td>
+<td><p><strong>服务端搜索是权威的</strong>；<strong>静态搜索给的是公开 / 离线场景</strong></p></td>
+<td><p>第 7 章 §“接线搜索时的常见错误” #4</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="id17">
+<h3><strong>运维模型</strong>（第 8 章）<a class="headerlink" href="#id17" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>你看到的症状</strong></p></th>
+<th class="head"><p><strong>根本原因</strong></p></th>
+<th class="head"><p><strong>一句话的补救</strong></p></th>
+<th class="head"><p><strong>去哪里看</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>每一页都 <code class="docutils literal notranslate"><span class="pre">approved</span></code>，内容依然是错的</strong></p></td>
+<td><p><strong>闸检查的是形式，不是真相</strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">approved</span></code> <strong>表示</strong> <em>一个人读过这次 diff</em> ，<strong>不是</strong> <em>这是对的</em> ；<strong>对安全敏感页面加第二评审人规则</strong></p></td>
+<td><p>第 8 章 §“这个模型 <em>并没有</em> 解决的问题” #1、#2</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>一万个 <code class="docutils literal notranslate"><span class="pre">approved</span></code> 页面，用户还是找不到对的那一个</strong></p></td>
+<td><p><strong>模型让知识库变得可信，不是变得</strong> <em>可用</em></p></td>
+<td><p><strong>优先排序是 Diátaxis + 策展</strong>，<strong>和信任是正交的</strong></p></td>
+<td><p>第 8 章 §“这个模型 <em>并没有</em> 解决的问题” #3</p></td>
+</tr>
+<tr class="row-even"><td><p><strong><code class="docutils literal notranslate"><span class="pre">architecture.md</span></code> 和 <code class="docutils literal notranslate"><span class="pre">runbook.md</span></code> 互相矛盾，都是 <code class="docutils literal notranslate"><span class="pre">approved</span></code></strong></p></td>
+<td><p><strong>四角模型是按页的，不是跨页的</strong></p></td>
+<td><p><strong>跨页冲突检测</strong>在<strong>第二部分的范围之外</strong>；<strong>第 25 章 + 第 29 章开始处理它</strong></p></td>
+<td><p>第 8 章 §“这个模型 <em>并没有</em> 解决的问题” #4</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>贯穿这整张表的一条共同线索</strong>： <em>这些失败里的每一个，都有一个廉价的机械修法 <strong>以及</strong> 一个昂贵的“重新架构”的修法；而团队一贯先去尝试那个昂贵的。</em> <strong>所谓运维模型</strong>，<strong>就是****在花一周时间做那个昂贵修法之前</strong>、<strong>先花一个小时试那个廉价修法的习惯</strong>。</p>
+</section>
+</section>
+<section id="id18">
+<h2>结论<a class="headerlink" href="#id18" title="Link to this heading">#</a></h2>
+<p>第二部分的四个角（页面集、元数据 footer 、三级更新策略、校验闸）是第四部分那四个角（解析、embedding、图谱、prompt）在文稿层的对应物。每一层都有一个<strong>本书会反复回来的稳定 <em>结构</em></strong> ，以及一个<strong>让这个结构变成现实的稳定 <em>机制集</em></strong> 。第五部分剩下的内容，是<strong>怎么把文稿层的这些机制接起来</strong>；第六部分讲的是<strong>两层之间怎么互相对话</strong>。</p>
+<p>这四个角本身并不自称能<strong>产出正确的文档</strong>。它们只承诺：一个实现了这四个角的知识库，可以 <em>诚实地回答</em> 关于它自己正确性的问题 —— 在必要时，包括回答一句 <em>“我们不知道；这一页还没被评审过。”</em> 第 25 章的文档分层元组、以及第 29 章那个可被 agent 调用的知识库接口，都是建在这句诚实的回答之上的。</p>
+</section>
+<section id="id19">
+<h2>参考文献<a class="headerlink" href="#id19" title="Link to this heading">#</a></h2>
+<div class="docutils container" id="id20">
+<div role="list" class="citation-list">
+<div class="citation" id="id27" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>Emad Aghajani, Csaba Nagy, Olga Lucero Vega-Márquez, Mario Linares-Vásquez, Laura Moreno, Gabriele Bavota, and Michele Lanza. Software documentation issues unveiled. <em>Proc. IEEE/ACM ICSE</em>, 2019.</p>
+</div>
+<div class="citation" id="id69" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></span>
+<p>Tom B. Brown, Benjamin Mann, Nick Ryder, Melanie Subbiah, Jared Kaplan, Prafulla Dhariwal, Arvind Neelakantan, Pranav Shyam, and others. Language models are few-shot learners. <em>Advances in Neural Information Processing Systems</em>, 33:1877–1901, 2020. The paper that made LLM-as-classifier a practical option: a prompt replaces labelled training data.</p>
+</div>
+<div class="citation" id="id34" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></span>
+<p>Tom Christie and contributors. MkDocs: project documentation with Markdown. 2014–present. URL: <a class="reference external" href="https://www.mkdocs.org/">https://www.mkdocs.org/</a>.</p>
+</div>
+<div class="citation" id="id62" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></span>
+<p>Melvin E. Conway. How do committees invent? <em>Datamation</em>, 14(4):28–31, 1968. Origin of “Conway's law”: organisations produce systems whose structure mirrors their communication structure. The prose-layer equivalent is that documentation review follows the same communication lines as the code it describes.</p>
+</div>
+<div class="citation" id="id64" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id8">5</a><span class="fn-bracket">]</span></span>
+<p>W. Edwards Deming. <em>Out of the Crisis</em>. MIT Press, 1986. Formalised the Plan-Do-Check-Act cycle. Used in Chapter 7a to justify why the four-corner operational model is structurally complete: each corner answers one phase of PDCA applied to a prose-layer artefact.</p>
+</div>
+<div class="citation" id="id101" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>6<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id4">1</a>,<a role="doc-backlink" href="#id6">2</a>)</span>
+<p>Walter (Yamin) Fan. Project knowledge base skill: an opinionated operational model for software documentation. Self-published; private toolkit, 2026. Methodology and operational patterns developed by the author in parallel with this book; not publicly released. Cited throughout for the three-level update strategy, the PKB-metadata footer schema, the hard/soft verification-gate catalog, and the opinionated ten-page documentation set. Chapter prose adapts these ideas in the book's voice; command names and employer-internal infrastructure from the toolkit are deliberately omitted.</p>
+</div>
+<div class="citation" id="id22" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></span>
+<p>Walter (Yamin) Fan. 如何打造个人与项目知识库：从全文搜索到 RAG，再到 Claude Skill. February 2026. v1.0, CC-BY-NC-ND 4.0. URL: <a class="reference external" href="https://www.fanyamin.com/2026-02-05-rag-claude-skill-knowledge-base.html">https://www.fanyamin.com/2026-02-05-rag-claude-skill-knowledge-base.html</a>.</p>
+</div>
+<div class="citation" id="id103" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>8<span class="fn-bracket">]</span></span>
+<p>Kai Greshake, Sahar Abdelnabi, Shailesh Mishra, Christoph Endres, Thorsten Holz, and Mario Fritz. Not what you have signed up for: compromising real-world LLM-integrated applications with indirect prompt injection. <em>arXiv preprint arXiv:2302.12173</em>, 2023. Formalises the indirect-prompt-injection threat model that RAG systems inherit the moment retrieved documents can contain attacker-controlled text. Cited in Chapter 13 as the named threat model the two-step defence (system preamble + context escaping) addresses, and re-visited in Chapter 23's red-teaming treatment. URL: <a class="reference external" href="https://arxiv.org/abs/2302.12173">https://arxiv.org/abs/2302.12173</a>.</p>
+</div>
+<div class="citation" id="id60" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>9<span class="fn-bracket">]</span></span>
+<p>Gary Gruver and Tommy Mouser. <em>Starting and Scaling DevOps in the Enterprise</em>. BookBaby, 2016. Popularised the &quot;docs-as-code&quot; treatment of documentation as a first-class artefact of the software delivery pipeline.</p>
+</div>
+<div class="citation" id="id26" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>10<span class="fn-bracket">]</span></span>
+<p>Timothy C. Lethbridge, Janice Singer, and Andrew Forward. How software engineers use documentation: the state of the practice. <em>IEEE Software</em>, 20(6):35–39, 2003.</p>
+</div>
+<div class="citation" id="id66" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>11<span class="fn-bracket">]</span></span>
+<p>John MacFarlane. Pandoc: a universal document converter. 2006–present. Defines the YAML metadata block convention adopted by most Markdown tooling. URL: <a class="reference external" href="https://pandoc.org/">https://pandoc.org/</a>.</p>
+</div>
+<div class="citation" id="id59" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>12<span class="fn-bracket">]</span></span>
+<p>John MacFarlane. Gitit: a wiki backed by a git, darcs, or mercurial filestore. 2008–present. Early demonstration that a wiki can be a plain Git repository. URL: <a class="github reference external" href="https://github.com/jgm/gitit">jgm/gitit</a>.</p>
+</div>
+<div class="citation" id="id102" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>13<span class="fn-bracket">]</span></span>
+<p>Yury A. Malkov and Dmitry A. Yashunin. Efficient and robust approximate nearest neighbor search using hierarchical navigable small world graphs. <em>IEEE Transactions on Pattern Analysis and Machine Intelligence</em>, 42(4):824–836, 2020. The HNSW index underlying every modern vector store (sqlite-vec, pgvector's hnsw option, Milvus, Faiss). The small-world-graph construction is why an approximate nearest-neighbour query runs in log-time rather than linear-scan time; cited in Chapter 10 to anchor the &quot;vector DB is not magic&quot; argument. <a class="reference external" href="https://doi.org/10.1109/TPAMI.2018.2889473">doi:10.1109/TPAMI.2018.2889473</a>.</p>
+</div>
+<div class="citation" id="id36" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>14<span class="fn-bracket">]</span></span>
+<p>Christopher D. Manning, Prabhakar Raghavan, and Hinrich Schütze. <em>Introduction to Information Retrieval</em>. Cambridge University Press, 2008.</p>
+</div>
+<div class="citation" id="id99" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>15<span class="fn-bracket">]</span></span>
+<p>Rodrigo Nogueira and Kyunghyun Cho. Passage re-ranking with BERT. <em>arXiv preprint arXiv:1901.04085</em>, 2019. Canonical reference for cross-encoder re-ranking — a BERT model scores (query, document) pairs for the second stage of a retrieve-then-rerank pipeline. Widely known as &quot;monoBERT&quot;. URL: <a class="reference external" href="https://arxiv.org/abs/1901.04085">https://arxiv.org/abs/1901.04085</a>.</p>
+</div>
+<div class="citation" id="id63" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>16<span class="fn-bracket">]</span></span>
+<p>David L. Parnas. On the criteria to be used in decomposing systems into modules. <em>Communications of the ACM</em>, 15(12):1053–1058, 1972. Introduces information hiding. Extended to documentation in this book: a software KB should be decomposed so that prose and the code it describes share a review boundary. <a class="reference external" href="https://doi.org/10.1145/361598.361623">doi:10.1145/361598.361623</a>.</p>
+</div>
+<div class="citation" id="id25" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>17<span class="fn-bracket">]</span></span>
+<p>David L. Parnas and Paul C. Clements. A rational design process: how and why to fake it. <em>IEEE Transactions on Software Engineering</em>, SE-12(2):251–257, 1986.</p>
+</div>
+<div class="citation" id="id28" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>18<span class="fn-bracket">]</span></span>
+<p>Daniele Procida. Diátaxis: a systematic approach to technical documentation authoring. 2017–present. URL: <a class="reference external" href="https://diataxis.fr/">https://diataxis.fr/</a>.</p>
+</div>
+<div class="citation" id="id68" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>19<span class="fn-bracket">]</span></span>
+<p>Alexander Ratner, Stephen H. Bach, Henry Ehrenberg, Jason Fries, Sen Wu, and Christopher Ré. Snorkel: rapid training data creation with weak supervision. <em>Proceedings of the VLDB Endowment</em>, 11(3):269–282, 2017. <a class="reference external" href="https://doi.org/10.14778/3157794.3157797">doi:10.14778/3157794.3157797</a>.</p>
+</div>
+<div class="citation" id="id100" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>20<span class="fn-bracket">]</span></span>
+<p>Nils Reimers and Iryna Gurevych. Sentence-BERT: sentence embeddings using siamese BERT-networks. In <em>Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing</em>. 2019. Introduces the bi-encoder framing that underlies every modern dense retriever: two independent encodings compared by cosine similarity, contrasted explicitly against cross-encoders that concatenate (query, document) before scoring. URL: <a class="reference external" href="https://arxiv.org/abs/1908.10084">https://arxiv.org/abs/1908.10084</a>.</p>
+</div>
+<div class="citation" id="id81" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>21<span class="fn-bracket">]</span></span>
+<p>Shitao Xiao, Zheng Liu, Peitian Zhang, Niklas Muennighoff, Defu Lian, and Jian-Yun Nie. C-Pack: packed resources for general Chinese embeddings. 2024. Includes the BGE family of open embedding models, which can be self-hosted on a single GPU at effectively zero per-token cost. URL: <a class="reference external" href="https://arxiv.org/abs/2309.07597">https://arxiv.org/abs/2309.07597</a>.</p>
+</div>
+<div class="citation" id="id67" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>22<span class="fn-bracket">]</span></span>
+<p>Wenpeng Yin, Jamaal Hay, and Dan Roth. Benchmarking zero-shot text classification: datasets, evaluation and entailment approach. In <em>Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing</em>, 3914–3923. 2019. <a class="reference external" href="https://doi.org/10.18653/v1/D19-1404">doi:10.18653/v1/D19-1404</a>.</p>
+</div>
+<div class="citation" id="id46" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>23<span class="fn-bracket">]</span></span>
+<p>Yuqi Zhu, Xiaohan Wang, Jing Chen, Shuofei Qiao, Yixin Ou, Yunzhi Yao, Shumin Deng, Huajun Chen, and Ningyu Zhang. LLMs for knowledge graph construction and reasoning: recent capabilities and future opportunities. 2024. URL: <a class="reference external" href="https://arxiv.org/abs/2305.13168">https://arxiv.org/abs/2305.13168</a>, <a class="reference external" href="https://arxiv.org/abs/2305.13168">arXiv:2305.13168</a>.</p>
+</div>
+<div class="citation" id="id65" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>24<span class="fn-bracket">]</span></span>
+<p>Ben-Kiki, Oren and Evans, Clark and döt Net, Ingy. YAML ain't markup language (YAML) version 1.2. 2021. Specification of YAML, the serialisation format used for wiki frontmatter. URL: <a class="reference external" href="https://yaml.org/spec/1.2.2/">https://yaml.org/spec/1.2.2/</a>.</p>
+</div>
+<div class="citation" id="id71" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>25<span class="fn-bracket">]</span></span>
+<p>Couchbase, Inc. and Bleve contributors. Bleve: a modern text indexing library for Go. 2014–present. Embedded full-text search engine for Go applications — a natural scale-up target from the in-memory token index in \texttt index.go. URL: <a class="reference external" href="https://blevesearch.com/">https://blevesearch.com/</a>.</p>
+</div>
+<div class="citation" id="id57" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>26<span class="fn-bracket">]</span></span>
+<p>DokuWiki contributors. DokuWiki: a simple to use and highly versatile open source wiki software without a database. 2004–present. File-based wiki storing each page as a plain-text file on disk. URL: <a class="reference external" href="https://www.dokuwiki.org/">https://www.dokuwiki.org/</a>.</p>
+</div>
+<div class="citation" id="id75" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>27<span class="fn-bracket">]</span></span>
+<p>Executable Books Project. MyST-Parser: a sphinx and docutils extension to parse MyST, a rich and extensible flavour of Markdown. 2020–present. URL: <a class="reference external" href="https://myst-parser.readthedocs.io/">https://myst-parser.readthedocs.io/</a>.</p>
+</div>
+<div class="citation" id="id74" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>28<span class="fn-bracket">]</span></span>
+<p>Georg Brandl and Sphinx contributors. Sphinx: python documentation generator. 2008–present. The static publishing target used by the prose-layer reference implementation to render the prose layer. URL: <a class="reference external" href="https://www.sphinx-doc.org/">https://www.sphinx-doc.org/</a>.</p>
+</div>
+<div class="citation" id="id58" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>29<span class="fn-bracket">]</span></span>
+<p>MoinMoin contributors. MoinMoin wiki. 2000–present. Python-based file-backed wiki engine with page-per-file storage. URL: <a class="reference external" href="https://moinmo.in/">https://moinmo.in/</a>.</p>
+</div>
+<div class="citation" id="id29" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>30<span class="fn-bracket">]</span></span>
+<p>OASIS. Darwin information typing architecture (DITA) 2.0 specification. 2022. URL: <a class="reference external" href="https://docs.oasis-open.org/dita/dita/v2.0/dita-v2.0.html">https://docs.oasis-open.org/dita/dita/v2.0/dita-v2.0.html</a>.</p>
+</div>
+<div class="citation" id="id33" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>31<span class="fn-bracket">]</span></span>
+<p>Obsidian.md. Obsidian: a knowledge base that works on local Markdown files. 2020–present. URL: <a class="reference external" href="https://obsidian.md/">https://obsidian.md/</a>.</p>
+</div>
+<div class="citation" id="id82" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">32</a><span class="fn-bracket">]</span></span>
+<p>OpenAI. OpenAI text embeddings v3 (text-embedding-3-small and text-embedding-3-large). 2024. The \texttt text-embedding-3-small launch announcement lists a 5× price reduction relative to \texttt text-embedding-ada-002 (from \$0.0001 to \$0.00002 per 1K tokens) at higher retrieval quality. URL: <a class="reference external" href="https://openai.com/index/new-embedding-models-and-api-updates/">https://openai.com/index/new-embedding-models-and-api-updates/</a>.</p>
+</div>
+<div class="citation" id="id35" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>33<span class="fn-bracket">]</span></span>
+<p>Write the Docs community. Documentation style guides and principles. 2011–present. URL: <a class="reference external" href="https://www.writethedocs.org/guide/">https://www.writethedocs.org/guide/</a>.</p>
+</div>
+<div class="citation" id="id61" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>34<span class="fn-bracket">]</span></span>
+<p>Write the Docs community. Docs as code. n.d. Community reference page distilling the docs-as-code philosophy: plain-text sources, version control, reviews, CI. URL: <a class="reference external" href="https://www.writethedocs.org/guide/docs-as-code/">https://www.writethedocs.org/guide/docs-as-code/</a>.</p>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="ch07-publish-and-search.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">第 7 章 —— 发布与搜索</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="ch09-cold-start-migration.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">第 9 章 —— 冷启动与批量迁移</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 目录
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">为什么</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">是什么</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#c1">C1 —— 固定的页面集</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#c2-footer">C2 —— 元数据 footer</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#c3">C3 —— 三级更新策略</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#c4">C4 —— 校验闸</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id7"><strong>为什么恰好是四个角？</strong></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">怎么做</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">示例</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">这个模型 <em>并没有</em> 解决的问题</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id12">一页总览第二部分 —— 一张跳转清单</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id13"><strong>存储与仓库卫生</strong>（第 4 章）</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id14"><strong>来源与信任</strong>（第 5 章）</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id15"><strong>分类流水线</strong>（第 6 章）</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id16"><strong>搜索与发布</strong>（第 7 章）</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id17"><strong>运维模型</strong>（第 8 章）</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id18">结论</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id19">参考文献</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+作者： Walter Fan
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright AI 辅助创作 2026, Walter Fan.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    <p class="last-updated">
+  最后更新于 2026-11-10.
+  <br/>
+</p>
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

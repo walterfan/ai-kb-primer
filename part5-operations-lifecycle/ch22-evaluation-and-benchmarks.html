@@ -1,0 +1,1438 @@
+
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>第 22 章 —— 评测、基准与发布门禁 &#8212; Use AI to build a knowledge base for a software project</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=591f613d" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=23f7fa08"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../_static/translations.js?v=beaddf03"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.2.0/dist/mermaid-layout-elk.esm.min.mjs"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";import elkLayouts from "https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.2.0/dist/mermaid-layout-elk.esm.min.mjs";mermaid.registerLayoutLoaders(elkLayouts);mermaid.initialize({startOnLoad:false});</script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+const defaultStyle = document.createElement('style');
+defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+`;
+document.head.appendChild(defaultStyle);
+
+const fullscreenStyle = document.createElement('style');
+fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+document.head.appendChild(fullscreenStyle);
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        return brightness < 128;
+    }
+    return false;
+};
+
+const load = async () => {
+    await mermaid.run();
+
+    const all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(load, 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(load, 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(load, 200);
+        return;
+    }
+
+    const darkTheme = isDarkTheme();
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    const modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    const modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    let previousScrollOffset = [window.scrollX, window.scrollY];
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    const allButtons = [];
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+
+        container.appendChild(fullscreenBtn);
+        allButtons.push(fullscreenBtn);
+    });
+
+    // Update theme classes when theme changes
+    const updateTheme = () => {
+        const dark = isDarkTheme();
+        allButtons.forEach(btn => {
+            if (dark) {
+                btn.classList.add('dark-theme');
+            } else {
+                btn.classList.remove('dark-theme');
+            }
+        });
+        if (dark) {
+            modal.classList.add('dark-theme');
+            modalContent.classList.add('dark-theme');
+            closeBtn.classList.add('dark-theme');
+        } else {
+            modal.classList.remove('dark-theme');
+            modalContent.classList.remove('dark-theme');
+            closeBtn.classList.remove('dark-theme');
+        }
+    };
+
+    // Watch for theme changes
+    const observer = new MutationObserver(updateTheme);
+    observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    observer.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style']
+    });
+};
+
+window.addEventListener("load", load);
+</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'part5-operations-lifecycle/ch22-evaluation-and-benchmarks';</script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="第 23 章 —— 维护、漂移与链接腐化" href="ch23-maintenance-drift-and-link-rot.html" />
+    <link rel="prev" title="第 21 章 —— 增量同步" href="ch21-incremental-sync.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+    <meta name="docbuild:last-update" content="2026-11-10"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Use AI to build a knowledge base for a software project</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">搜索</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Part I — Foundations</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part1-foundations/index.html">第一部分 —— 基础</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch01-why-kb-for-software.html">第 1 章 —— 为什么要给软件建一个知识库？</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch01a-quickstart-30min.html">第 1a 章 —— 30 分钟快速上手</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch02-ir-rag-primer.html">第 2 章 —— IR 与 RAG 入门</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch03-diataxis-and-software-docs.html">第 3 章 —— Diátaxis 与软件文档</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part II — The Prose Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part2-prose-layer/index.html">第二部分 —— 文稿层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch04-file-based-wiki.html">第 4 章 —— 一个基于文件的 wiki</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch05-frontmatter-provenance-trust.html">第 5 章 —— 把 frontmatter 当作一份来源记录</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch06-llm-classification-pipeline.html">第 6 章 —— 分类流水线</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch07-publish-and-search.html">第 7 章 —— 发布与搜索</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch08-prose-operational-model.html">第 8 章 —— 文稿层的运维模型</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch09-cold-start-migration.html">第 9 章 —— 冷启动与批量迁移</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part III — The Author Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part3-author-layer/index.html">第三部分 —— 作者层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch10-why-ai-as-author.html">第 10 章 —— 为什么让 AI 当作者</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch11-ai-drafting-and-rewriting.html">第 11 章 —— AI 起草、重写、翻译</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch12-ai-for-metadata.html">第 12 章 —— AI 处理元数据：分类、打标签、实体与关系抽取</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch13-ai-for-maintenance.html">第 13 章 —— AI 做维护：摘要、去重、过期与漂移检测</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch14-ai-as-judge.html">第 14 章 —— AI 作为评判者：评估生成质量与引用合规</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part IV — The Code Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part4-code-layer/index.html">第四部分 —— 代码层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch15-why-code-is-not-prose.html">第 15 章 —— 为什么代码不是文稿</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch16-parsing-and-entity-extraction.html">第 16 章 —— 解析与实体抽取</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch17-embeddings-and-vector-stores.html">第 17 章 —— 嵌入向量与向量存储</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch18-code-knowledge-graph.html">第 18 章 —— 代码知识图谱</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch19-hybrid-retrieval-and-rrf.html">第 19 章 —— 混合检索与 RRF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch20-prompt-and-generation.html">第 20 章 —— 提示词与生成</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part V — Operations &amp; Lifecycle</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">第五部分 —— 运维与生命周期</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="ch21-incremental-sync.html">第 21 章 —— 增量同步</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">第 22 章 —— 评测、基准与发布门禁</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ch23-maintenance-drift-and-link-rot.html">第 23 章 —— 维护、漂移与链接腐化</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part VI — The Hybrid Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part6-hybrid-layer/index.html">第六部分 —— 混合层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch24-prose-meets-code.html">第 24 章 —— 文稿与代码相遇</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch25-document-layering-L0-L4.html">第 25 章 —— 文档分层 L0–L4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch26-graph-guided-context-assembly.html">第 26 章 —— 图引导的上下文组装</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch27-harnessing-ai-coding.html">第 27 章 —— 用知识库驾驭 AI 编码</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch28-team-sdlc-integration.html">第 28 章 —— 团队协作与 SDLC 集成</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch29-ai-agents-on-the-kb.html">第 29 章 —— 在知识库上跑的 AI Agent</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part VII — Governance &amp; Outlook</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part7-governance-and-outlook/index.html">第七部分 —— 治理与展望</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch30-cost-privacy-security.html">第 30 章 —— 成本、隐私、安全</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch31-trust-provenance-and-red-teaming.html">第 31 章 —— 信任、出处与红队演练</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch32-outlook-and-open-problems.html">第 32 章 —— 展望与尚未解决的问题</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Appendices</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-a-example-wiki.html">附录 A —— 端到端：从杂乱文件夹到可发布 Wiki</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-b-example-code-kg.html">附录 B —— 示例：从一个 Go 仓库构建代码知识库</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-c-deepwiki-checklist.html">附录 C —— 自己动手做 DeepWiki 检查清单</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-d-glossary.html">附录 D —— 术语表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-e-bilingual-publishing.html">附录 E —— 发布一个双语知识库</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">参考文献</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../reference/index.html">参考文献：仓库级代码理解与软件知识库论文导读</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../reference/01-repoformer-selective-retrieval.html">Repoformer: Selective Retrieval for Repository-Level Code Completion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/02-codeplan-repository-level-planning.html">CodePlan: Repository-Level Coding using LLMs and Planning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/03-repograph-code-graph-navigation.html">RepoGraph: Enhancing AI Software Engineering with Repository-level Code Graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/04-repoagent-documentation-generation.html">RepoAgent: An LLM-Powered Open-Source Framework for Repository-level Code Documentation Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/05-repocoder-iterative-retrieval-generation.html">RepoCoder: Repository-Level Code Completion Through Iterative Retrieval and Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/06-llm-kg-synergy-repo-qa.html">Synergizing LLMs and Knowledge Graphs: A Novel Approach to Software Repository-Related Question Answering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/07-repo-level-prompt-generation.html">Repository-Level Prompt Generation for Large Language Models of Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/08-repobench-benchmarking.html">RepoBench: Benchmarking Repository-Level Code Auto-Completion Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/09-long-code-arena-benchmarks.html">Long Code Arena: A Set of Benchmarks for Long-Context Code Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/10-cgm-graph-integrated-llm.html">Code Graph Model (CGM): A Graph-Integrated Large Language Model for Repository-Level Software Engineering Tasks</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="下载此页面">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="下载源文件"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="列印成 PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="全屏模式"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>第 22 章 —— 评测、基准与发布门禁</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> 目录 </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why">Why —— 为什么</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what">What —— 是什么</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">评测</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">门禁</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">硬门禁 —— 阻止发布</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id12">软门禁 —— 发警告，但允许发布</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how">How —— 怎么做</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#runner">门禁 runner</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id13">门禁报告</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id14">一次具体的失败</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example —— 范例</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cookbook">15.4   检索质量调优 Cookbook</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id15">15.4.1  诊断流程图</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bad-query">15.4.2  常见 Bad Query → 调优策略</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id16">15.4.3  检索质量回归测试</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#a-b">15.4.4  A/B 测试脚手架</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#conclusion">Conclusion —— 小结</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id17">参考文献</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="id1">
+<h1>第 22 章 —— 评测、基准与发布门禁<a class="headerlink" href="#id1" title="Link to this heading">#</a></h1>
+<section id="why">
+<h2>Why —— 为什么<a class="headerlink" href="#why" title="Link to this heading">#</a></h2>
+<p>一个回答不了 * “我怎么知道这次 build 好不好？” * 的知识库，就不能自称被“维护着”。这个问题有两种诚实的拆解，本章把两种都讲一遍：</p>
+<ol class="arabic simple">
+<li><p><strong>评测</strong> —— <em>知识库所驱动的检索 + 生成系统到底好不好？</em> 这是 IR 文献的问题：precision at k、nDCG、回答忠实度。BEIR <span id="id2">[<a class="reference internal" href="#id39" title="Nandan Thakur, Nils Reimers, Andreas Rücklé, Abhishek Srivastava, and Iryna Gurevych. BEIR: a heterogeneous benchmark for zero-shot evaluation of information retrieval models. In NeurIPS Datasets and Benchmarks. 2021.">Thakur <em>et al.</em>, 2021</a>]</span> 和 RAGAS <span id="id3">[<a class="reference internal" href="index.html#id80" title="Shahul Es, Jithin James, Luis Espinosa-Anke, and Steven Schockaert. RAGAS: automated evaluation of retrieval augmented generation. In Proceedings of the 18th Conference of the European Chapter of the Association for Computational Linguistics: System Demonstrations. 2024. URL: https://arxiv.org/abs/2309.15217.">Es <em>et al.</em>, 2024</a>]</span> 这样的基准之所以存在，正是因为不同团队在趋向同一个答案。</p></li>
+<li><p><strong>门禁</strong> —— <em>这一次具体的 build 是否格式合规到可以发布？</em> 这是构建工程的问题：每一页的 footer 都在吗？引用都能解析吗？变更的页面有人类审过吗？这就是第 8 章 C4 角所问的那个问题 —— 也是 IR 基准不能直接帮上忙的那个。</p></li>
+</ol>
+<p>评测告诉你 * 好到什么程度 * 。门禁告诉你 * 要不要发 * 。两者互补：一个没有门禁就放出去的知识库，最终会因为结构不合规的页面不断累积，在评测上失分；一个只做评测、不做门禁的知识库，拿出来的漂亮数字，对应的是一个根本无法真正部署的快照。</p>
+<p>本章列出的门禁目录源自作者的 project-knowledge-base 工具包 <span id="id4">[<a class="reference internal" href="../part7-governance-and-outlook/ch31-trust-provenance-and-red-teaming.html#id89" title="Walter (Yamin) Fan. Project knowledge base skill: an opinionated operational model for software documentation. Self-published; private toolkit, 2026. Methodology and operational patterns developed by the author in parallel with this book; not publicly released. Cited throughout for the three-level update strategy, the PKB-metadata footer schema, the hard/soft verification-gate catalog, and the opinionated ten-page documentation set. Chapter prose adapts these ideas in the book's voice; command names and employer-internal infrastructure from the toolkit are deliberately omitted.">Fan, 2026</a>]</span>，并新增了一列 —— * 由谁强制执行 * —— 把每一条门禁映射到一段具体的 CI 机制。原工具包的做法对“强制”是隐式处理的；把它显式化是本书的一份贡献。</p>
+</section>
+<section id="what">
+<h2>What —— 是什么<a class="headerlink" href="#what" title="Link to this heading">#</a></h2>
+<section id="id5">
+<h3>评测<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
+<p>对代码层检索系统（第 19 章）而言，有用的指标就是那些标准的 IR 指标：在一份留出的 <code class="docutils literal notranslate"><span class="pre">(问题,</span> <span class="pre">引用)</span></code> 对测试集上跑 nDCG&#64;10、recall&#64;10、MRR。对文稿层检索，这些指标同样适用，但有一个注脚：ground truth 更难标注（同一个问题常常对应多个正确页面），并且“部分得分”更重要。两类面板都能从 RAGAS <span id="id6">[<a class="reference internal" href="index.html#id80" title="Shahul Es, Jithin James, Luis Espinosa-Anke, and Steven Schockaert. RAGAS: automated evaluation of retrieval augmented generation. In Proceedings of the 18th Conference of the European Chapter of the Association for Computational Linguistics: System Demonstrations. 2024. URL: https://arxiv.org/abs/2309.15217.">Es <em>et al.</em>, 2024</a>]</span> 及其同类框架里的“端到端 answer-faithfulness”指标中获益。</p>
+<p>一个可以直接上手的初始指标集：</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>Metric</p></th>
+<th class="head text-left"><p>Layer</p></th>
+<th class="head text-left"><p>What it measures</p></th>
+<th class="head text-left"><p>Benchmark corpus</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p>nDCG&#64;10</p></td>
+<td class="text-left"><p>code</p></td>
+<td class="text-left"><p>Are the top-10 retrieved entities ranked correctly?</p></td>
+<td class="text-left"><p>Held-out <code class="docutils literal notranslate"><span class="pre">(question,</span> <span class="pre">code_entities)</span></code> pairs</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>Recall&#64;10</p></td>
+<td class="text-left"><p>code</p></td>
+<td class="text-left"><p>Did we at least find the right entities?</p></td>
+<td class="text-left"><p>Same</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>Answer faithfulness (RAGAS)</p></td>
+<td class="text-left"><p>prose+code</p></td>
+<td class="text-left"><p>Does the generated answer cite its own context?</p></td>
+<td class="text-left"><p>RAGAS pipeline on sample Q&amp;A</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>Citation resolve-rate</p></td>
+<td class="text-left"><p>prose+code</p></td>
+<td class="text-left"><p>Do the <code class="docutils literal notranslate"><span class="pre">file:line</span></code> anchors in generated answers resolve at HEAD?</p></td>
+<td class="text-left"><p>Every generated answer</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>BEIR-style domain scores</p></td>
+<td class="text-left"><p>prose</p></td>
+<td class="text-left"><p>How does retrieval quality compare against public IR corpora?</p></td>
+<td class="text-left"><p>BEIR <span id="id7">[<a class="reference internal" href="#id39" title="Nandan Thakur, Nils Reimers, Andreas Rücklé, Abhishek Srivastava, and Iryna Gurevych. BEIR: a heterogeneous benchmark for zero-shot evaluation of information retrieval models. In NeurIPS Datasets and Benchmarks. 2021.">Thakur <em>et al.</em>, 2021</a>]</span></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>评测数字应当在一个固定的基准集上沿时间线追踪；单独一个 nDCG&#64;10 = 0.74 不是什么主张，但一次同步之后从 0.74 变成 0.71 就是了。</p>
+<p>值得注意的是，学界已经为分层评测提供了成熟的框架。RepoBench 将评测拆成三个独立的子任务 —— 检索层（R）、补全层（C）和端到端流水线（P），使得&quot;检索质量差还是生成质量差&quot;这个诊断问题可以被精确回答 <span id="id8">[<a class="reference internal" href="index.html#id94" title="Tianyang Liu, Canwen Xu, and Julian McAuley. RepoBench: benchmarking repository-level code auto-completion systems. arXiv preprint arXiv:2306.03091, 2023. Decomposes evaluation into Retrieval (R), Completion (C), and Pipeline (P) layers, enabling precise diagnosis of whether the bottleneck is retrieval quality or generation quality. Key insight for Chapter 15: layered evaluation (retrieval health → generation health → end-to-end) is the right structure for KB benchmarking. URL: https://arxiv.org/abs/2306.03091, arXiv:2306.03091.">Liu <em>et al.</em>, 2023</a>]</span>。这种 R/C/P 拆解与本章&quot;评测 + 门禁&quot;的二元结构高度一致：R 对应代码层检索指标，C 对应生成忠实度，P 对应端到端。Long Code Arena 则把评测推向了更接近真实工作负载的尺度：它覆盖了项目级补全、CI 修复、Bug 定位、模块摘要、仓库 QA 和 Commit 消息生成六类长上下文任务，平均上下文长度在 30K–80K tokens <span id="id9">[<a class="reference internal" href="index.html#id95" title="Egor Bogomolov, Aleksandra Eliseeva, Timur Galimzyanov, Evgeniy Glukhov, Anton Shapkin, Maria Shmelev, Yaroslav Smirnov, Sergei Golubev, Timofey Bryksin, and Alberto Bacchelli. Long code arena: a set of benchmarks for long-context code models. arXiv preprint arXiv:2406.11612, 2024. Covers six long-context code tasks: project-level completion, CI repair, bug localization, module summarization, repo QA, and commit-message generation. Key insight for Chapter 15 and Chapter 24: real-world KB evaluation must go beyond single-file metrics to cover these project-scale tasks. URL: https://arxiv.org/abs/2406.11612, arXiv:2406.11612.">Bogomolov <em>et al.</em>, 2024</a>]</span>。知识库的评测集设计应当参考这类多任务框架，而不只是在 nDCG 上做单一维度的追踪。</p>
+</section>
+<section id="id10">
+<h3>门禁<a class="headerlink" href="#id10" title="Link to this heading">#</a></h3>
+<p>门禁属于 * 构建工程 * 的问题。每一条门禁都是一个跑在 CI 上、只返回 pass / fail 的机械检查。目录把它们区分为 <strong>硬门禁</strong> （阻止发布，非零退出码）和 <strong>软门禁</strong> （发警告，允许发布但提醒评审者）。</p>
+<section id="id11">
+<h4>硬门禁 —— 阻止发布<a class="headerlink" href="#id11" title="Link to this heading">#</a></h4>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head text-center"><p>#</p></th>
+<th class="head text-left"><p>Name</p></th>
+<th class="head text-left"><p>What it checks</p></th>
+<th class="head text-left"><p>Enforced by</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-center"><p>H1</p></td>
+<td class="text-left"><p>Footer present</p></td>
+<td class="text-left"><p>Every content page has a well-formed <code class="docutils literal notranslate"><span class="pre">PKB-metadata</span></code> footer</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">check_frontmatter.py</span></code> extension</p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>H2</p></td>
+<td class="text-left"><p>Footer fields valid</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">review_status</span></code> ∈ {<code class="docutils literal notranslate"><span class="pre">pending</span></code>, <code class="docutils literal notranslate"><span class="pre">approved</span></code>}; <code class="docutils literal notranslate"><span class="pre">updated_by</span></code> ∈ {<code class="docutils literal notranslate"><span class="pre">human</span></code>, <code class="docutils literal notranslate"><span class="pre">ai</span></code>, <code class="docutils literal notranslate"><span class="pre">ai+human</span></code>}; <code class="docutils literal notranslate"><span class="pre">review_score</span></code> ∈ [0,5]</p></td>
+<td class="text-left"><p>Same</p></td>
+</tr>
+<tr class="row-even"><td class="text-center"><p>H3</p></td>
+<td class="text-left"><p>AI-approval consistency</p></td>
+<td class="text-left"><p>No page has <code class="docutils literal notranslate"><span class="pre">review_status:</span> <span class="pre">approved</span></code> with empty <code class="docutils literal notranslate"><span class="pre">reviewed_by</span></code></p></td>
+<td class="text-left"><p>Same</p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>H4</p></td>
+<td class="text-left"><p>Citations resolve</p></td>
+<td class="text-left"><p>Every <code class="docutils literal notranslate"><span class="pre">file:line</span></code> anchor in every page points at an existing line at HEAD</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">verify</span></code> step (Chapter 7)</p></td>
+</tr>
+<tr class="row-even"><td class="text-center"><p>H5</p></td>
+<td class="text-left"><p>Links resolve</p></td>
+<td class="text-left"><p>Every internal <code class="docutils literal notranslate"><span class="pre">](*.md#*)</span></code> link points at an existing anchor</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">verify</span></code> step</p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>H6</p></td>
+<td class="text-left"><p>Excerpts provenance</p></td>
+<td class="text-left"><p>Every vendored excerpt’s <code class="docutils literal notranslate"><span class="pre">content_sha256</span></code> matches the current file</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">refresh_excerpts.py</span> <span class="pre">--check</span></code></p></td>
+</tr>
+<tr class="row-even"><td class="text-center"><p>H7</p></td>
+<td class="text-left"><p>No <code class="docutils literal notranslate"><span class="pre">[TODO]</span></code> / <code class="docutils literal notranslate"><span class="pre">[FIXME]</span></code> in published pages</p></td>
+<td class="text-left"><p>Pages with <code class="docutils literal notranslate"><span class="pre">status:</span> <span class="pre">published</span></code> contain no unresolved markers</p></td>
+<td class="text-left"><p>grep-style check</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>每条硬门禁都对应着知识库中“可能为假、且一旦为假就必须阻止发布”的一件具体事。H1–H3 强制 C2（footer 可观测且诚实）。H4–H6 强制“引用与 excerpt 持续可信”。H7 则负责抓最常见的那种“哎呀我们忘了”的失误。</p>
+</section>
+<section id="id12">
+<h4>软门禁 —— 发警告，但允许发布<a class="headerlink" href="#id12" title="Link to this heading">#</a></h4>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head text-center"><p>#</p></th>
+<th class="head text-left"><p>Name</p></th>
+<th class="head text-left"><p>What it warns about</p></th>
+<th class="head text-left"><p>Enforced by</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-center"><p>S1</p></td>
+<td class="text-left"><p>Stale footers</p></td>
+<td class="text-left"><p>Any page’s footer <code class="docutils literal notranslate"><span class="pre">commit:</span></code> is more than N commits behind HEAD</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">check-staleness.py</span></code></p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>S2</p></td>
+<td class="text-left"><p>Low review score</p></td>
+<td class="text-left"><p>Any published page has <code class="docutils literal notranslate"><span class="pre">review_score</span></code> &lt; 2</p></td>
+<td class="text-left"><p>Footer scan</p></td>
+</tr>
+<tr class="row-even"><td class="text-center"><p>S3</p></td>
+<td class="text-left"><p>Imbalanced Diátaxis</p></td>
+<td class="text-left"><p>The published KB has no how-to pages (or no tutorial, etc.)</p></td>
+<td class="text-left"><p>Histogram over <code class="docutils literal notranslate"><span class="pre">doc_type</span></code></p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>S4</p></td>
+<td class="text-left"><p>Answer-faithfulness regression</p></td>
+<td class="text-left"><p>Nightly RAGAS-style scores fell &gt; 5% from last build</p></td>
+<td class="text-left"><p>CI job</p></td>
+</tr>
+<tr class="row-even"><td class="text-center"><p>S5</p></td>
+<td class="text-left"><p>Coverage gap</p></td>
+<td class="text-left"><p>A 10-page set (C1) page is missing</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">required_pages.txt</span></code> check</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>软门禁是诚实的警告，不是发布阻塞项。一个带着 S3 警告的知识库仍然是知识库；它只不过多了一条评审者可见的提醒：“你正在偏离自己对页面集合做出的承诺”。</p>
+</section>
+</section>
+</section>
+<section id="how">
+<h2>How —— 怎么做<a class="headerlink" href="#how" title="Link to this heading">#</a></h2>
+<section id="runner">
+<h3>门禁 runner<a class="headerlink" href="#runner" title="Link to this heading">#</a></h3>
+<p>整个门禁系统就是一个 CI 脚本：逐条跑每项检查并汇总结果。一个最小实现：</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>function run_gates():
+    hard_failures := []
+    soft_failures := []
+
+    for gate in HARD_GATES:
+        result = gate.check()
+        if not result.ok:
+            hard_failures.append((gate.name, result.detail))
+
+    for gate in SOFT_GATES:
+        result = gate.check()
+        if not result.ok:
+            soft_failures.append((gate.name, result.detail))
+
+    emit_report(hard_failures, soft_failures)
+
+    if hard_failures:
+        exit 1        # block publish
+    exit 0            # allow publish; soft warnings in the report
+</pre></div>
+</div>
+<p>每条门禁都暴露相同的接口：一个返回 <code class="docutils literal notranslate"><span class="pre">(ok,</span> <span class="pre">detail)</span></code> 的 <code class="docutils literal notranslate"><span class="pre">check()</span></code> 方法和一个稳定的 <code class="docutils literal notranslate"><span class="pre">name</span></code>。这让 CI 脚本本身很短 —— 领域知识被封装在门禁自身里 —— 并且让每条门禁都可以单独测试。</p>
+</section>
+<section id="id13">
+<h3>门禁报告<a class="headerlink" href="#id13" title="Link to this heading">#</a></h3>
+<p>一次门禁跑完的输出是一份两段式报告：硬失败（如果有的话）在前，软警告在后。报告是 Markdown 格式的，作为 build artefact 落盘，并从触发本次构建的 PR 处链过来：</p>
+<div class="highlight-markdown notranslate"><div class="highlight"><pre><span></span><span class="gu">## Hard gates</span>
+
+❌ H4 Citations resolve — 2 failure(s)
+   content/architecture.md:47 cites internal/worker/pool.go:142
+     → line 142 does not exist at commit 9f8e7d6c (file has 120 lines)
+   content/data-and-api.md:23 cites cmd/sync/main.go:58
+     → file does not exist at commit 9f8e7d6c
+
+<span class="gu">## Soft warnings</span>
+
+⚠ S1 Stale footers — 7 page(s)
+   content/observability.md  (footer commit a1b2c3d is 42 commits behind HEAD)
+   ...
+⚠ S3 Imbalanced Diátaxis
+   Published KB has 0 tutorials; the page-set commitment (C1) requires
+   at least 1.
+</pre></div>
+</div>
+<p>硬失败退出码会阻塞 CI 的发布步骤；软警告作为评论追加到 PR 里，这样 CI 不至于红掉，评审者仍然能看到它们。</p>
+</section>
+<section id="id14">
+<h3>一次具体的失败<a class="headerlink" href="#id14" title="Link to this heading">#</a></h3>
+<p>假设有一个 PR 往 <code class="docutils literal notranslate"><span class="pre">internal/worker/pool.go</span></code> 里加了一个新函数 —— 诚意新增，无重命名、无破坏性改动。作者顺手编辑了 <code class="docutils literal notranslate"><span class="pre">architecture.md</span></code> 来提到这个新函数，并在那儿加了个 <code class="docutils literal notranslate"><span class="pre">&lt;!--</span> <span class="pre">TODO:</span> <span class="pre">add</span> <span class="pre">diagram</span> <span class="pre">--&gt;</span></code> 标记，打算以后回来补。</p>
+<p>跑一遍门禁：</p>
+<ul class="simple">
+<li><p><strong>H1 Footer 存在。</strong> 通过。<code class="docutils literal notranslate"><span class="pre">architecture.md</span></code> 有 footer。</p></li>
+<li><p><strong>H2 Footer 字段合法。</strong> 通过。字段都格式良好。</p></li>
+<li><p><strong>H3 AI 审批一致性。</strong> 通过。作者设置了 <code class="docutils literal notranslate"><span class="pre">updated_by:</span> <span class="pre">human</span></code>、<code class="docutils literal notranslate"><span class="pre">review_status:</span> <span class="pre">pending</span></code>、<code class="docutils literal notranslate"><span class="pre">review_score:</span> <span class="pre">0</span></code>、<code class="docutils literal notranslate"><span class="pre">reviewed_by:</span></code>。一切一致。</p></li>
+<li><p><strong>H4 引用可解析。</strong> 通过。新函数的 <code class="docutils literal notranslate"><span class="pre">file:line</span></code> 可以解析。</p></li>
+<li><p><strong>H5 链接可解析。</strong> 通过。</p></li>
+<li><p><strong>H6 excerpt 出处可验证。</strong> 通过。</p></li>
+<li><p><strong>H7 已发布页面中无 <code class="docutils literal notranslate"><span class="pre">[TODO]</span></code>。</strong> <strong>失败。</strong> <code class="docutils literal notranslate"><span class="pre">&lt;!--</span> <span class="pre">TODO</span> <span class="pre">--&gt;</span></code> 标记出现在一个 <code class="docutils literal notranslate"><span class="pre">status:</span> <span class="pre">published</span></code> 的页面中。</p></li>
+</ul>
+<p>门禁阻止了发布。评审者看到的是一行失败信息 + 一个指向 diff 第 47 行的指针。本次检查的成本：对 <code class="docutils literal notranslate"><span class="pre">content/**/*.md</span></code> 的一次 grep，在 30 ms 内完成。跳过这次检查的成本：线上知识库发布了一个图示写着“TODO”的页面 —— 有用户看到了，对它的信任感轻微折损。这种折损不会自己免费恢复。</p>
+</section>
+</section>
+<section id="example">
+<h2>Example —— 范例<a class="headerlink" href="#example" title="Link to this heading">#</a></h2>
+<p>一次真实周五下午 PR 上的完整门禁跑动（数据已匿名化）：</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ python build_kb_gates.py
+Running 7 hard gates and 5 soft gates across 137 pages...
+
+Hard gates:
+  H1 Footer present              137/137 pass
+  H2 Footer fields valid         137/137 pass
+  H3 AI-approval consistency     136/137 pass — 1 FAIL
+       content/runbook.md: review_status=approved but reviewed_by=&#39;&#39;
+  H4 Citations resolve           423/425 pass — 2 FAIL
+       content/architecture.md:47  internal/worker/pool.go:142  (line missing)
+       content/data-and-api.md:23  cmd/sync/main.go:58          (file missing)
+  H5 Links resolve               612/612 pass
+  H6 Excerpts provenance         18/18  pass
+  H7 No [TODO] in published      137/137 pass
+
+Soft gates:
+  S1 Stale footers               7 page(s) &gt; 30 commits behind HEAD
+  S2 Low review score            0 page(s)
+  S3 Imbalanced Diátaxis         WARN — published KB has 0 tutorials
+  S4 Answer-faithfulness         pass — 0.81 (prev 0.82; delta −0.01)
+  S5 Coverage gap                pass — all 10 required pages present
+
+Hard failures: 3   Soft warnings: 2
+FAIL — publish blocked. See report above.
+</pre></div>
+</div>
+<p>作者看到的是三件具体要修的事，而不是一份 400 个文件的评审队列。修完这三件大约花 10 分钟：一个页面的 <code class="docutils literal notranslate"><span class="pre">reviewed_by</span></code> 字段被补上，一条引用被更新到新的行号，一条坏掉的 <code class="docutils literal notranslate"><span class="pre">file:line</span></code> 被重新指向替代 <code class="docutils literal notranslate"><span class="pre">cmd/sync/main.go</span></code> 的那个文件。重跑门禁：全部通过。发布继续。</p>
+</section>
+<section id="cookbook">
+<h2>15.4   检索质量调优 Cookbook<a class="headerlink" href="#cookbook" title="Link to this heading">#</a></h2>
+<p>上面的评测指标和门禁机制回答了&quot;好不好&quot;和&quot;能不能发&quot;两个问题，但当数字开始下滑时，团队最需要的往往是第三个问题的答案：<strong>到底哪里出了问题、怎么修？</strong> 本节提供一套可直接落地的诊断 → 定位 → 修复 → 回归保护流程。</p>
+<section id="id15">
+<h3>15.4.1  诊断流程图<a class="headerlink" href="#id15" title="Link to this heading">#</a></h3>
+<p>当用户报告&quot;搜出来的结果不相关&quot;时，首先对查询本身做分类，再沿对应分支排查：</p>
+<pre  class="mermaid">
+        flowchart TD
+    A[&quot;用户报告：搜索结果不相关&quot;] --&gt; B{&quot;查询类型判断&quot;}
+    B --&gt;|&quot;关键词 / 标识符&lt;br/&gt;e.g. getWorkerPool&quot;| C[&quot;检查 BM25 索引&quot;]
+    B --&gt;|&quot;自然语言&lt;br/&gt;e.g. '怎么配置线程池'&quot;| D[&quot;检查 Embedding 质量&quot;]
+    B --&gt;|&quot;结构性查询&lt;br/&gt;e.g. '谁调用了 X'&quot;| E[&quot;检查 Graph 边&quot;]
+    B --&gt;|&quot;以上都不是&quot;| F[&quot;检查 Query Routing 逻辑&quot;]
+
+    C --&gt; C1[&quot;tokenizer 是否正确切分&lt;br/&gt;camelCase / snake_case？&quot;]
+    C --&gt; C2[&quot;field weights 是否合理？&lt;br/&gt;函数名 vs. 注释权重&quot;]
+    C1 --&gt;|&quot;不合理&quot;| C3[&quot;修复 tokenizer 或&lt;br/&gt;添加自定义 splitter&quot;]
+    C2 --&gt;|&quot;不合理&quot;| C4[&quot;调整 BM25 field boost&quot;]
+
+    D --&gt; D1[&quot;embedding model 是否&lt;br/&gt;针对代码做过微调？&quot;]
+    D --&gt; D2[&quot;query template 是否&lt;br/&gt;包含必要上下文？&quot;]
+    D1 --&gt;|&quot;太通用&quot;| D3[&quot;切换到&lt;br/&gt;code-specific model&quot;]
+    D2 --&gt;|&quot;缺失&quot;| D4[&quot;补充 query prompt&lt;br/&gt;template&quot;]
+
+    E --&gt; E1[&quot;CALLS / IMPORTS / INHERITS&lt;br/&gt;边是否完整？&quot;]
+    E1 --&gt;|&quot;缺失&quot;| E2[&quot;检查 AST parser visitor&lt;br/&gt;补齐边类型&quot;]
+
+    F --&gt; F1[&quot;routing classifier 是否&lt;br/&gt;覆盖该查询模式？&quot;]
+    F1 --&gt;|&quot;未覆盖&quot;| F2[&quot;扩充 routing 规则&lt;br/&gt;或重新训练 classifier&quot;]
+    </pre></section>
+<section id="bad-query">
+<h3>15.4.2  常见 Bad Query → 调优策略<a class="headerlink" href="#bad-query" title="Link to this heading">#</a></h3>
+<p>下表汇总了实际运维中高频出现的检索质量问题及对应修复策略：</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head text-center"><p>#</p></th>
+<th class="head text-left"><p>症状 (Symptom)</p></th>
+<th class="head text-left"><p>根因 (Root Cause)</p></th>
+<th class="head text-left"><p>修复策略 (Fix)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-center"><p>1</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">getWorkerPool</span></code> 搜不到，但函数确实存在</p></td>
+<td class="text-left"><p>tokenizer 将 camelCase 视为单个 token，BM25 无法匹配子串</p></td>
+<td class="text-left"><p>添加 camelCase / snake_case splitter，使 <code class="docutils literal notranslate"><span class="pre">getWorkerPool</span></code> 同时索引为 <code class="docutils literal notranslate"><span class="pre">get</span></code>、<code class="docutils literal notranslate"><span class="pre">worker</span></code>、<code class="docutils literal notranslate"><span class="pre">pool</span></code></p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>2</p></td>
+<td class="text-left"><p>中文注释内容搜不到</p></td>
+<td class="text-left"><p>默认 tokenizer 不支持 CJK 分词</p></td>
+<td class="text-left"><p>添加 jieba / mecab 作为 CJK tokenizer；索引时对中文字段单独分词</p></td>
+</tr>
+<tr class="row-even"><td class="text-center"><p>3</p></td>
+<td class="text-left"><p>搜索返回大量相似函数，目标函数排名靠后</p></td>
+<td class="text-left"><p>embedding model 太通用，无法区分语义相近的代码片段</p></td>
+<td class="text-left"><p>切换到 code-specific embedding model（如 CodeBERT、StarEncoder）；或在 query 中追加文件路径作为上下文</p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>4</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">谁调用了</span> <span class="pre">parseConfig</span></code> 返回 <code class="docutils literal notranslate"><span class="pre">parseConfig</span></code> 本身</p></td>
+<td class="text-left"><p>knowledge graph 中 CALLS 边缺失或不完整</p></td>
+<td class="text-left"><p>检查 AST parser visitor 是否遍历了所有调用点；补齐 CALLS edge 类型</p></td>
+</tr>
+<tr class="row-even"><td class="text-center"><p>5</p></td>
+<td class="text-left"><p>搜索结果的 top-1 是过期页面</p></td>
+<td class="text-left"><p>freshness weight 过低，旧文档因历史积累的引用权重高于新文档</p></td>
+<td class="text-left"><p>在 ranking 公式中调高 <code class="docutils literal notranslate"><span class="pre">freshness_weight</span></code>；或为文档添加 <code class="docutils literal notranslate"><span class="pre">last_modified</span></code> 并纳入排序</p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>6</p></td>
+<td class="text-left"><p>搜 <code class="docutils literal notranslate"><span class="pre">HTTP</span> <span class="pre">client</span> <span class="pre">timeout</span></code> 返回 <code class="docutils literal notranslate"><span class="pre">HTTP</span> <span class="pre">server</span> <span class="pre">timeout</span></code> 的页面</p></td>
+<td class="text-left"><p>embedding 空间中 client/server 距离过近</p></td>
+<td class="text-left"><p>为 query 添加 negative example 或使用 re-ranker 做二次排序</p></td>
+</tr>
+<tr class="row-even"><td class="text-center"><p>7</p></td>
+<td class="text-left"><p>搜索 <code class="docutils literal notranslate"><span class="pre">pool.go</span></code> 返回同名但不同目录的文件</p></td>
+<td class="text-left"><p>索引未区分文件路径，仅按文件名匹配</p></td>
+<td class="text-left"><p>将完整相对路径纳入索引 field；对路径字段提高 BM25 boost</p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>8</p></td>
+<td class="text-left"><p>自然语言问题 <code class="docutils literal notranslate"><span class="pre">如何部署到</span> <span class="pre">K8s</span></code> 返回空</p></td>
+<td class="text-left"><p>query router 将其误分类为 keyword 查询，走了 BM25 通道</p></td>
+<td class="text-left"><p>检查 routing classifier；添加自然语言模式的训练样本；或默认 fallback 到 hybrid 检索</p></td>
+</tr>
+<tr class="row-even"><td class="text-center"><p>9</p></td>
+<td class="text-left"><p>搜索带泛型的类型 <code class="docutils literal notranslate"><span class="pre">Map&lt;String,</span> <span class="pre">List&lt;Int&gt;&gt;</span></code> 失败</p></td>
+<td class="text-left"><p>特殊字符 <code class="docutils literal notranslate"><span class="pre">&lt;&gt;</span></code> 被 tokenizer 丢弃</p></td>
+<td class="text-left"><p>在 tokenizer pipeline 中保留泛型括号；或额外索引一份&quot;类型签名归一化&quot;后的文本</p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>10</p></td>
+<td class="text-left"><p>同一查询在不同时间返回不同结果</p></td>
+<td class="text-left"><p>embedding index 在增量同步中出现 stale vector（旧版本未删除）</p></td>
+<td class="text-left"><p>在 incremental sync 时对已删除 / 已修改的 chunk 执行 hard delete；检查 vector store 的 upsert 逻辑</p></td>
+</tr>
+<tr class="row-even"><td class="text-center"><p>11</p></td>
+<td class="text-left"><p>搜索返回大量测试文件，淹没了实际源码</p></td>
+<td class="text-left"><p>测试代码与生产代码权重相同</p></td>
+<td class="text-left"><p>为 <code class="docutils literal notranslate"><span class="pre">*_test.go</span></code> / <code class="docutils literal notranslate"><span class="pre">*_spec.ts</span></code> 等测试文件降低 boost；或允许用户按 <code class="docutils literal notranslate"><span class="pre">is_test</span></code> facet 过滤</p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>12</p></td>
+<td class="text-left"><p>复合查询 <code class="docutils literal notranslate"><span class="pre">parseConfig</span> <span class="pre">的超时参数</span></code> 仅匹配到 <code class="docutils literal notranslate"><span class="pre">parseConfig</span></code></p></td>
+<td class="text-left"><p>混合检索的融合策略只取了 BM25 结果，忽略了语义部分</p></td>
+<td class="text-left"><p>检查 hybrid fusion weights（如 RRF 的 k 参数）；确保 BM25 和 vector 通道均参与</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="id16">
+<h3>15.4.3  检索质量回归测试<a class="headerlink" href="#id16" title="Link to this heading">#</a></h3>
+<p>指标面板只能告诉你&quot;当前好不好&quot;，不能告诉你&quot;什么时候变差了&quot;。要捕捉回归，需要一套 <strong>golden query set</strong> 和配套的 CI 门禁：</p>
+<ol class="arabic simple">
+<li><p><strong>构建 golden query set</strong>：从真实用户查询日志中挑选 20–50 条代表性查询，人工标注每条查询的 expected top-3 结果（文档 ID 或代码实体 ID）。覆盖关键词、自然语言、结构性三种类型。</p></li>
+<li><p><strong>作为 CI 软门禁 (S6) 运行</strong>：在每次 build 或定期 nightly job 中，用 golden query set 跑一遍检索，计算 nDCG&#64;10 和 Recall&#64;10。</p></li>
+<li><p><strong>沿时间线追踪</strong>：将每次跑分结果写入持久化存储（SQLite / CSV / Prometheus），绘制趋势图。</p></li>
+<li><p><strong>设定告警阈值</strong>：当 nDCG&#64;10 相对上一次 build <strong>下降 &gt; 5%</strong> 时触发告警（对应软门禁 S6）。告警内容应包含具体退化的查询及其新旧排名对比，以便快速定位。</p></li>
+</ol>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># golden_query_set.jsonl 示例
+{&quot;query&quot;: &quot;getWorkerPool&quot;,           &quot;type&quot;: &quot;keyword&quot;,    &quot;expected_top3&quot;: [&quot;internal/worker/pool.go#L42&quot;, &quot;internal/worker/pool.go#L110&quot;, &quot;docs/architecture.md#worker-pool&quot;]}
+{&quot;query&quot;: &quot;怎么配置线程池超时&quot;,       &quot;type&quot;: &quot;nl&quot;,         &quot;expected_top3&quot;: [&quot;docs/how-to/configure-pool.md&quot;, &quot;internal/worker/config.go#L15&quot;, &quot;docs/reference/pool-options.md&quot;]}
+{&quot;query&quot;: &quot;谁调用了 parseConfig&quot;,     &quot;type&quot;: &quot;structural&quot;, &quot;expected_top3&quot;: [&quot;cmd/server/main.go#L23&quot;, &quot;cmd/worker/main.go#L18&quot;, &quot;internal/bootstrap/init.go#L55&quot;]}
+</pre></div>
+</div>
+</section>
+<section id="a-b">
+<h3>15.4.4  A/B 测试脚手架<a class="headerlink" href="#a-b" title="Link to this heading">#</a></h3>
+<p>当你想比较两套检索配置（例如切换 embedding model、调整 BM25 权重）时，最简单的做法是：<strong>在同一份 golden query set 上跑两套配置，比较 Recall&#64;10</strong>。</p>
+<p>以下是一个 10 行左右的 Python 骨架脚本：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># ab_retrieval_test.py — 检索配置 A/B 对比脚手架</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">retrieval_client</span><span class="w"> </span><span class="kn">import</span> <span class="n">RetrievalClient</span>  <span class="c1"># 你的检索客户端</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">recall_at_k</span><span class="p">(</span><span class="n">results</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">expected</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="n">top_k</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">results</span><span class="p">[:</span><span class="n">k</span><span class="p">])</span>
+    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">top_k</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">expected</span><span class="p">))</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">expected</span><span class="p">)</span> <span class="k">if</span> <span class="n">expected</span> <span class="k">else</span> <span class="mf">0.0</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">run_ab_test</span><span class="p">(</span><span class="n">golden_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">config_a</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">config_b</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">queries</span> <span class="o">=</span> <span class="p">[</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">open</span><span class="p">(</span><span class="n">golden_path</span><span class="p">)]</span>
+    <span class="n">client_a</span><span class="p">,</span> <span class="n">client_b</span> <span class="o">=</span> <span class="n">RetrievalClient</span><span class="p">(</span><span class="n">config_a</span><span class="p">),</span> <span class="n">RetrievalClient</span><span class="p">(</span><span class="n">config_b</span><span class="p">)</span>
+    <span class="n">scores</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;A&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;B&quot;</span><span class="p">:</span> <span class="p">[]}</span>
+    <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">queries</span><span class="p">:</span>
+        <span class="n">scores</span><span class="p">[</span><span class="s2">&quot;A&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">recall_at_k</span><span class="p">(</span><span class="n">client_a</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">q</span><span class="p">[</span><span class="s2">&quot;query&quot;</span><span class="p">]),</span> <span class="n">q</span><span class="p">[</span><span class="s2">&quot;expected_top3&quot;</span><span class="p">]))</span>
+        <span class="n">scores</span><span class="p">[</span><span class="s2">&quot;B&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">recall_at_k</span><span class="p">(</span><span class="n">client_b</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">q</span><span class="p">[</span><span class="s2">&quot;query&quot;</span><span class="p">]),</span> <span class="n">q</span><span class="p">[</span><span class="s2">&quot;expected_top3&quot;</span><span class="p">]))</span>
+    <span class="n">avg_a</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">scores</span><span class="p">[</span><span class="s2">&quot;A&quot;</span><span class="p">])</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">scores</span><span class="p">[</span><span class="s2">&quot;A&quot;</span><span class="p">])</span>
+    <span class="n">avg_b</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">scores</span><span class="p">[</span><span class="s2">&quot;B&quot;</span><span class="p">])</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">scores</span><span class="p">[</span><span class="s2">&quot;B&quot;</span><span class="p">])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Config A  avg Recall@10: </span><span class="si">{</span><span class="n">avg_a</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Config B  avg Recall@10: </span><span class="si">{</span><span class="n">avg_b</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Delta (B − A): </span><span class="si">{</span><span class="n">avg_b</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">avg_a</span><span class="si">:</span><span class="s2">+.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>使用方式：将 <code class="docutils literal notranslate"><span class="pre">config_a</span></code> 设为当前线上配置，<code class="docutils literal notranslate"><span class="pre">config_b</span></code> 设为候选配置。若 <code class="docutils literal notranslate"><span class="pre">Delta</span> <span class="pre">&gt;</span> <span class="pre">0</span></code> 且差值具有统计显著性（在 golden set 足够大时可用 paired t-test），则可以推进切换。对于小规模 golden set（&lt; 50 条），建议同时人工审查排名变化最大的 5 条查询，避免被平均值掩盖的局部退化。</p>
+</section>
+</section>
+<section id="conclusion">
+<h2>Conclusion —— 小结<a class="headerlink" href="#conclusion" title="Link to this heading">#</a></h2>
+<p>评测（IR 指标、faithfulness 分数）告诉你：知识库一旦发布出去是否有用。门禁（硬 / 软检查）告诉你：这一次具体构建是否根本就“可以发”。两者都是机械的，都很便宜。但今天大多数知识库两者都拒绝上 —— 因为要加它们，就得对第 8 章那四个角落做出承诺：footer 不在，H1 就跑不起来；运维模型不解析引用，H4 就跑不起来。</p>
+<p>下一章把整条回路闭合：当硬门禁失败、或软门禁告警时， * 修复到底长什么样？ * 答案就是三级更新策略（C3）—— 它的真正机制在本章已经先铺了一下，但正经讲述属于第 23 章。</p>
+</section>
+<section id="id17">
+<h2>参考文献<a class="headerlink" href="#id17" title="Link to this heading">#</a></h2>
+<div class="docutils container" id="id18">
+<div role="list" class="citation-list">
+<div class="citation" id="id109" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id9">1</a><span class="fn-bracket">]</span></span>
+<p>Egor Bogomolov, Aleksandra Eliseeva, Timur Galimzyanov, Evgeniy Glukhov, Anton Shapkin, Maria Shmelev, Yaroslav Smirnov, Sergei Golubev, Timofey Bryksin, and Alberto Bacchelli. Long code arena: a set of benchmarks for long-context code models. <em>arXiv preprint arXiv:2406.11612</em>, 2024. Covers six long-context code tasks: project-level completion, CI repair, bug localization, module summarization, repo QA, and commit-message generation. Key insight for Chapter 15 and Chapter 24: real-world KB evaluation must go beyond single-file metrics to cover these project-scale tasks. URL: <a class="reference external" href="https://arxiv.org/abs/2406.11612">https://arxiv.org/abs/2406.11612</a>, <a class="reference external" href="https://arxiv.org/abs/2406.11612">arXiv:2406.11612</a>.</p>
+</div>
+<div class="citation" id="id38" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></span>
+<p>Gordon V. Cormack, Charles L. A. Clarke, and Stefan Büttcher. Reciprocal rank fusion outperforms Condorcet and individual rank learning methods. In <em>SIGIR</em>. 2009.</p>
+</div>
+<div class="citation" id="id94" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id3">1</a>,<a role="doc-backlink" href="#id6">2</a>)</span>
+<p>Shahul Es, Jithin James, Luis Espinosa-Anke, and Steven Schockaert. RAGAS: automated evaluation of retrieval augmented generation. In <em>Proceedings of the 18th Conference of the European Chapter of the Association for Computational Linguistics: System Demonstrations</em>. 2024. URL: <a class="reference external" href="https://arxiv.org/abs/2309.15217">https://arxiv.org/abs/2309.15217</a>.</p>
+</div>
+<div class="citation" id="id99" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">4</a><span class="fn-bracket">]</span></span>
+<p>Walter (Yamin) Fan. Project knowledge base skill: an opinionated operational model for software documentation. Self-published; private toolkit, 2026. Methodology and operational patterns developed by the author in parallel with this book; not publicly released. Cited throughout for the three-level update strategy, the PKB-metadata footer schema, the hard/soft verification-gate catalog, and the opinionated ten-page documentation set. Chapter prose adapts these ideas in the book's voice; command names and employer-internal infrastructure from the toolkit are deliberately omitted.</p>
+</div>
+<div class="citation" id="id21" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></span>
+<p>Walter (Yamin) Fan. RAG 进阶指南：别只盯着向量数据库，Elasticsearch 才是扫地僧. January 2026. v1.0, CC-BY-NC-ND 4.0. URL: <a class="reference external" href="https://www.fanyamin.com/2026-01-15-rag-elasticsearch-database.html">https://www.fanyamin.com/2026-01-15-rag-elasticsearch-database.html</a>.</p>
+</div>
+<div class="citation" id="id20" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>6<span class="fn-bracket">]</span></span>
+<p>Walter (Yamin) Fan. 如何打造个人与项目知识库：从全文搜索到 RAG，再到 Claude Skill. February 2026. v1.0, CC-BY-NC-ND 4.0. URL: <a class="reference external" href="https://www.fanyamin.com/2026-02-05-rag-claude-skill-knowledge-base.html">https://www.fanyamin.com/2026-02-05-rag-claude-skill-knowledge-base.html</a>.</p>
+</div>
+<div class="citation" id="id22" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></span>
+<p>Walter (Yamin) Fan. 用 pgvector 做 RAG：别急着上 Pinecone，你的 PostgreSQL 就够了. March 2026. v1.0, CC-BY-NC-ND 4.0. URL: <a class="reference external" href="https://www.fanyamin.com/2026-03-10-pgvector-rag.html">https://www.fanyamin.com/2026-03-10-pgvector-rag.html</a>.</p>
+</div>
+<div class="citation" id="id37" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>8<span class="fn-bracket">]</span></span>
+<p>Yunfan Gao, Yun Xiong, Xinyu Gao, Kangxiang Jia, Jinliu Pan, Yuxi Bi, Yi Dai, Jiawei Sun, Meng Wang, and Haofen Wang. Retrieval-augmented generation for large language models: a survey. <em>arXiv preprint arXiv:2312.10997</em>, 2023.</p>
+</div>
+<div class="citation" id="id40" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>9<span class="fn-bracket">]</span></span>
+<p>Vladimir Karpukhin, Barlas Oğuz, Sewon Min, Patrick Lewis, Ledell Wu, Sergey Edunov, Danqi Chen, and Wen-tau Yih. Dense passage retrieval for open-domain question answering. <em>EMNLP</em>, 2020.</p>
+</div>
+<div class="citation" id="id93" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>10<span class="fn-bracket">]</span></span>
+<p>Martin Klein, Herbert Van de Sompel, Robert Sanderson, Harihar Shankar, Lyudmila Balakireva, Ke Zhou, and Richard Tobin. Scholarly context not found: one in five articles suffers from reference rot. <em>PLOS ONE</em>, 2014. <a class="reference external" href="https://doi.org/10.1371/journal.pone.0115253">doi:10.1371/journal.pone.0115253</a>.</p>
+</div>
+<div class="citation" id="id36" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>11<span class="fn-bracket">]</span></span>
+<p>Patrick Lewis, Ethan Perez, Aleksandra Piktus, Fabio Petroni, Vladimir Karpukhin, Naman Goyal, Heinrich Küttler, Mike Lewis, Wen-tau Yih, Tim Rocktäschel, Sebastian Riedel, and Douwe Kiela. Retrieval-augmented generation for knowledge-intensive NLP tasks. In <em>NeurIPS</em>. 2020.</p>
+</div>
+<div class="citation" id="id108" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id8">12</a><span class="fn-bracket">]</span></span>
+<p>Tianyang Liu, Canwen Xu, and Julian McAuley. RepoBench: benchmarking repository-level code auto-completion systems. <em>arXiv preprint arXiv:2306.03091</em>, 2023. Decomposes evaluation into Retrieval (R), Completion (C), and Pipeline (P) layers, enabling precise diagnosis of whether the bottleneck is retrieval quality or generation quality. Key insight for Chapter 15: layered evaluation (retrieval health → generation health → end-to-end) is the right structure for KB benchmarking. URL: <a class="reference external" href="https://arxiv.org/abs/2306.03091">https://arxiv.org/abs/2306.03091</a>, <a class="reference external" href="https://arxiv.org/abs/2306.03091">arXiv:2306.03091</a>.</p>
+</div>
+<div class="citation" id="id95" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>13<span class="fn-bracket">]</span></span>
+<p>Yang Liu, Dan Iter, Yichong Xu, Shuohang Wang, Ruochen Xu, and Chenguang Zhu. G-Eval: NLG evaluation using GPT-4 with better human alignment. In <em>Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing</em>. 2023. URL: <a class="reference external" href="https://arxiv.org/abs/2303.16634">https://arxiv.org/abs/2303.16634</a>.</p>
+</div>
+<div class="citation" id="id45" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>14<span class="fn-bracket">]</span></span>
+<p>Qinyu Luo, Yining Ye, Shihao Liang, Zhong Zhang, Yujia Qin, Yaxi Lu, Yesai Wu, Xin Cong, Yankai Lin, Yingli Zhang, Xiaoyin Che, Zhiyuan Liu, and Maosong Sun. Repoagent: an LLM-powered open-source framework for repository-level code documentation generation. 2024. URL: <a class="reference external" href="https://arxiv.org/abs/2402.16667">https://arxiv.org/abs/2402.16667</a>, <a class="reference external" href="https://arxiv.org/abs/2402.16667">arXiv:2402.16667</a>.</p>
+</div>
+<div class="citation" id="id100" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>15<span class="fn-bracket">]</span></span>
+<p>Yury A. Malkov and Dmitry A. Yashunin. Efficient and robust approximate nearest neighbor search using hierarchical navigable small world graphs. <em>IEEE Transactions on Pattern Analysis and Machine Intelligence</em>, 42(4):824–836, 2020. The HNSW index underlying every modern vector store (sqlite-vec, pgvector's hnsw option, Milvus, Faiss). The small-world-graph construction is why an approximate nearest-neighbour query runs in log-time rather than linear-scan time; cited in Chapter 10 to anchor the &quot;vector DB is not magic&quot; argument. <a class="reference external" href="https://doi.org/10.1109/TPAMI.2018.2889473">doi:10.1109/TPAMI.2018.2889473</a>.</p>
+</div>
+<div class="citation" id="id34" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>16<span class="fn-bracket">]</span></span>
+<p>Christopher D. Manning, Prabhakar Raghavan, and Hinrich Schütze. <em>Introduction to Information Retrieval</em>. Cambridge University Press, 2008.</p>
+</div>
+<div class="citation" id="id110" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>17<span class="fn-bracket">]</span></span>
+<p>Niklas Muennighoff, Nouamane Tazi, Loïc Magne, and Nils Reimers. Mteb: massive text embedding benchmark. <em>arXiv preprint arXiv:2210.07316</em>, 2023. Defines the leaderboard used to compare embedding models across 8 tasks and 58 datasets. Key insight for Chapter 10: leaderboard ranking on general tasks does not predict performance on domain-specific code retrieval. URL: <a class="reference external" href="https://arxiv.org/abs/2210.07316">https://arxiv.org/abs/2210.07316</a>.</p>
+</div>
+<div class="citation" id="id97" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>18<span class="fn-bracket">]</span></span>
+<p>Rodrigo Nogueira and Kyunghyun Cho. Passage re-ranking with BERT. <em>arXiv preprint arXiv:1901.04085</em>, 2019. Canonical reference for cross-encoder re-ranking — a BERT model scores (query, document) pairs for the second stage of a retrieve-then-rerank pipeline. Widely known as &quot;monoBERT&quot;. URL: <a class="reference external" href="https://arxiv.org/abs/1901.04085">https://arxiv.org/abs/1901.04085</a>.</p>
+</div>
+<div class="citation" id="id98" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>19<span class="fn-bracket">]</span></span>
+<p>Nils Reimers and Iryna Gurevych. Sentence-BERT: sentence embeddings using siamese BERT-networks. In <em>Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing</em>. 2019. Introduces the bi-encoder framing that underlies every modern dense retriever: two independent encodings compared by cosine similarity, contrasted explicitly against cross-encoders that concatenate (query, document) before scoring. URL: <a class="reference external" href="https://arxiv.org/abs/1908.10084">https://arxiv.org/abs/1908.10084</a>.</p>
+</div>
+<div class="citation" id="id35" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>20<span class="fn-bracket">]</span></span>
+<p>Stephen Robertson and Hugo Zaragoza. The probabilistic relevance framework: BM25 and beyond. <em>Foundations and Trends in Information Retrieval</em>, 3(4):333–389, 2009.</p>
+</div>
+<div class="citation" id="id39" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>21<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id2">1</a>,<a role="doc-backlink" href="#id7">2</a>)</span>
+<p>Nandan Thakur, Nils Reimers, Andreas Rücklé, Abhishek Srivastava, and Iryna Gurevych. BEIR: a heterogeneous benchmark for zero-shot evaluation of information retrieval models. In <em>NeurIPS Datasets and Benchmarks</em>. 2021.</p>
+</div>
+<div class="citation" id="id96" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>22<span class="fn-bracket">]</span></span>
+<p>Lianmin Zheng, Wei-Lin Chiang, Ying Sheng, Siyuan Zhuang, Zhanghao Wu, Yonghao Zhuang, Zi Lin, Zhuohan Li, Dacheng Li, Eric P. Xing, Hao Zhang, Joseph E. Gonzalez, and Ion Stoica. Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena. In <em>Advances in Neural Information Processing Systems 36 (NeurIPS 2023)</em>. 2023. URL: <a class="reference external" href="https://arxiv.org/abs/2306.05685">https://arxiv.org/abs/2306.05685</a>.</p>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="ch21-incremental-sync.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">第 21 章 —— 增量同步</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="ch23-maintenance-drift-and-link-rot.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">第 23 章 —— 维护、漂移与链接腐化</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 目录
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why">Why —— 为什么</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what">What —— 是什么</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">评测</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">门禁</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">硬门禁 —— 阻止发布</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id12">软门禁 —— 发警告，但允许发布</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how">How —— 怎么做</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#runner">门禁 runner</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id13">门禁报告</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id14">一次具体的失败</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example —— 范例</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cookbook">15.4   检索质量调优 Cookbook</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id15">15.4.1  诊断流程图</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bad-query">15.4.2  常见 Bad Query → 调优策略</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id16">15.4.3  检索质量回归测试</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#a-b">15.4.4  A/B 测试脚手架</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#conclusion">Conclusion —— 小结</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id17">参考文献</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+作者： Walter Fan
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright AI 辅助创作 2026, Walter Fan.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    <p class="last-updated">
+  最后更新于 2026-11-10.
+  <br/>
+</p>
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

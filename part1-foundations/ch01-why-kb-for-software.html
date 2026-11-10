@@ -1,0 +1,1089 @@
+
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>第 1 章 —— 为什么要给软件建一个知识库？ &#8212; Use AI to build a knowledge base for a software project</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=591f613d" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=23f7fa08"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../_static/translations.js?v=beaddf03"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.2.0/dist/mermaid-layout-elk.esm.min.mjs"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";import elkLayouts from "https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.2.0/dist/mermaid-layout-elk.esm.min.mjs";mermaid.registerLayoutLoaders(elkLayouts);mermaid.initialize({startOnLoad:false});</script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+const defaultStyle = document.createElement('style');
+defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+`;
+document.head.appendChild(defaultStyle);
+
+const fullscreenStyle = document.createElement('style');
+fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+document.head.appendChild(fullscreenStyle);
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        return brightness < 128;
+    }
+    return false;
+};
+
+const load = async () => {
+    await mermaid.run();
+
+    const all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(load, 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(load, 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(load, 200);
+        return;
+    }
+
+    const darkTheme = isDarkTheme();
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    const modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    const modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    let previousScrollOffset = [window.scrollX, window.scrollY];
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    const allButtons = [];
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+
+        container.appendChild(fullscreenBtn);
+        allButtons.push(fullscreenBtn);
+    });
+
+    // Update theme classes when theme changes
+    const updateTheme = () => {
+        const dark = isDarkTheme();
+        allButtons.forEach(btn => {
+            if (dark) {
+                btn.classList.add('dark-theme');
+            } else {
+                btn.classList.remove('dark-theme');
+            }
+        });
+        if (dark) {
+            modal.classList.add('dark-theme');
+            modalContent.classList.add('dark-theme');
+            closeBtn.classList.add('dark-theme');
+        } else {
+            modal.classList.remove('dark-theme');
+            modalContent.classList.remove('dark-theme');
+            closeBtn.classList.remove('dark-theme');
+        }
+    };
+
+    // Watch for theme changes
+    const observer = new MutationObserver(updateTheme);
+    observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    observer.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style']
+    });
+};
+
+window.addEventListener("load", load);
+</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'part1-foundations/ch01-why-kb-for-software';</script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="第 1a 章 —— 30 分钟快速上手" href="ch01a-quickstart-30min.html" />
+    <link rel="prev" title="第一部分 —— 基础" href="index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+    <meta name="docbuild:last-update" content="2026-11-10"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Use AI to build a knowledge base for a software project</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">搜索</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Part I — Foundations</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">第一部分 —— 基础</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">第 1 章 —— 为什么要给软件建一个知识库？</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ch01a-quickstart-30min.html">第 1a 章 —— 30 分钟快速上手</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ch02-ir-rag-primer.html">第 2 章 —— IR 与 RAG 入门</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ch03-diataxis-and-software-docs.html">第 3 章 —— Diátaxis 与软件文档</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part II — The Prose Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part2-prose-layer/index.html">第二部分 —— 文稿层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch04-file-based-wiki.html">第 4 章 —— 一个基于文件的 wiki</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch05-frontmatter-provenance-trust.html">第 5 章 —— 把 frontmatter 当作一份来源记录</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch06-llm-classification-pipeline.html">第 6 章 —— 分类流水线</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch07-publish-and-search.html">第 7 章 —— 发布与搜索</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch08-prose-operational-model.html">第 8 章 —— 文稿层的运维模型</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch09-cold-start-migration.html">第 9 章 —— 冷启动与批量迁移</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part III — The Author Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part3-author-layer/index.html">第三部分 —— 作者层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch10-why-ai-as-author.html">第 10 章 —— 为什么让 AI 当作者</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch11-ai-drafting-and-rewriting.html">第 11 章 —— AI 起草、重写、翻译</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch12-ai-for-metadata.html">第 12 章 —— AI 处理元数据：分类、打标签、实体与关系抽取</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch13-ai-for-maintenance.html">第 13 章 —— AI 做维护：摘要、去重、过期与漂移检测</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch14-ai-as-judge.html">第 14 章 —— AI 作为评判者：评估生成质量与引用合规</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part IV — The Code Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part4-code-layer/index.html">第四部分 —— 代码层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch15-why-code-is-not-prose.html">第 15 章 —— 为什么代码不是文稿</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch16-parsing-and-entity-extraction.html">第 16 章 —— 解析与实体抽取</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch17-embeddings-and-vector-stores.html">第 17 章 —— 嵌入向量与向量存储</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch18-code-knowledge-graph.html">第 18 章 —— 代码知识图谱</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch19-hybrid-retrieval-and-rrf.html">第 19 章 —— 混合检索与 RRF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch20-prompt-and-generation.html">第 20 章 —— 提示词与生成</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part V — Operations &amp; Lifecycle</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part5-operations-lifecycle/index.html">第五部分 —— 运维与生命周期</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part5-operations-lifecycle/ch21-incremental-sync.html">第 21 章 —— 增量同步</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part5-operations-lifecycle/ch22-evaluation-and-benchmarks.html">第 22 章 —— 评测、基准与发布门禁</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part5-operations-lifecycle/ch23-maintenance-drift-and-link-rot.html">第 23 章 —— 维护、漂移与链接腐化</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part VI — The Hybrid Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part6-hybrid-layer/index.html">第六部分 —— 混合层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch24-prose-meets-code.html">第 24 章 —— 文稿与代码相遇</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch25-document-layering-L0-L4.html">第 25 章 —— 文档分层 L0–L4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch26-graph-guided-context-assembly.html">第 26 章 —— 图引导的上下文组装</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch27-harnessing-ai-coding.html">第 27 章 —— 用知识库驾驭 AI 编码</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch28-team-sdlc-integration.html">第 28 章 —— 团队协作与 SDLC 集成</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch29-ai-agents-on-the-kb.html">第 29 章 —— 在知识库上跑的 AI Agent</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part VII — Governance &amp; Outlook</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part7-governance-and-outlook/index.html">第七部分 —— 治理与展望</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch30-cost-privacy-security.html">第 30 章 —— 成本、隐私、安全</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch31-trust-provenance-and-red-teaming.html">第 31 章 —— 信任、出处与红队演练</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch32-outlook-and-open-problems.html">第 32 章 —— 展望与尚未解决的问题</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Appendices</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-a-example-wiki.html">附录 A —— 端到端：从杂乱文件夹到可发布 Wiki</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-b-example-code-kg.html">附录 B —— 示例：从一个 Go 仓库构建代码知识库</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-c-deepwiki-checklist.html">附录 C —— 自己动手做 DeepWiki 检查清单</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-d-glossary.html">附录 D —— 术语表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-e-bilingual-publishing.html">附录 E —— 发布一个双语知识库</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">参考文献</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../reference/index.html">参考文献：仓库级代码理解与软件知识库论文导读</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../reference/01-repoformer-selective-retrieval.html">Repoformer: Selective Retrieval for Repository-Level Code Completion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/02-codeplan-repository-level-planning.html">CodePlan: Repository-Level Coding using LLMs and Planning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/03-repograph-code-graph-navigation.html">RepoGraph: Enhancing AI Software Engineering with Repository-level Code Graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/04-repoagent-documentation-generation.html">RepoAgent: An LLM-Powered Open-Source Framework for Repository-level Code Documentation Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/05-repocoder-iterative-retrieval-generation.html">RepoCoder: Repository-Level Code Completion Through Iterative Retrieval and Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/06-llm-kg-synergy-repo-qa.html">Synergizing LLMs and Knowledge Graphs: A Novel Approach to Software Repository-Related Question Answering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/07-repo-level-prompt-generation.html">Repository-Level Prompt Generation for Large Language Models of Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/08-repobench-benchmarking.html">RepoBench: Benchmarking Repository-Level Code Auto-Completion Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/09-long-code-arena-benchmarks.html">Long Code Arena: A Set of Benchmarks for Long-Context Code Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/10-cgm-graph-integrated-llm.html">Code Graph Model (CGM): A Graph-Integrated Large Language Model for Repository-Level Software Engineering Tasks</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="下载此页面">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="下载源文件"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="列印成 PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="全屏模式"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>第 1 章 —— 为什么要给软件建一个知识库？</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> 目录 </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">为什么</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">是什么</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id16">怎么做</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id22">这本书是写给谁的</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id23">示例</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id25">小结</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id26">参考文献</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="id1">
+<h1>第 1 章 —— 为什么要给软件建一个知识库？<a class="headerlink" href="#id1" title="Link to this heading">#</a></h1>
+<p>本章全貌，一页看完 —— 四类材料、四条性质、两个参考实现，外加三股改变了这件事经济账的力量：</p>
+<pre  class="mermaid">
+        mindmap
+  root((Software KB))
+    Four kinds of material
+      Code and structure
+      Prose (Diataxis)
+      Decisions (ADRs)
+      Runbooks and ops lore
+    Four properties
+      Queryable (ch7, ch12)
+      Provenance (ch5)
+      Layered (ch18)
+      Honest (ch13)
+    Two reference impls
+      Prose layer (file-based wiki)
+      Code layer (tree-sitter + graph + pgvector)
+    Why now
+      Embeddings 5x cheaper
+      Tree-sitter parses fast
+      LLMs close the loop
+    </pre><section id="id2">
+<h2>为什么<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
+<p>想象一个刚入职第一天的工程师，打开了一个中等规模的服务仓库。他向资深同事抛出一个听着很无辜的问题：<em>“<code class="docutils literal notranslate"><span class="pre">runSync</span></code> 是从哪些地方被调用的？它的 <code class="docutils literal notranslate"><span class="pre">defer</span></code> 块里为什么还要 <code class="docutils literal notranslate"><span class="pre">recover</span></code>？”</em>。他通常会得到一个“你自己看代码去”的回答。本书底稿的那篇博客 <span id="id3">[<a class="reference internal" href="../part5-operations-lifecycle/ch21-incremental-sync.html#id14" title="Walter (Yamin) Fan. 给代码仓库造一个 DeepWiki：Tree-sitter + embedding + 图谱 + LLM 的方法论. April 2026. v1.2, CC-BY-NC-ND 4.0. URL: https://www.fanyamin.com/gei-dai-ma-cang-ku-zao-yi-ge-deepwikitree-sitter-embedding-tu-pu-llm-de-fang-fa-lun.html.">Fan, 2026</a>]</span> 开头就是这一幕，而且特意停了一下 —— 因为这一幕讲的根本不是那一个函数，讲的是每一个现代代码库的样子。</p>
+<p>今天一个生产仓库动辄几十万行，散落在几十个 package 里，底下还压着一层新人从没见过的内部框架。README 描述的是两年前的样子；架构图躺在一份没人找得到的幻灯片里；注释是写给编译器看的，不是写给人看的。真正的“组织记忆” —— <em>我们为什么选这个数据库、这个函数为什么要加重试、它挂了要呼谁</em> —— 多半只存在三位资深工程师的脑子里，而这三位此刻正在开会。</p>
+<p>这不是一个新鲜的抱怨。David Parnas 早在 1986 年就指出，没有哪个真实的软件项目真的按“理性设计过程”推进，但我们至少应该<em>在文档里把它装成是按这样推进的</em>，好让留给未来维护者的那份产物有人看得懂 <span id="id4">[<a class="reference internal" href="../part7-governance-and-outlook/ch30-cost-privacy-security.html#id15" title="David L. Parnas and Paul C. Clements. A rational design process: how and why to fake it. IEEE Transactions on Software Engineering, SE-12(2):251–257, 1986.">Parnas and Clements, 1986</a>]</span>。十七年后，Lethbridge、Singer 和 Forward 调研一线工程师，得到了预料之中的鸿沟：工程师一方面承认文档很重要，另一方面承认自己几乎不看、几乎不信，并且常规性地把源码和私下交流当成真理的首选来源 <span id="id5">[<a class="reference internal" href="../part7-governance-and-outlook/ch30-cost-privacy-security.html#id16" title="Timothy C. Lethbridge, Janice Singer, and Andrew Forward. How software engineers use documentation: the state of the practice. IEEE Software, 20(6):35–39, 2003.">Lethbridge <em>et al.</em>, 2003</a>]</span>。又过了十六年，Aghajani 等人系统梳理了 issue 跟踪系统里的文档问题，毫不意外地发现：过期、不完整、面向错误读者 —— 这三类占了清单的大头 <span id="id6">[<a class="reference internal" href="../part7-governance-and-outlook/ch30-cost-privacy-security.html#id17" title="Emad Aghajani, Csaba Nagy, Olga Lucero Vega-Márquez, Mario Linares-Vásquez, Laura Moreno, Gabriele Bavota, and Michele Lanza. Software documentation issues unveiled. Proc. IEEE/ACM ICSE, 2019.">Aghajani <em>et al.</em>, 2019</a>]</span>。</p>
+<p>四十年、三篇论文，指向同一个尴尬的模式：这个问题存在的时间，比很多在职工程师的年龄都长，而我们至今没解决它。真正最近发生变化的，是 <em>“一开始就不要求人类去写知识库”</em> 的那本经济账。三股力量叠加：2024 年初，embedding 模型的价格在一个发布周期里直接砍到五分之一 —— OpenAI 的 <code class="docutils literal notranslate"><span class="pre">text-embedding-3-small</span></code> 每 1K token 只要 US $0.00002，是公开的价格标尺；像 BGE 这样的开放权重模型 <span id="id7">[<a class="reference internal" href="../part7-governance-and-outlook/ch30-cost-privacy-security.html#id71" title="Shitao Xiao, Zheng Liu, Peitian Zhang, Niklas Muennighoff, Defu Lian, and Jian-Yun Nie. C-Pack: packed resources for general Chinese embeddings. 2024. Includes the BGE family of open embedding models, which can be self-hosted on a single GPU at effectively zero per-token cost. URL: https://arxiv.org/abs/2309.07597.">Xiao <em>et al.</em>, 2024</a>]</span> 更是直接把每 token 成本压到零 —— 一块普通 GPU 就够了。Tree-sitter <span id="id8">[<a class="reference internal" href="../part4-code-layer/ch16-parsing-and-entity-extraction.html#id44" title="Max Brunsfeld. Tree-sitter: an incremental parsing system for programming tools. 2018–present. URL: https://tree-sitter.github.io/tree-sitter/.">Brunsfeld, 2018–present</a>]</span> 在一台笔记本上就能用个位数秒数解析一个中等仓库，跨十几种语言、完全不依赖项目的构建系统。大语言模型则把检索增强工作流的 <em>生成</em> 那一端，交到了任何一个会写 prompt 的团队手里。三者合一，把问题整个翻了过来：原先问的是“我们能不能负担得起去写一个知识库”，现在问的是“我们能不能负担得起 <em>不去</em> 推导出一个知识库” <span id="id9">[<a class="reference internal" href="../part7-governance-and-outlook/ch30-cost-privacy-security.html#id72" title="OpenAI. OpenAI text embeddings v3 (text-embedding-3-small and text-embedding-3-large). 2024. The \texttt text-embedding-3-small launch announcement lists a 5× price reduction relative to \texttt text-embedding-ada-002 (from \$0.0001 to \$0.00002 per 1K tokens) at higher retrieval quality. URL: https://openai.com/index/new-embedding-models-and-api-updates/.">OpenAI, 2024</a>]</span>。</p>
+</section>
+<section id="id10">
+<h2>是什么<a class="headerlink" href="#id10" title="Link to this heading">#</a></h2>
+<p>本书口径下的<strong>软件知识库</strong>，是一个团队为完成本职工作所需要的各种答案的并集，存在某个能以高精度、可验证来源的方式被检索到的地方。具体来说，这个并集至少包含四类材料：</p>
+<ol class="arabic simple">
+<li><p><strong>代码及其结构</strong> —— 文件、函数、类、调用图、类型签名，能在不需要人来解释的情况下回答诸如 <em>“<code class="docutils literal notranslate"><span class="pre">runSync</span></code> 是从哪里被调用的”</em> 这类问题。代码仓库是权威来源，知识库的任务是让它&quot;可查询&quot;。</p></li>
+<li><p><strong>文本</strong> —— 教程、how-to 文章、参考页、解释性文章，回答的是 <em>“我该怎么做 X”</em> 以及 <em>“这个模块到底在讲什么”</em>，按 Diátaxis 类型 <span id="id11">[<a class="reference internal" href="../part7-governance-and-outlook/ch30-cost-privacy-security.html#id18" title="Daniele Procida. Diátaxis: a systematic approach to technical documentation authoring. 2017–present. URL: https://diataxis.fr/.">Procida, 2017–present</a>]</span> 分类（见第 3 章）。</p></li>
+<li><p><strong>决策</strong> —— Architecture Decision Record（ADR）<span id="id12">[<a class="reference internal" href="../part7-governance-and-outlook/index.html#id38" title="Michael Nygard. Documenting architecture decisions. 2011. URL: https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions.">Nygard, 2011</a>, <a class="reference internal" href="../part7-governance-and-outlook/index.html#id39" title="MADR contributors. Markdown any decision records (MADR). 2018–present. URL: https://adr.github.io/madr/.">MADR contributors, 2018–present</a>]</span>，回答的是 <em>“为什么是这样，而不是别的样子。”</em> 关键在于：一份 ADR 会记录被否决掉的那些备选方案，以及当时谁在场做出的决定。ADR 是知识库里在组织架构调整后仍然能活下来的那一部分。</p></li>
+<li><p><strong>Runbook 与运维经验</strong> —— 怎么发布、怎么排障、凌晨三点那条告警到底意味着什么、以及此时该呼谁。</p></li>
+</ol>
+<p>下文我们把这一整套东西简称为 <em>KB</em>（知识库）。它不是 wiki，不是工单系统，不是聊天搜索，它是这三者的并集 —— 只是被重新组织成一种结构：人和 agent 都可以向它提问、并得到有来源支撑的答案。</p>
+<p>本书口径下的知识库有四条性质，后面每一条都会有一整章来展开：它<strong>可查询（queryable）</strong>，即检索是真的能用的；它有<strong>溯源（provenance）</strong>，每一条事实都指向某个文件、某个 commit、或某份 ADR；它是<strong>分层的（layered）</strong>，机器生成内容和人工撰写内容可以挨在一起，但两者可区分；它是<strong>诚实的（honest）</strong>，知识库不知道某件事的时候，它会说自己不知道。溯源是第 5 章、分层是第 25 章、诚实是第 20 章，可查询性贯穿整个第四部分的大部分章节。</p>
+<p>近期三篇论文使得本书出版的时机比两年前看起来少了几分巧合。Zhu 等人对 LLM 用于知识图谱构建与推理的综述发现，前沿模型通常更擅长充当<strong>结构化上下文之上的推理助手</strong>，而非少样本结构提取器 <span id="id13">[<a class="reference internal" href="../part7-governance-and-outlook/index.html#id29" title="Yuqi Zhu, Xiaohan Wang, Jing Chen, Shuofei Qiao, Yixin Ou, Yunzhi Yao, Shumin Deng, Huajun Chen, and Ningyu Zhang. LLMs for knowledge graph construction and reasoning: recent capabilities and future opportunities. 2024. URL: https://arxiv.org/abs/2305.13168, arXiv:2305.13168.">Zhu <em>et al.</em>, 2024</a>]</span>。这几乎是对本书架构的一句话概括：用解析器、schema 和验证来构建知识库；用 LLM 来解释、综合和路由。RepoAgent 把仓库级文档建设框架化为一条包含<strong>全局结构分析、文档生成和文档更新</strong>的流水线 <span id="id14">[<a class="reference internal" href="../part7-governance-and-outlook/index.html#id30" title="Qinyu Luo, Yining Ye, Shihao Liang, Zhong Zhang, Yujia Qin, Yaxi Lu, Yesai Wu, Xin Cong, Yankai Lin, Yingli Zhang, Xiaoyin Che, Zhiyuan Liu, and Maosong Sun. Repoagent: an LLM-powered open-source framework for repository-level code documentation generation. 2024. URL: https://arxiv.org/abs/2402.16667, arXiv:2402.16667.">Luo <em>et al.</em>, 2024</a>]</span>，这印证了本书的坚持：&quot;用 AI 写文档&quot;不是一条 prompt 就够了，而是一个需要持续维护的系统。CGM 则更进一步，表明仓库级代码图谱的价值大到值得直接融入模型本身，而不只是放在旁边当一个索引 <span id="id15">[<a class="reference internal" href="../part7-governance-and-outlook/index.html#id31" title="Hongyuan Tao, Ying Zhang, Zhenhao Tang, Hongen Peng, Xukun Zhu, Bingchang Liu, Yingguang Yang, Ziyin Zhang, Zhaogui Xu, Haipeng Zhang, Linchao Zhu, Rui Wang, Hang Yu, Jianguo Li, and Peng Di. Code graph model (CGM): a graph-integrated large language model for repository-level software engineering tasks. 2025. URL: https://arxiv.org/abs/2505.16901, arXiv:2505.16901.">Tao <em>et al.</em>, 2025</a>]</span>。换句话说：学界正在向本书视为一等公民的那三种要素汇聚 —— 结构、维护，以及图引导的推理。</p>
+</section>
+<section id="id16">
+<h2>怎么做<a class="headerlink" href="#id16" title="Link to this heading">#</a></h2>
+<p>后面二十三章，就是在作者日常使用的两个真实参考系统之上，实现这四条性质：</p>
+<ul class="simple">
+<li><p><strong>文本层参考实现</strong> —— 一个基于文件的 wiki，负责承载文本、决策和 runbook。它就是你现在读到的这本书所在的那个仓库。</p></li>
+<li><p><strong>代码层参考实现</strong> —— 一个配套的伴随服务，用 tree-sitter <span id="id17">[<a class="reference internal" href="../part4-code-layer/ch16-parsing-and-entity-extraction.html#id44" title="Max Brunsfeld. Tree-sitter: an incremental parsing system for programming tools. 2018–present. URL: https://tree-sitter.github.io/tree-sitter/.">Brunsfeld, 2018–present</a>]</span> 做代码解析、把属性图存进 Memgraph、把稠密 embedding 存进 pgvector。</p></li>
+</ul>
+<p>这两套系统都不算新，也不算实验性。本书真正要补上的是<strong>它们之间那块缺失的结缔组织</strong>：IR 理论（第 2 章）、文档类型分类学（第 3 章）、溯源纪律（第 5 章）、文档分层模型（第 25 章），以及评估与运维实践（第五部分）。</p>
+<p>本书描述的这套系统，和一个托管服务相比，是<strong>严格更灵活、也严格更费力</strong>的。这就是摆在台面上的取舍，不同的团队会倒向不同的一边。今天最显眼的托管替代品是 <strong>DeepWiki</strong> <span id="id18">[<a class="reference internal" href="../part5-operations-lifecycle/ch21-incremental-sync.html#id23" title="Cognition Labs. DeepWiki: ai-generated wikis for any repository. 2025. Closed-source SaaS; auto-generates wiki-style pages from public GitHub repositories. URL: https://deepwiki.com/.">Cognition Labs, 2025</a>]</span> —— 一个闭源 SaaS，能自动为任何一个公开 GitHub 仓库生成 wiki 风格的页面。作为阅读体验，DeepWiki 的输出经常令人印象深刻，本书的底稿博客之所以叫“给代码仓库造一个 DeepWiki” <span id="id19">[<a class="reference internal" href="../part5-operations-lifecycle/ch21-incremental-sync.html#id14" title="Walter (Yamin) Fan. 给代码仓库造一个 DeepWiki：Tree-sitter + embedding + 图谱 + LLM 的方法论. April 2026. v1.2, CC-BY-NC-ND 4.0. URL: https://www.fanyamin.com/gei-dai-ma-cang-ku-zao-yi-ge-deepwikitree-sitter-embedding-tu-pu-llm-de-fang-fa-lun.html.">Fan, 2026</a>]</span>，原因也正是如此。DeepWiki 给不了你的是：流水线的所有权、文档类型分类的控制权、放置 ADR 的地方，以及按你自己的条款把知识库接入团队 IDE agent 的能力。这个空间里还有另一些系统：代码级问答的 Sourcegraph Cody <span id="id20">[<a class="reference internal" href="../part6-hybrid-layer/ch29-ai-agents-on-the-kb.html#id26" title="Sourcegraph. Cody: an AI coding assistant that knows your codebase. 2023–present. Closed-source IDE assistant; uses Sourcegraph's code-graph and embedding index. URL: https://sourcegraph.com/cody.">Sourcegraph, 2023–present</a>]</span>，文本级问答的 Notion AI <span id="id21">[<a class="reference internal" href="ch03-diataxis-and-software-docs.html#id28" title="Notion Labs. Notion AI: ask, find, write with your wiki. 2023–present. Closed-source SaaS; LLM-assisted authoring and Q&amp;A over Notion workspaces. URL: https://www.notion.com/product/ai.">Notion Labs, 2023–present</a>]</span> —— 它们各自把问题中的 <em>一块</em> 解决得很好。本书的观点是：这些块本就该连在一起，而把它们组合成一个一体化版本，今天是负担得起的。</p>
+<section id="id22">
+<h3>这本书是写给谁的<a class="headerlink" href="#id22" title="Link to this heading">#</a></h3>
+<p>本书假设的读者是这样一个团队：手里有一个真实的代码库（大约 5 万行以上、三个或以上工程师、至少一年的历史），愿意跑一套不大的 Docker Compose 栈、愿意为 embedding 模型调用掏每次全量同步几美元以内的钱，并且希望把整条流水线留在本地或自己的云账号里，而不是交给某个厂商。如果你可以用一句话描述你的文档问题、再写一页 DokuWiki 就能收尾，那这本书对你而言是杀鸡用牛刀。如果你的代码库已经大到没有任何一个人能全部装进脑子，那这本书就是最便宜的那个选项。</p>
+</section>
+</section>
+<section id="id23">
+<h2>示例<a class="headerlink" href="#id23" title="Link to this heading">#</a></h2>
+<p>下面是我们希望在第六部分末尾，“使用知识库”应该有的体感。新人的那个问题 —— <em>“<code class="docutils literal notranslate"><span class="pre">runSync</span></code> 是从哪里被调用的、它的 <code class="docutils literal notranslate"><span class="pre">defer</span></code> 为什么要 <code class="docutils literal notranslate"><span class="pre">recover</span></code>？”</em> —— 应当产生下面这样结构的回答。下方代码块里的仓库名、行号、commit 和 ADR，<strong>只是一个用来说明的占位样例</strong>；附录 B 会用真实代码库、一次真实的 HTTP 调用，复现一份严格是这种形状的回答，第 20 章则会解释最后那一行置信度是怎么算出来的。</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>runSync is called from 4 sites:
+  - internal/worker/pool.go:142  (Pool.dispatch)
+  - internal/worker/pool.go:287  (Pool.drainOnShutdown)
+  - cmd/sync/main.go:58          (runCLISync)
+  - internal/test/integration.go:31 (harness)
+
+The defer/recover pattern was added in commit 4a1c92b
+(&quot;handle panic in sync goroutine without killing the pool&quot;, 2024-03-02)
+and is discussed in ADR-0014 (&quot;Panic-safety in worker pools&quot;):
+&gt; We chose to recover and log because a panic in a single sync target
+&gt; must not take down sibling targets; see incident I-2024-02-17.
+
+Confidence: high (4 citations; ADR present; call graph up to date
+as of commit 4a1c92b).
+</pre></div>
+</div>
+<p>真正重要的是这种形状。在真实系统里，上面那些引用每一条都是一条 <code class="docutils literal notranslate"><span class="pre">file:line</span></code> 锚 —— 由当前 commit 上的调用图解析得到，不是从训练语料里“复述”出来的。最后那一行置信度是机械计算出来的：数一下引用数量、检查有没有挂 ADR、比较一下知识库的 <code class="docutils literal notranslate"><span class="pre">last_synced_commit</span></code> 和 <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">HEAD</span></code>。如果答案过不了它自己这一关，知识库被允许 —— 而且被要求 —— 直接说出来（第 20 章）。</p>
+<p>产生这种回答的机器，是第四到第六部分的主题。而它的配料表只有四项：tree-sitter、一个 embedding 模型、一个图存储、以及一套有纪律的 prompt。这四样就是底稿博客 <span id="id24">[<a class="reference internal" href="../part5-operations-lifecycle/ch21-incremental-sync.html#id14" title="Walter (Yamin) Fan. 给代码仓库造一个 DeepWiki：Tree-sitter + embedding + 图谱 + LLM 的方法论. April 2026. v1.2, CC-BY-NC-ND 4.0. URL: https://www.fanyamin.com/gei-dai-ma-cang-ku-zao-yi-ge-deepwikitree-sitter-embedding-tu-pu-llm-de-fang-fa-lun.html.">Fan, 2026</a>]</span> 里叫作“四件套”的东西，本书中段的若干章节就是在把这四个角一个一个拆开来看。</p>
+</section>
+<section id="id25">
+<h2>小结<a class="headerlink" href="#id25" title="Link to this heading">#</a></h2>
+<p>“代码库”和“团队需要知道的关于代码库的那些事” —— 这两者之间的鸿沟，比今天大部分软件技术栈都老。它熬死了 CVS、熬死了 Subversion、熬过了三代 wiki 软件。真正终于在动的，是<em>从已有工件推导出一个知识库</em>的成本 —— 而不是要求人类在做真正的工作的同时，再并行手写一份出来。本书后面的章节，就是这条推导的具体做法：配上足够多的引文和代码，让一个读者 —— 如果他愿意 —— 可以把整套东西重搭一遍，然后把他不同意的每一块替换掉。</p>
+</section>
+<section id="id26">
+<h2>参考文献<a class="headerlink" href="#id26" title="Link to this heading">#</a></h2>
+<div class="docutils container" id="id27">
+<div role="list" class="citation-list">
+<div class="citation" id="id34" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id6">1</a><span class="fn-bracket">]</span></span>
+<p>Emad Aghajani, Csaba Nagy, Olga Lucero Vega-Márquez, Mario Linares-Vásquez, Laura Moreno, Gabriele Bavota, and Michele Lanza. Software documentation issues unveiled. <em>Proc. IEEE/ACM ICSE</em>, 2019.</p>
+</div>
+<div class="citation" id="id41" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></span>
+<p>Tom Christie and contributors. MkDocs: project documentation with Markdown. 2014–present. URL: <a class="reference external" href="https://www.mkdocs.org/">https://www.mkdocs.org/</a>.</p>
+</div>
+<div class="citation" id="id69" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></span>
+<p>Melvin E. Conway. How do committees invent? <em>Datamation</em>, 14(4):28–31, 1968. Origin of “Conway's law”: organisations produce systems whose structure mirrors their communication structure. The prose-layer equivalent is that documentation review follows the same communication lines as the code it describes.</p>
+</div>
+<div class="citation" id="id71" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></span>
+<p>W. Edwards Deming. <em>Out of the Crisis</em>. MIT Press, 1986. Formalised the Plan-Do-Check-Act cycle. Used in Chapter 7a to justify why the four-corner operational model is structurally complete: each corner answers one phase of PDCA applied to a prose-layer artefact.</p>
+</div>
+<div class="citation" id="id29" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></span>
+<p>Walter (Yamin) Fan. 如何打造个人与项目知识库：从全文搜索到 RAG，再到 Claude Skill. February 2026. v1.0, CC-BY-NC-ND 4.0. URL: <a class="reference external" href="https://www.fanyamin.com/2026-02-05-rag-claude-skill-knowledge-base.html">https://www.fanyamin.com/2026-02-05-rag-claude-skill-knowledge-base.html</a>.</p>
+</div>
+<div class="citation" id="id28" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>6<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id3">1</a>,<a role="doc-backlink" href="#id19">2</a>,<a role="doc-backlink" href="#id24">3</a>)</span>
+<p>Walter (Yamin) Fan. 给代码仓库造一个 DeepWiki：Tree-sitter + embedding + 图谱 + LLM 的方法论. April 2026. v1.2, CC-BY-NC-ND 4.0. URL: <a class="reference external" href="https://www.fanyamin.com/gei-dai-ma-cang-ku-zao-yi-ge-deepwikitree-sitter-embedding-tu-pu-llm-de-fang-fa-lun.html">https://www.fanyamin.com/gei-dai-ma-cang-ku-zao-yi-ge-deepwikitree-sitter-embedding-tu-pu-llm-de-fang-fa-lun.html</a>.</p>
+</div>
+<div class="citation" id="id110" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></span>
+<p>Kai Greshake, Sahar Abdelnabi, Shailesh Mishra, Christoph Endres, Thorsten Holz, and Mario Fritz. Not what you have signed up for: compromising real-world LLM-integrated applications with indirect prompt injection. <em>arXiv preprint arXiv:2302.12173</em>, 2023. Formalises the indirect-prompt-injection threat model that RAG systems inherit the moment retrieved documents can contain attacker-controlled text. Cited in Chapter 13 as the named threat model the two-step defence (system preamble + context escaping) addresses, and re-visited in Chapter 23's red-teaming treatment. URL: <a class="reference external" href="https://arxiv.org/abs/2302.12173">https://arxiv.org/abs/2302.12173</a>.</p>
+</div>
+<div class="citation" id="id33" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id5">8</a><span class="fn-bracket">]</span></span>
+<p>Timothy C. Lethbridge, Janice Singer, and Andrew Forward. How software engineers use documentation: the state of the practice. <em>IEEE Software</em>, 20(6):35–39, 2003.</p>
+</div>
+<div class="citation" id="id54" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id14">9</a><span class="fn-bracket">]</span></span>
+<p>Qinyu Luo, Yining Ye, Shihao Liang, Zhong Zhang, Yujia Qin, Yaxi Lu, Yesai Wu, Xin Cong, Yankai Lin, Yingli Zhang, Xiaoyin Che, Zhiyuan Liu, and Maosong Sun. Repoagent: an LLM-powered open-source framework for repository-level code documentation generation. 2024. URL: <a class="reference external" href="https://arxiv.org/abs/2402.16667">https://arxiv.org/abs/2402.16667</a>, <a class="reference external" href="https://arxiv.org/abs/2402.16667">arXiv:2402.16667</a>.</p>
+</div>
+<div class="citation" id="id109" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>10<span class="fn-bracket">]</span></span>
+<p>Yury A. Malkov and Dmitry A. Yashunin. Efficient and robust approximate nearest neighbor search using hierarchical navigable small world graphs. <em>IEEE Transactions on Pattern Analysis and Machine Intelligence</em>, 42(4):824–836, 2020. The HNSW index underlying every modern vector store (sqlite-vec, pgvector's hnsw option, Milvus, Faiss). The small-world-graph construction is why an approximate nearest-neighbour query runs in log-time rather than linear-scan time; cited in Chapter 10 to anchor the &quot;vector DB is not magic&quot; argument. <a class="reference external" href="https://doi.org/10.1109/TPAMI.2018.2889473">doi:10.1109/TPAMI.2018.2889473</a>.</p>
+</div>
+<div class="citation" id="id43" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>11<span class="fn-bracket">]</span></span>
+<p>Christopher D. Manning, Prabhakar Raghavan, and Hinrich Schütze. <em>Introduction to Information Retrieval</em>. Cambridge University Press, 2008.</p>
+</div>
+<div class="citation" id="id106" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>12<span class="fn-bracket">]</span></span>
+<p>Rodrigo Nogueira and Kyunghyun Cho. Passage re-ranking with BERT. <em>arXiv preprint arXiv:1901.04085</em>, 2019. Canonical reference for cross-encoder re-ranking — a BERT model scores (query, document) pairs for the second stage of a retrieve-then-rerank pipeline. Widely known as &quot;monoBERT&quot;. URL: <a class="reference external" href="https://arxiv.org/abs/1901.04085">https://arxiv.org/abs/1901.04085</a>.</p>
+</div>
+<div class="citation" id="id70" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>13<span class="fn-bracket">]</span></span>
+<p>David L. Parnas. On the criteria to be used in decomposing systems into modules. <em>Communications of the ACM</em>, 15(12):1053–1058, 1972. Introduces information hiding. Extended to documentation in this book: a software KB should be decomposed so that prose and the code it describes share a review boundary. <a class="reference external" href="https://doi.org/10.1145/361598.361623">doi:10.1145/361598.361623</a>.</p>
+</div>
+<div class="citation" id="id32" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">14</a><span class="fn-bracket">]</span></span>
+<p>David L. Parnas and Paul C. Clements. A rational design process: how and why to fake it. <em>IEEE Transactions on Software Engineering</em>, SE-12(2):251–257, 1986.</p>
+</div>
+<div class="citation" id="id35" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id11">15</a><span class="fn-bracket">]</span></span>
+<p>Daniele Procida. Diátaxis: a systematic approach to technical documentation authoring. 2017–present. URL: <a class="reference external" href="https://diataxis.fr/">https://diataxis.fr/</a>.</p>
+</div>
+<div class="citation" id="id107" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>16<span class="fn-bracket">]</span></span>
+<p>Nils Reimers and Iryna Gurevych. Sentence-BERT: sentence embeddings using siamese BERT-networks. In <em>Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing</em>. 2019. Introduces the bi-encoder framing that underlies every modern dense retriever: two independent encodings compared by cosine similarity, contrasted explicitly against cross-encoders that concatenate (query, document) before scoring. URL: <a class="reference external" href="https://arxiv.org/abs/1908.10084">https://arxiv.org/abs/1908.10084</a>.</p>
+</div>
+<div class="citation" id="id88" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id7">17</a><span class="fn-bracket">]</span></span>
+<p>Shitao Xiao, Zheng Liu, Peitian Zhang, Niklas Muennighoff, Defu Lian, and Jian-Yun Nie. C-Pack: packed resources for general Chinese embeddings. 2024. Includes the BGE family of open embedding models, which can be self-hosted on a single GPU at effectively zero per-token cost. URL: <a class="reference external" href="https://arxiv.org/abs/2309.07597">https://arxiv.org/abs/2309.07597</a>.</p>
+</div>
+<div class="citation" id="id53" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id13">18</a><span class="fn-bracket">]</span></span>
+<p>Yuqi Zhu, Xiaohan Wang, Jing Chen, Shuofei Qiao, Yixin Ou, Yunzhi Yao, Shumin Deng, Huajun Chen, and Ningyu Zhang. LLMs for knowledge graph construction and reasoning: recent capabilities and future opportunities. 2024. URL: <a class="reference external" href="https://arxiv.org/abs/2305.13168">https://arxiv.org/abs/2305.13168</a>, <a class="reference external" href="https://arxiv.org/abs/2305.13168">arXiv:2305.13168</a>.</p>
+</div>
+<div class="citation" id="id37" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id18">19</a><span class="fn-bracket">]</span></span>
+<p>Cognition Labs. DeepWiki: ai-generated wikis for any repository. 2025. Closed-source SaaS; auto-generates wiki-style pages from public GitHub repositories. URL: <a class="reference external" href="https://deepwiki.com/">https://deepwiki.com/</a>.</p>
+</div>
+<div class="citation" id="id39" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id21">20</a><span class="fn-bracket">]</span></span>
+<p>Notion Labs. Notion AI: ask, find, write with your wiki. 2023–present. Closed-source SaaS; LLM-assisted authoring and Q&amp;A over Notion workspaces. URL: <a class="reference external" href="https://www.notion.com/product/ai">https://www.notion.com/product/ai</a>.</p>
+</div>
+<div class="citation" id="id36" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>21<span class="fn-bracket">]</span></span>
+<p>OASIS. Darwin information typing architecture (DITA) 2.0 specification. 2022. URL: <a class="reference external" href="https://docs.oasis-open.org/dita/dita/v2.0/dita-v2.0.html">https://docs.oasis-open.org/dita/dita/v2.0/dita-v2.0.html</a>.</p>
+</div>
+<div class="citation" id="id40" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>22<span class="fn-bracket">]</span></span>
+<p>Obsidian.md. Obsidian: a knowledge base that works on local Markdown files. 2020–present. URL: <a class="reference external" href="https://obsidian.md/">https://obsidian.md/</a>.</p>
+</div>
+<div class="citation" id="id89" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id9">23</a><span class="fn-bracket">]</span></span>
+<p>OpenAI. OpenAI text embeddings v3 (text-embedding-3-small and text-embedding-3-large). 2024. The \texttt text-embedding-3-small launch announcement lists a 5× price reduction relative to \texttt text-embedding-ada-002 (from \$0.0001 to \$0.00002 per 1K tokens) at higher retrieval quality. URL: <a class="reference external" href="https://openai.com/index/new-embedding-models-and-api-updates/">https://openai.com/index/new-embedding-models-and-api-updates/</a>.</p>
+</div>
+<div class="citation" id="id38" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id20">24</a><span class="fn-bracket">]</span></span>
+<p>Sourcegraph. Cody: an AI coding assistant that knows your codebase. 2023–present. Closed-source IDE assistant; uses Sourcegraph's code-graph and embedding index. URL: <a class="reference external" href="https://sourcegraph.com/cody">https://sourcegraph.com/cody</a>.</p>
+</div>
+<div class="citation" id="id42" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>25<span class="fn-bracket">]</span></span>
+<p>Write the Docs community. Documentation style guides and principles. 2011–present. URL: <a class="reference external" href="https://www.writethedocs.org/guide/">https://www.writethedocs.org/guide/</a>.</p>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">第一部分 —— 基础</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="ch01a-quickstart-30min.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">第 1a 章 —— 30 分钟快速上手</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 目录
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">为什么</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">是什么</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id16">怎么做</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id22">这本书是写给谁的</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id23">示例</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id25">小结</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id26">参考文献</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+作者： Walter Fan
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright AI 辅助创作 2026, Walter Fan.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    <p class="last-updated">
+  最后更新于 2026-11-10.
+  <br/>
+</p>
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

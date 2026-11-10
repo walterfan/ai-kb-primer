@@ -1,0 +1,699 @@
+
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Code Graph Model (CGM): A Graph-Integrated Large Language Model for Repository-Level Software Engineering Tasks &#8212; Use AI to build a knowledge base for a software project</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=591f613d" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=23f7fa08"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../_static/translations.js?v=beaddf03"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'reference/10-cgm-graph-integrated-llm';</script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="prev" title="Long Code Arena: A Set of Benchmarks for Long-Context Code Models" href="09-long-code-arena-benchmarks.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+    <meta name="docbuild:last-update" content="2026-11-10"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Use AI to build a knowledge base for a software project</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">搜索</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Part I — Foundations</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part1-foundations/index.html">第一部分 —— 基础</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch01-why-kb-for-software.html">第 1 章 —— 为什么要给软件建一个知识库？</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch01a-quickstart-30min.html">第 1a 章 —— 30 分钟快速上手</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch02-ir-rag-primer.html">第 2 章 —— IR 与 RAG 入门</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch03-diataxis-and-software-docs.html">第 3 章 —— Diátaxis 与软件文档</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part II — The Prose Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part2-prose-layer/index.html">第二部分 —— 文稿层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch04-file-based-wiki.html">第 4 章 —— 一个基于文件的 wiki</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch05-frontmatter-provenance-trust.html">第 5 章 —— 把 frontmatter 当作一份来源记录</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch06-llm-classification-pipeline.html">第 6 章 —— 分类流水线</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch07-publish-and-search.html">第 7 章 —— 发布与搜索</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch08-prose-operational-model.html">第 8 章 —— 文稿层的运维模型</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch09-cold-start-migration.html">第 9 章 —— 冷启动与批量迁移</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part III — The Author Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part3-author-layer/index.html">第三部分 —— 作者层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch10-why-ai-as-author.html">第 10 章 —— 为什么让 AI 当作者</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch11-ai-drafting-and-rewriting.html">第 11 章 —— AI 起草、重写、翻译</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch12-ai-for-metadata.html">第 12 章 —— AI 处理元数据：分类、打标签、实体与关系抽取</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch13-ai-for-maintenance.html">第 13 章 —— AI 做维护：摘要、去重、过期与漂移检测</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch14-ai-as-judge.html">第 14 章 —— AI 作为评判者：评估生成质量与引用合规</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part IV — The Code Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part4-code-layer/index.html">第四部分 —— 代码层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch15-why-code-is-not-prose.html">第 15 章 —— 为什么代码不是文稿</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch16-parsing-and-entity-extraction.html">第 16 章 —— 解析与实体抽取</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch17-embeddings-and-vector-stores.html">第 17 章 —— 嵌入向量与向量存储</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch18-code-knowledge-graph.html">第 18 章 —— 代码知识图谱</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch19-hybrid-retrieval-and-rrf.html">第 19 章 —— 混合检索与 RRF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch20-prompt-and-generation.html">第 20 章 —— 提示词与生成</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part V — Operations &amp; Lifecycle</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part5-operations-lifecycle/index.html">第五部分 —— 运维与生命周期</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part5-operations-lifecycle/ch21-incremental-sync.html">第 21 章 —— 增量同步</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part5-operations-lifecycle/ch22-evaluation-and-benchmarks.html">第 22 章 —— 评测、基准与发布门禁</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part5-operations-lifecycle/ch23-maintenance-drift-and-link-rot.html">第 23 章 —— 维护、漂移与链接腐化</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part VI — The Hybrid Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part6-hybrid-layer/index.html">第六部分 —— 混合层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch24-prose-meets-code.html">第 24 章 —— 文稿与代码相遇</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch25-document-layering-L0-L4.html">第 25 章 —— 文档分层 L0–L4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch26-graph-guided-context-assembly.html">第 26 章 —— 图引导的上下文组装</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch27-harnessing-ai-coding.html">第 27 章 —— 用知识库驾驭 AI 编码</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch28-team-sdlc-integration.html">第 28 章 —— 团队协作与 SDLC 集成</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch29-ai-agents-on-the-kb.html">第 29 章 —— 在知识库上跑的 AI Agent</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part VII — Governance &amp; Outlook</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part7-governance-and-outlook/index.html">第七部分 —— 治理与展望</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch30-cost-privacy-security.html">第 30 章 —— 成本、隐私、安全</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch31-trust-provenance-and-red-teaming.html">第 31 章 —— 信任、出处与红队演练</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch32-outlook-and-open-problems.html">第 32 章 —— 展望与尚未解决的问题</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Appendices</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-a-example-wiki.html">附录 A —— 端到端：从杂乱文件夹到可发布 Wiki</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-b-example-code-kg.html">附录 B —— 示例：从一个 Go 仓库构建代码知识库</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-c-deepwiki-checklist.html">附录 C —— 自己动手做 DeepWiki 检查清单</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-d-glossary.html">附录 D —— 术语表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-e-bilingual-publishing.html">附录 E —— 发布一个双语知识库</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">参考文献</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">参考文献：仓库级代码理解与软件知识库论文导读</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="01-repoformer-selective-retrieval.html">Repoformer: Selective Retrieval for Repository-Level Code Completion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02-codeplan-repository-level-planning.html">CodePlan: Repository-Level Coding using LLMs and Planning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="03-repograph-code-graph-navigation.html">RepoGraph: Enhancing AI Software Engineering with Repository-level Code Graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="04-repoagent-documentation-generation.html">RepoAgent: An LLM-Powered Open-Source Framework for Repository-level Code Documentation Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="05-repocoder-iterative-retrieval-generation.html">RepoCoder: Repository-Level Code Completion Through Iterative Retrieval and Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="06-llm-kg-synergy-repo-qa.html">Synergizing LLMs and Knowledge Graphs: A Novel Approach to Software Repository-Related Question Answering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="07-repo-level-prompt-generation.html">Repository-Level Prompt Generation for Large Language Models of Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="08-repobench-benchmarking.html">RepoBench: Benchmarking Repository-Level Code Auto-Completion Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="09-long-code-arena-benchmarks.html">Long Code Arena: A Set of Benchmarks for Long-Context Code Models</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Code Graph Model (CGM): A Graph-Integrated Large Language Model for Repository-Level Software Engineering Tasks</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="下载此页面">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="下载源文件"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="列印成 PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="全屏模式"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Code Graph Model (CGM): A Graph-Integrated Large Language Model for Repository-Level Software Engineering Tasks</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> 目录 </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what">What — 这篇论文解决什么问题</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why">Why — 为什么这个方向对软件知识库重要</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how">How — 核心方法</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#repository-code-graph">1. 代码图构建（Repository Code Graph）</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#graph-integrated-attention">2. 图集成注意力机制（Graph-Integrated Attention）</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#node-attribute-mapping">3. 节点属性映射（Node Attribute Mapping）</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#agentless-graph-rag">4. Agentless Graph RAG 框架</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example — 在软件知识库中的应用示例</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#conclusion">Conclusion — 对软件知识库建设的启示</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reference">Reference</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="code-graph-model-cgm-a-graph-integrated-large-language-model-for-repository-level-software-engineering-tasks">
+<h1>Code Graph Model (CGM): A Graph-Integrated Large Language Model for Repository-Level Software Engineering Tasks<a class="headerlink" href="#code-graph-model-cgm-a-graph-integrated-large-language-model-for-repository-level-software-engineering-tasks" title="Link to this heading">#</a></h1>
+<blockquote>
+<div><p><strong>论文信息</strong>：NeurIPS 2025 Poster | <a class="reference external" href="https://arxiv.org/abs/2505.16901">arXiv:2505.16901</a></p>
+</div></blockquote>
+<hr class="docutils" />
+<section id="what">
+<h2>What — 这篇论文解决什么问题<a class="headerlink" href="#what" title="Link to this heading">#</a></h2>
+<p>CGM 研究的问题是：<strong>如何让开源 LLM 在不依赖 Agent 框架的情况下，通过直接集成仓库代码图结构，来解决仓库级软件工程任务</strong>？</p>
+<p>现有方案的痛点：</p>
+<ol class="arabic simple">
+<li><p><strong>商业模型依赖</strong>：GPT-4、Claude 等闭源模型在 SWE-bench 上效果好，但有数据隐私和定制化问题；</p></li>
+<li><p><strong>Agent 方案不可预测</strong>：多步骤 Agent（Tool-calling、ReAct）引入了随机性，线上系统难以保证稳定输出；</p></li>
+<li><p><strong>开源模型差距大</strong>：直接用 Qwen、LLaMA 等开源模型处理 repo-level 任务，效果远不如商业模型；</p></li>
+<li><p><strong>图信息未被充分利用</strong>：代码仓库的结构依赖信息（调用图、导入图）在传统方法中以文本形式传递，而不是直接作为模型输入。</p></li>
+</ol>
+<p>CGM 的突破：将代码图结构<strong>直接集成到 LLM 的注意力机制</strong>中，而不是转成文本再输入。</p>
+</section>
+<hr class="docutils" />
+<section id="why">
+<h2>Why — 为什么这个方向对软件知识库重要<a class="headerlink" href="#why" title="Link to this heading">#</a></h2>
+<p>CGM 代表了软件知识库技术的<strong>前沿水位线</strong>：</p>
+<ul class="simple">
+<li><p><strong>开源可部署</strong>：基于 Qwen2.5-72B，可以私有化部署，解决数据隐私问题；</p></li>
+<li><p><strong>无 Agent 依赖</strong>：不用多步骤 Agent，减少不确定性，适合生产环境的知识库系统；</p></li>
+<li><p><strong>图结构原生输入</strong>：将代码依赖图作为模型输入，而不是上下文文本，这是架构层面的创新；</p></li>
+<li><p><strong>SWE-bench SOTA</strong>：开源模型中最高的 43% 解决率，证明了方法的有效性；</p></li>
+<li><p><strong>Agentless Graph RAG</strong>：无 Agent 的图 RAG 框架，兼顾检索精度和系统稳定性。</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="how">
+<h2>How — 核心方法<a class="headerlink" href="#how" title="Link to this heading">#</a></h2>
+<section id="repository-code-graph">
+<h3>1. 代码图构建（Repository Code Graph）<a class="headerlink" href="#repository-code-graph" title="Link to this heading">#</a></h3>
+<p>将代码仓库表示为异构图：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>节点（Node）:
+  - 每个函数/方法/类 = 一个节点
+  - 节点属性: 函数签名、Docstring、代码体（作为 token 序列）
+
+边（Edge）:
+  - calls:    A 函数调用了 B 函数
+  - imports:  文件 A 导入了文件 B
+  - defines:  文件 A 定义了函数 B
+  - inherits: 类 A 继承了类 B
+</pre></div>
+</div>
+</section>
+<section id="graph-integrated-attention">
+<h3>2. 图集成注意力机制（Graph-Integrated Attention）<a class="headerlink" href="#graph-integrated-attention" title="Link to this heading">#</a></h3>
+<p>CGM 的核心创新：在 LLM 的 Transformer 注意力层中，直接注入图结构信息。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>传统注意力:
+  Attention(Q, K, V) = softmax(QK^T / √d) × V
+
+CGM 的图增强注意力:
+  Attention_graph(Q, K, V, G) = softmax((QK^T + Graph_bias(G)) / √d) × V
+
+其中 Graph_bias(G) 是根据图结构生成的注意力偏置矩阵:
+  - 如果节点 i 和节点 j 存在边 → bias(i,j) &gt; 0（促进关注）
+  - 如果节点 i 和节点 j 无关 → bias(i,j) ≈ 0
+</pre></div>
+</div>
+</section>
+<section id="node-attribute-mapping">
+<h3>3. 节点属性映射（Node Attribute Mapping）<a class="headerlink" href="#node-attribute-mapping" title="Link to this heading">#</a></h3>
+<p>用专用适配器（Adapter）将图节点的代码属性映射到 LLM 的输入空间：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 图节点 → LLM 输入的映射</span>
+<span class="n">node_embedding</span> <span class="o">=</span> <span class="n">adapter</span><span class="p">(</span>
+    <span class="n">signature_tokens</span><span class="p">,</span>    <span class="c1"># 函数签名的 token 表示</span>
+    <span class="n">docstring_tokens</span><span class="p">,</span>    <span class="c1"># 文档字符串</span>
+    <span class="n">code_tokens</span>          <span class="c1"># 函数体代码</span>
+<span class="p">)</span>
+<span class="c1"># adapter 是一个轻量级线性投影层，训练时只更新 adapter，冻结 LLM 主体</span>
+</pre></div>
+</div>
+</section>
+<section id="agentless-graph-rag">
+<h3>4. Agentless Graph RAG 框架<a class="headerlink" href="#agentless-graph-rag" title="Link to this heading">#</a></h3>
+<p>不依赖 Agent 的图 RAG 流程：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Step 1: Graph Localization
+  给定 Issue 描述，在代码图中定位最相关的节点子集
+  使用图神经网络（GNN）进行节点重要性打分
+
+Step 2: Subgraph Extraction  
+  以定位到的节点为种子，提取 K 跳子图
+  子图包含了任务相关的完整上下文
+
+Step 3: Graph-Conditioned Generation
+  将子图输入 CGM，利用图集成注意力机制生成解决方案
+
+Step 4: Patch Validation
+  对生成的代码变更进行语法和测试验证（无 Agent，纯确定性验证）
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="example">
+<h2>Example — 在软件知识库中的应用示例<a class="headerlink" href="#example" title="Link to this heading">#</a></h2>
+<p><strong>场景</strong>：SWE-bench 任务 — 修复一个涉及多文件的 Python Bug</p>
+<p><strong>Issue 描述</strong>：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="ne">TypeError</span><span class="p">:</span> <span class="s1">&#39;NoneType&#39;</span> <span class="nb">object</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">subscriptable</span> 
+<span class="ow">in</span> <span class="n">pandas</span><span class="o">/</span><span class="n">core</span><span class="o">/</span><span class="n">indexing</span><span class="o">.</span><span class="n">py</span> <span class="n">when</span> <span class="n">using</span> <span class="o">.</span><span class="n">loc</span> <span class="k">with</span> 
+<span class="n">boolean</span> <span class="n">indexer</span> <span class="n">on</span> <span class="n">MultiIndex</span> <span class="n">DataFrame</span>
+</pre></div>
+</div>
+<p><strong>CGM 的处理流程</strong>：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Step 1: 图定位
+  定位节点: _LocIndexer.__getitem__() [相关度: 0.92]
+  邻居节点: MultiIndex.get_loc() [相关度: 0.78]
+             _maybe_convert_indices() [相关度: 0.71]
+
+Step 2: 子图提取
+  提取以上 3 个函数 + 它们的直接调用者/被调用者
+  子图共 12 个节点，4000 tokens
+
+Step 3: 图条件生成
+  CGM 通过图集成注意力，同时&quot;看到&quot;所有相关函数及其关系
+  生成的 patch 正确处理了 MultiIndex 时的 None 检查
+
+Step 4: 验证
+  运行相关测试用例，patch 通过 → 提交
+</pre></div>
+</div>
+<p><strong>在知识库中的类比</strong>：用 CGM 的思路，将代码知识图谱直接作为问答系统的结构化输入，而不是转化成文本后再检索。</p>
+</section>
+<hr class="docutils" />
+<section id="conclusion">
+<h2>Conclusion — 对软件知识库建设的启示<a class="headerlink" href="#conclusion" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>启示点</p></th>
+<th class="head"><p>具体应用</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>图结构原生集成</strong></p></td>
+<td><p>将代码依赖图直接融入模型推理，而不是转成文本再处理</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>开源替代方案</strong></p></td>
+<td><p>CGM（Qwen2.5-72B）可作为知识库后端的私有化部署选项</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Agentless 架构</strong></p></td>
+<td><p>减少 Agent 的不确定性，用确定性的图 RAG 流程替代多步骤 Agent</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>适配器训练</strong></p></td>
+<td><p>冻结 LLM 主体，只训练轻量适配器，降低知识库系统的定制化成本</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>子图上下文</strong></p></td>
+<td><p>以任务相关子图为上下文单元，比 chunk 更精确，比全图更高效</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>性能基准</strong></p></td>
+<td><p>CGM 在 SWE-bench Lite 上达到 43%，可作为知识库代码任务能力的参考基准</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<hr class="docutils" />
+<section id="reference">
+<h2>Reference<a class="headerlink" href="#reference" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>论文原文：<a class="reference external" href="https://arxiv.org/abs/2505.16901">arXiv:2505.16901</a></p></li>
+<li><p>会议：NeurIPS 2025 Poster</p></li>
+<li><p>作者：Hongyuan Tao, Ying Zhang 等（共 15 位作者）</p></li>
+<li><p>关键词：Code Graph Model, Graph-Integrated LLM, Repository-Level SE, SWE-bench, Agentless RAG</p></li>
+<li><p>基础模型：Qwen2.5-72B（开源）</p></li>
+<li><p>相关工作：RepoGraph（图导航）、RepoCoder（迭代检索）、LLM+KG 协同（论文 06）</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="09-long-code-arena-benchmarks.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">Long Code Arena: A Set of Benchmarks for Long-Context Code Models</p>
+      </div>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 目录
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what">What — 这篇论文解决什么问题</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why">Why — 为什么这个方向对软件知识库重要</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how">How — 核心方法</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#repository-code-graph">1. 代码图构建（Repository Code Graph）</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#graph-integrated-attention">2. 图集成注意力机制（Graph-Integrated Attention）</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#node-attribute-mapping">3. 节点属性映射（Node Attribute Mapping）</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#agentless-graph-rag">4. Agentless Graph RAG 框架</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example — 在软件知识库中的应用示例</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#conclusion">Conclusion — 对软件知识库建设的启示</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reference">Reference</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+作者： Walter Fan
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright AI 辅助创作 2026, Walter Fan.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    <p class="last-updated">
+  最后更新于 2026-11-10.
+  <br/>
+</p>
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

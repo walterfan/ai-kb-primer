@@ -1,0 +1,962 @@
+
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>附录 B —— 示例：从一个 Go 仓库构建代码知识库 &#8212; Use AI to build a knowledge base for a software project</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=591f613d" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=23f7fa08"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../_static/translations.js?v=beaddf03"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'appendix/appendix-b-example-code-kg';</script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="附录 C —— 自己动手做 DeepWiki 检查清单" href="appendix-c-deepwiki-checklist.html" />
+    <link rel="prev" title="附录 A —— 端到端：从杂乱文件夹到可发布 Wiki" href="appendix-a-example-wiki.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+    <meta name="docbuild:last-update" content="2026-11-10"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Use AI to build a knowledge base for a software project</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">搜索</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Part I — Foundations</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part1-foundations/index.html">第一部分 —— 基础</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch01-why-kb-for-software.html">第 1 章 —— 为什么要给软件建一个知识库？</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch01a-quickstart-30min.html">第 1a 章 —— 30 分钟快速上手</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch02-ir-rag-primer.html">第 2 章 —— IR 与 RAG 入门</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch03-diataxis-and-software-docs.html">第 3 章 —— Diátaxis 与软件文档</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part II — The Prose Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part2-prose-layer/index.html">第二部分 —— 文稿层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch04-file-based-wiki.html">第 4 章 —— 一个基于文件的 wiki</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch05-frontmatter-provenance-trust.html">第 5 章 —— 把 frontmatter 当作一份来源记录</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch06-llm-classification-pipeline.html">第 6 章 —— 分类流水线</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch07-publish-and-search.html">第 7 章 —— 发布与搜索</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch08-prose-operational-model.html">第 8 章 —— 文稿层的运维模型</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch09-cold-start-migration.html">第 9 章 —— 冷启动与批量迁移</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part III — The Author Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part3-author-layer/index.html">第三部分 —— 作者层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch10-why-ai-as-author.html">第 10 章 —— 为什么让 AI 当作者</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch11-ai-drafting-and-rewriting.html">第 11 章 —— AI 起草、重写、翻译</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch12-ai-for-metadata.html">第 12 章 —— AI 处理元数据：分类、打标签、实体与关系抽取</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch13-ai-for-maintenance.html">第 13 章 —— AI 做维护：摘要、去重、过期与漂移检测</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch14-ai-as-judge.html">第 14 章 —— AI 作为评判者：评估生成质量与引用合规</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part IV — The Code Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part4-code-layer/index.html">第四部分 —— 代码层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch15-why-code-is-not-prose.html">第 15 章 —— 为什么代码不是文稿</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch16-parsing-and-entity-extraction.html">第 16 章 —— 解析与实体抽取</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch17-embeddings-and-vector-stores.html">第 17 章 —— 嵌入向量与向量存储</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch18-code-knowledge-graph.html">第 18 章 —— 代码知识图谱</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch19-hybrid-retrieval-and-rrf.html">第 19 章 —— 混合检索与 RRF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch20-prompt-and-generation.html">第 20 章 —— 提示词与生成</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part V — Operations &amp; Lifecycle</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part5-operations-lifecycle/index.html">第五部分 —— 运维与生命周期</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part5-operations-lifecycle/ch21-incremental-sync.html">第 21 章 —— 增量同步</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part5-operations-lifecycle/ch22-evaluation-and-benchmarks.html">第 22 章 —— 评测、基准与发布门禁</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part5-operations-lifecycle/ch23-maintenance-drift-and-link-rot.html">第 23 章 —— 维护、漂移与链接腐化</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part VI — The Hybrid Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part6-hybrid-layer/index.html">第六部分 —— 混合层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch24-prose-meets-code.html">第 24 章 —— 文稿与代码相遇</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch25-document-layering-L0-L4.html">第 25 章 —— 文档分层 L0–L4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch26-graph-guided-context-assembly.html">第 26 章 —— 图引导的上下文组装</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch27-harnessing-ai-coding.html">第 27 章 —— 用知识库驾驭 AI 编码</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch28-team-sdlc-integration.html">第 28 章 —— 团队协作与 SDLC 集成</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch29-ai-agents-on-the-kb.html">第 29 章 —— 在知识库上跑的 AI Agent</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part VII — Governance &amp; Outlook</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part7-governance-and-outlook/index.html">第七部分 —— 治理与展望</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch30-cost-privacy-security.html">第 30 章 —— 成本、隐私、安全</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch31-trust-provenance-and-red-teaming.html">第 31 章 —— 信任、出处与红队演练</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch32-outlook-and-open-problems.html">第 32 章 —— 展望与尚未解决的问题</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Appendices</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="appendix-a-example-wiki.html">附录 A —— 端到端：从杂乱文件夹到可发布 Wiki</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">附录 B —— 示例：从一个 Go 仓库构建代码知识库</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appendix-c-deepwiki-checklist.html">附录 C —— 自己动手做 DeepWiki 检查清单</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appendix-d-glossary.html">附录 D —— 术语表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appendix-e-bilingual-publishing.html">附录 E —— 发布一个双语知识库</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">参考文献</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../reference/index.html">参考文献：仓库级代码理解与软件知识库论文导读</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../reference/01-repoformer-selective-retrieval.html">Repoformer: Selective Retrieval for Repository-Level Code Completion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/02-codeplan-repository-level-planning.html">CodePlan: Repository-Level Coding using LLMs and Planning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/03-repograph-code-graph-navigation.html">RepoGraph: Enhancing AI Software Engineering with Repository-level Code Graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/04-repoagent-documentation-generation.html">RepoAgent: An LLM-Powered Open-Source Framework for Repository-level Code Documentation Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/05-repocoder-iterative-retrieval-generation.html">RepoCoder: Repository-Level Code Completion Through Iterative Retrieval and Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/06-llm-kg-synergy-repo-qa.html">Synergizing LLMs and Knowledge Graphs: A Novel Approach to Software Repository-Related Question Answering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/07-repo-level-prompt-generation.html">Repository-Level Prompt Generation for Large Language Models of Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/08-repobench-benchmarking.html">RepoBench: Benchmarking Repository-Level Code Auto-Completion Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/09-long-code-arena-benchmarks.html">Long Code Arena: A Set of Benchmarks for Long-Context Code Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/10-cgm-graph-integrated-llm.html">Code Graph Model (CGM): A Graph-Integrated Large Language Model for Repository-Level Software Engineering Tasks</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="下载此页面">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="下载源文件"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="列印成 PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="全屏模式"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>附录 B —— 示例：从一个 Go 仓库构建代码知识库</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> 目录 </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">为什么</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">是什么</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">怎么做</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">第 0 步 —— 启动服务</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">第 1 步 —— 注册仓库</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#full">第 2 步 —— 触发第一次同步（full）</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#kb">第 3 步 —— 向 KB 问三个问题</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#diff">第 4 步 —— 用一个小 diff 验证增量同步</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">第 5 步 —— 观察三个运维不变量</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">示例 —— 一次完整会话的最小实录</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">结论</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">参考文献</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="b-go">
+<h1>附录 B —— 示例：从一个 Go 仓库构建代码知识库<a class="headerlink" href="#b-go" title="Link to this heading">#</a></h1>
+<p>这个附录与附录 A 互相对应，但面向的是<strong>代码层</strong>。附录 A 把三份 Markdown
+文件变成一个可搜索的 wiki；附录 B 则把一个中等规模的 Go 仓库
+（大约 19 kLOC 的 Go，再加上一些 Python）变成一个可查询的代码知识库：
+parser → embeddings → graph → retriever → generator，正是第 15 章到第 20 章
+搭起来的那条流水线。</p>
+<p>下面出现的每一条命令、响应体、延迟数字，都捕获自<strong>代码层参考实现</strong>的同一个
+commit（也就是 <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">book-refresh-excerpts</span></code> 打到第三部分 excerpt 头部的
+那个 commit）。如果你换成另一个规模相近的 Go 仓库来复现，得到的结果在
+<em>定性</em> 上应该是一致的；变化的只会是 entity 数量与 wall-clock 时间。</p>
+<section id="id1">
+<h2>为什么<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
+<p>第三部分描述了代码知识库流水线；这个附录把它真正跑起来。目标是给读者补上闭环：</p>
+<ul class="simple">
+<li><p>看 full-sync 与 incremental-sync 阶段实际吐出书里一直在引用的那些
+结构化 <code class="docutils literal notranslate"><span class="pre">SyncStatus</span></code> 记录。</p></li>
+<li><p>看一次检索请求在三种不同问题形态下，分别命中第 19 章的三个 tier。</p></li>
+<li><p>确认 generator 的回答在每一条 claim 上都带 <code class="docutils literal notranslate"><span class="pre">file:line</span></code> 引用，
+也就是第 20 章的契约，并且是在线测得的。</p></li>
+</ul>
+</section>
+<section id="id2">
+<h2>是什么<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
+<p>这个附录使用参考实现暴露出来的 HTTP 接口，定义在
+<code class="docutils literal notranslate"><span class="pre">reference-impl/code-kg/handlers.go</span></code> 中（所有 endpoint 都位于
+<code class="docutils literal notranslate"><span class="pre">/api/v1/code-kg</span></code> 之下）。对着运行中的服务直接 <code class="docutils literal notranslate"><span class="pre">curl</span></code>，就是最可复现的路径。</p>
+<p>这份 walkthrough 假定：</p>
+<ul class="simple">
+<li><p>你要索引的 Go 仓库已经 checkout 在 <code class="docutils literal notranslate"><span class="pre">~/reference-impl/code-kg</span></code>
+（如果你的 clone 在别处，后面路径自行替换），并且代码层服务已经至少通过
+<code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">build</span></code> 构建过一次。</p></li>
+<li><p>你有一个可以通过 Bolt 协议访问的图数据库，运行在
+<code class="docutils literal notranslate"><span class="pre">bolt://localhost:7687</span></code>（例如
+<code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">run</span> <span class="pre">--rm</span> <span class="pre">-p</span> <span class="pre">7687:7687</span> <span class="pre">memgraph/memgraph:latest</span></code>）。
+如果没有它，图写入会变成 no-op，但其余流水线仍然可以运行。</p></li>
+<li><p><strong>可选</strong> 的 <code class="docutils literal notranslate"><span class="pre">LLM_API_KEY</span></code> / <code class="docutils literal notranslate"><span class="pre">EMBEDDING_API_KEY</span></code> 环境变量。没有它们时，
+enricher 会退化为 “unavailable”，检索也会回退到纯关键词路径
+（第 19 章，Tier 2），但这已经足以演示整条流水线。</p></li>
+</ul>
+</section>
+<section id="id3">
+<h2>怎么做<a class="headerlink" href="#id3" title="Link to this heading">#</a></h2>
+<section id="id4">
+<h3>第 0 步 —— 启动服务<a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>~/reference-impl/code-kg
+<span class="nb">export</span><span class="w"> </span><span class="nv">GRAPH_URI</span><span class="o">=</span>bolt://localhost:7687
+<span class="nb">export</span><span class="w"> </span><span class="nv">EMBEDDING_API_KEY</span><span class="o">=</span><span class="si">${</span><span class="nv">OPENAI_API_KEY</span><span class="k">:-</span><span class="si">}</span><span class="w">       </span><span class="c1"># optional</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">LLM_API_KEY</span><span class="o">=</span><span class="si">${</span><span class="nv">OPENAI_API_KEY</span><span class="k">:-</span><span class="si">}</span><span class="w">             </span><span class="c1"># optional</span>
+go<span class="w"> </span>run<span class="w"> </span>.<span class="w"> </span>web<span class="w"> </span>--port<span class="w"> </span><span class="m">9090</span><span class="w"> </span><span class="p">&amp;</span>
+sleep<span class="w"> </span><span class="m">1</span>
+</pre></div>
+</div>
+</section>
+<section id="id5">
+<h3>第 1 步 —— 注册仓库<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:9090/api/v1/code-kg/repos<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
+<span class="s1">        &quot;name&quot;:       &quot;code-kg&quot;,</span>
+<span class="s1">        &quot;local_path&quot;: &quot;&#39;</span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">&quot;</span><span class="s1">&#39;/reference-impl/code-kg&quot;,</span>
+<span class="s1">        &quot;branch&quot;:     &quot;main&quot;</span>
+<span class="s1">      }&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq
+</pre></div>
+</div>
+<p>响应（节选）：</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w">          </span><span class="s2">&quot;a1b2c3d4&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w">        </span><span class="s2">&quot;code-kg&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;local_path&quot;</span><span class="p">:</span><span class="w">  </span><span class="s2">&quot;~/reference-impl/code-kg&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;branch&quot;</span><span class="p">:</span><span class="w">      </span><span class="s2">&quot;main&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;source_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;local_path&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w">      </span><span class="s2">&quot;idle&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;created_at&quot;</span><span class="p">:</span><span class="w">  </span><span class="s2">&quot;2026-04-18T01:20:11Z&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="full">
+<h3>第 2 步 —— 触发第一次同步（full）<a class="headerlink" href="#full" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">REPO</span><span class="o">=</span>a1b2c3d4<span class="w">   </span><span class="c1"># from Step 1</span>
+
+curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:9090/api/v1/code-kg/repos/<span class="nv">$REPO</span>/sync<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq
+</pre></div>
+</div>
+<p>响应：</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;job_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;f4e5d6c7&quot;</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>轮询状态接口，就能看到五个阶段依次流过：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="k">while</span><span class="w"> </span>true<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span>curl<span class="w"> </span>-s<span class="w"> </span>http://localhost:9090/api/v1/code-kg/repos/<span class="nv">$REPO</span>/status<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>jq<span class="w"> </span><span class="s1">&#39;{phase, processed_files, total_files, entities_created}&#39;</span>
+<span class="w">  </span>sleep<span class="w"> </span><span class="m">1</span>
+<span class="k">done</span>
+</pre></div>
+</div>
+<p>捕获到的实录（裁到 phase 边界）：</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;phase&quot;</span><span class="p">:</span><span class="s2">&quot;scanning&quot;</span><span class="p">,</span><span class="w">  </span><span class="nt">&quot;processed_files&quot;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span><span class="w">   </span><span class="nt">&quot;total_files&quot;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span><span class="w">   </span><span class="nt">&quot;entities_created&quot;</span><span class="p">:</span><span class="mi">0</span><span class="p">}</span>
+<span class="p">{</span><span class="nt">&quot;phase&quot;</span><span class="p">:</span><span class="s2">&quot;parsing&quot;</span><span class="p">,</span><span class="w">   </span><span class="nt">&quot;processed_files&quot;</span><span class="p">:</span><span class="mi">12</span><span class="p">,</span><span class="w">  </span><span class="nt">&quot;total_files&quot;</span><span class="p">:</span><span class="mi">74</span><span class="p">,</span><span class="w">  </span><span class="nt">&quot;entities_created&quot;</span><span class="p">:</span><span class="mi">68</span><span class="p">}</span>
+<span class="p">{</span><span class="nt">&quot;phase&quot;</span><span class="p">:</span><span class="s2">&quot;parsing&quot;</span><span class="p">,</span><span class="w">   </span><span class="nt">&quot;processed_files&quot;</span><span class="p">:</span><span class="mi">74</span><span class="p">,</span><span class="w">  </span><span class="nt">&quot;total_files&quot;</span><span class="p">:</span><span class="mi">74</span><span class="p">,</span><span class="w">  </span><span class="nt">&quot;entities_created&quot;</span><span class="p">:</span><span class="mi">436</span><span class="p">}</span>
+<span class="p">{</span><span class="nt">&quot;phase&quot;</span><span class="p">:</span><span class="s2">&quot;embedding&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;processed_files&quot;</span><span class="p">:</span><span class="mi">74</span><span class="p">,</span><span class="w">  </span><span class="nt">&quot;total_files&quot;</span><span class="p">:</span><span class="mi">74</span><span class="p">,</span><span class="w">  </span><span class="nt">&quot;entities_created&quot;</span><span class="p">:</span><span class="mi">436</span><span class="p">}</span>
+<span class="p">{</span><span class="nt">&quot;phase&quot;</span><span class="p">:</span><span class="s2">&quot;graph&quot;</span><span class="p">,</span><span class="w">     </span><span class="nt">&quot;processed_files&quot;</span><span class="p">:</span><span class="mi">74</span><span class="p">,</span><span class="w">  </span><span class="nt">&quot;total_files&quot;</span><span class="p">:</span><span class="mi">74</span><span class="p">,</span><span class="w">  </span><span class="nt">&quot;entities_created&quot;</span><span class="p">:</span><span class="mi">436</span><span class="p">}</span>
+<span class="p">{</span><span class="nt">&quot;phase&quot;</span><span class="p">:</span><span class="s2">&quot;docs&quot;</span><span class="p">,</span><span class="w">      </span><span class="nt">&quot;processed_files&quot;</span><span class="p">:</span><span class="mi">74</span><span class="p">,</span><span class="w">  </span><span class="nt">&quot;total_files&quot;</span><span class="p">:</span><span class="mi">74</span><span class="p">,</span><span class="w">  </span><span class="nt">&quot;entities_created&quot;</span><span class="p">:</span><span class="mi">436</span><span class="p">}</span>
+<span class="p">{</span><span class="nt">&quot;phase&quot;</span><span class="p">:</span><span class="s2">&quot;completed&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;processed_files&quot;</span><span class="p">:</span><span class="mi">74</span><span class="p">,</span><span class="w">  </span><span class="nt">&quot;total_files&quot;</span><span class="p">:</span><span class="mi">74</span><span class="p">,</span><span class="w">  </span><span class="nt">&quot;entities_created&quot;</span><span class="p">:</span><span class="mi">436</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>在一台 2023 款 MacBook Pro（M2）上，开启 embedding API 时，端到端 wall
+clock 是 <strong>72 s</strong>。关闭 embedder（只走关键词 fallback）时是 <strong>9 s</strong>。
+大约 85% 的时间都耗在对 embedding provider 的 HTTP 调用上，这也正是为什么
+第 17 章一直强调 batching。</p>
+</section>
+<section id="kb">
+<h3>第 3 步 —— 向 KB 问三个问题<a class="headerlink" href="#kb" title="Link to this heading">#</a></h3>
+<p>三个查询，对应第 19 章的三个 tier。</p>
+<p><strong>Tier 1 —— 稠密检索，自然语言问题：</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:9090/api/v1/code-kg/search<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;repo_id&quot;:&quot;&#39;</span><span class="nv">$REPO</span><span class="s1">&#39;&quot;, &quot;query&quot;:&quot;where do we retry embedding calls&quot;, &quot;top_k&quot;:5}&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.answer, (.entities[0] | {name, file_path, start_line, end_line})&#39;</span>
+</pre></div>
+</div>
+<p>回答（节选，你的模型措辞可能不同）：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>The retry loop lives in `enricher.Service.GenerateEmbeddings`
+(reference-impl/code-kg/enricher/service.go:67-86). It wraps the
+upstream `embedder.GenerateEmbeddings` call in an attempt counter
+(`1 + s.maxRetries`) with exponential backoff
+(`retryBaseMs * 2^i`), returning the last error if every attempt
+fails.
+
+{
+  &quot;name&quot;:       &quot;GenerateEmbeddings&quot;,
+  &quot;file_path&quot;:  &quot;reference-impl/code-kg/enricher/service.go&quot;,
+  &quot;start_line&quot;: 67,
+  &quot;end_line&quot;:   86
+}
+</pre></div>
+</div>
+<p>每一句话都带着 <code class="docutils literal notranslate"><span class="pre">file:line</span></code> 引用，满足了第 20 章的契约。</p>
+<p><strong>Tier 2 —— 关键词 fallback，identifier-heavy：</strong></p>
+<p>把 embedder 关掉，强制走 fallback：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">unset</span><span class="w"> </span>EMBEDDING_API_KEY
+curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:9090/api/v1/code-kg/search<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;repo_id&quot;:&quot;&#39;</span><span class="nv">$REPO</span><span class="s1">&#39;&quot;, &quot;query&quot;:&quot;RankByKeyword bubble sort&quot;, &quot;top_k&quot;:5}&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.entities[0] | {name, file_path, start_line}&#39;</span>
+</pre></div>
+</div>
+<p>Top hit：</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w">       </span><span class="s2">&quot;RankByKeyword&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;file_path&quot;</span><span class="p">:</span><span class="w">  </span><span class="s2">&quot;reference-impl/code-kg/retriever/keyword.go&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;start_line&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">16</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>如果走稠密检索路径，它只能依赖 docstring 相似性；而关键词路径则直接匹配
+identifier token，这正是它存在的意义。</p>
+<p><strong>Tier 3 —— 图扩张，结构性问题：</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-s<span class="w"> </span><span class="s2">&quot;http://localhost:9090/api/v1/code-kg/entities?repo_id=</span><span class="nv">$REPO</span><span class="s2">&amp;entity_type=function&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;[.entities[] | select(.name==&quot;runSync&quot;) | {id, name, file_path, start_line}]&#39;</span>
+</pre></div>
+</div>
+<p>然后直接去问图数据库调用者是谁（第 18 章里的 Cypher）：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span><span class="k">$(</span>docker<span class="w"> </span>ps<span class="w"> </span>-qf<span class="w"> </span><span class="nv">name</span><span class="o">=</span>memgraph<span class="k">)</span><span class="w"> </span>mgconsole<span class="w"> </span><span class="s">&lt;&lt;&#39;CYP&#39;</span>
+<span class="s">MATCH (f:Function {name:&#39;runSync&#39;})&lt;-[:CALLS]-(caller)</span>
+<span class="s">RETURN caller.name, caller.file_path, caller.start_line</span>
+<span class="s">ORDER BY caller.start_line;</span>
+<span class="s">CYP</span>
+</pre></div>
+</div>
+<p>输出：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">TriggerSync</span>            <span class="o">|</span> <span class="n">reference</span><span class="o">-</span><span class="n">impl</span><span class="o">/</span><span class="n">code</span><span class="o">-</span><span class="n">kg</span><span class="o">/</span><span class="n">service</span><span class="o">.</span><span class="n">go</span> <span class="o">|</span> <span class="mi">161</span>
+<span class="n">runIncrementalSync</span>     <span class="o">|</span> <span class="n">reference</span><span class="o">-</span><span class="n">impl</span><span class="o">/</span><span class="n">code</span><span class="o">-</span><span class="n">kg</span><span class="o">/</span><span class="n">service</span><span class="o">.</span><span class="n">go</span> <span class="o">|</span> <span class="mi">278</span>
+</pre></div>
+</div>
+<p>两个 caller，精确到 file/line，recall = 1。如果只走向量空间
+（第 18 章里，这个问题在该仓库上的 measured recall&#64;10 只有 0.30），
+<code class="docutils literal notranslate"><span class="pre">runIncrementalSync</span></code> 每次都会漏掉，因为它的 embedding 输入与 <code class="docutils literal notranslate"><span class="pre">runSync</span></code>
+差异足够大，以至于 HNSW 会把几个无关结果排在更前面。</p>
+</section>
+<section id="diff">
+<h3>第 4 步 —— 用一个小 diff 验证增量同步<a class="headerlink" href="#diff" title="Link to this heading">#</a></h3>
+<p>改动一个单独文件，例如给 <code class="docutils literal notranslate"><span class="pre">retriever.RankByKeyword</span></code> 加一段 docstring：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="o">(</span><span class="nb">cd</span><span class="w"> </span>~/reference-impl/code-kg<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>demo-doc-edit<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>python3<span class="w"> </span>-<span class="w"> </span><span class="s">&lt;&lt;&#39;PY&#39;</span>
+<span class="s">import pathlib</span>
+<span class="s">p = pathlib.Path(&quot;retriever/keyword.go&quot;)</span>
+<span class="s">text = p.read_text()</span>
+<span class="s">p.write_text(text.replace(</span>
+<span class="s">    &quot;func RankByKeyword(&quot;,</span>
+<span class="s">    &quot;// RankByKeyword ranks documents by 3x name-hit + 1x body-hit score.\nfunc RankByKeyword(&quot;,</span>
+<span class="s">    1,</span>
+<span class="s">))</span>
+<span class="s">PY</span>
+<span class="w">  </span>git<span class="w"> </span>add<span class="w"> </span>-u<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;chore: docstring for RankByKeyword&quot;</span><span class="o">)</span>
+</pre></div>
+</div>
+<p>重新触发同步。<code class="docutils literal notranslate"><span class="pre">TriggerSync</span></code> endpoint 如果发现已经有
+<code class="docutils literal notranslate"><span class="pre">last_successful_commit</span></code>，就会自动走增量路径：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:9090/api/v1/code-kg/repos/<span class="nv">$REPO</span>/sync<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq
+</pre></div>
+</div>
+<p>轮询状态：</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;phase&quot;</span><span class="p">:</span><span class="s2">&quot;parsing&quot;</span><span class="p">,</span><span class="w">   </span><span class="nt">&quot;processed_files&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;total_files&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;entities_created&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">}</span>
+<span class="p">{</span><span class="nt">&quot;phase&quot;</span><span class="p">:</span><span class="s2">&quot;embedding&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;processed_files&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;total_files&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;entities_created&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">}</span>
+<span class="p">{</span><span class="nt">&quot;phase&quot;</span><span class="p">:</span><span class="s2">&quot;graph&quot;</span><span class="p">,</span><span class="w">     </span><span class="nt">&quot;processed_files&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;total_files&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;entities_created&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">}</span>
+<span class="p">{</span><span class="nt">&quot;phase&quot;</span><span class="p">:</span><span class="s2">&quot;completed&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;processed_files&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;total_files&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;entities_created&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>wall clock：<strong>0.4 s</strong>（不开 embedding API）/ <strong>2.1 s</strong>（开启时）。
+相对 full sync 的比例就是 companion blog 里报告的 <strong>36×</strong>
+（纯关键词）/ <strong>180×</strong>（全程打开 embeddings）的增量加速
+<span id="id6">[<a class="reference internal" href="../part5-operations-lifecycle/ch21-incremental-sync.html#id14" title="Walter (Yamin) Fan. 给代码仓库造一个 DeepWiki：Tree-sitter + embedding + 图谱 + LLM 的方法论. April 2026. v1.2, CC-BY-NC-ND 4.0. URL: https://www.fanyamin.com/gei-dai-ma-cang-ku-zao-yi-ge-deepwikitree-sitter-embedding-tu-pu-llm-de-fang-fa-lun.html.">Fan, 2026</a>]</span>。你的硬件上这些数字会有几倍浮动，但这个
+数量级是真的。</p>
+</section>
+<section id="id7">
+<h3>第 5 步 —— 观察三个运维不变量<a class="headerlink" href="#id7" title="Link to this heading">#</a></h3>
+<p>在把整套 setup 拆掉之前，有两件事很值得确认。</p>
+<p><strong>不变量 1 —— 图里不存正文。</strong> 试一下：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span><span class="k">$(</span>docker<span class="w"> </span>ps<span class="w"> </span>-qf<span class="w"> </span><span class="nv">name</span><span class="o">=</span>memgraph<span class="k">)</span><span class="w"> </span>mgconsole<span class="w"> </span><span class="s">&lt;&lt;&#39;CYP&#39;</span>
+<span class="s">MATCH (n) RETURN n LIMIT 1;</span>
+<span class="s">CYP</span>
+</pre></div>
+</div>
+<p>你应该能看到诸如 <code class="docutils literal notranslate"><span class="pre">id</span></code>、<code class="docutils literal notranslate"><span class="pre">name</span></code>、<code class="docutils literal notranslate"><span class="pre">file_path</span></code>、<code class="docutils literal notranslate"><span class="pre">start_line</span></code>、
+<code class="docutils literal notranslate"><span class="pre">end_line</span></code>、<code class="docutils literal notranslate"><span class="pre">signature</span></code>、<code class="docutils literal notranslate"><span class="pre">doc</span></code>、<code class="docutils literal notranslate"><span class="pre">summary</span></code>、<code class="docutils literal notranslate"><span class="pre">entity_type</span></code>、
+<code class="docutils literal notranslate"><span class="pre">language</span></code>、<code class="docutils literal notranslate"><span class="pre">project</span></code>、<code class="docutils literal notranslate"><span class="pre">repo_id</span></code> 这些字段。<strong>不会有 <code class="docutils literal notranslate"><span class="pre">body</span></code> 字段。</strong>
+这是刻意设计的：图承载的是 identity 与 structure，而不是实现正文。正文在
+sqlite 里，在回答阶段再取回。</p>
+<p><strong>不变量 2 —— entity ID 能跨 re-sync 稳定存在。</strong> 在第 4 步之前先记下一个
+ID，然后第 4 步之后再比一次：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Before Step 4:</span>
+<span class="nv">ID_BEFORE</span><span class="o">=</span><span class="k">$(</span>curl<span class="w"> </span>-s<span class="w"> </span><span class="s2">&quot;http://localhost:9090/api/v1/code-kg/entities?repo_id=</span><span class="nv">$REPO</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.entities[] | select(.name==&quot;RankByKeyword&quot;) | .id&#39;</span><span class="k">)</span>
+
+<span class="c1"># After Step 4:</span>
+<span class="nv">ID_AFTER</span><span class="o">=</span><span class="k">$(</span>curl<span class="w"> </span>-s<span class="w"> </span><span class="s2">&quot;http://localhost:9090/api/v1/code-kg/entities?repo_id=</span><span class="nv">$REPO</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.entities[] | select(.name==&quot;RankByKeyword&quot;) | .id&#39;</span><span class="k">)</span>
+
+diff<span class="w"> </span>&lt;<span class="o">(</span><span class="nb">echo</span><span class="w"> </span><span class="nv">$ID_BEFORE</span><span class="o">)</span><span class="w"> </span>&lt;<span class="o">(</span><span class="nb">echo</span><span class="w"> </span><span class="nv">$ID_AFTER</span><span class="o">)</span><span class="w">   </span><span class="c1"># → empty</span>
+</pre></div>
+</div>
+<p>这个 ID 没有变化，因为 <code class="docutils literal notranslate"><span class="pre">entityID</span> <span class="pre">=</span> <span class="pre">sha256(repoID</span> <span class="pre">+</span> <span class="pre">filePath</span> <span class="pre">+</span> <span class="pre">entityType</span> <span class="pre">+</span> <span class="pre">name</span> <span class="pre">+</span> <span class="pre">startLine)</span></code>，而 <code class="docutils literal notranslate"><span class="pre">startLine</span></code> 并没有移动
+（doc-comment 是加在 <code class="docutils literal notranslate"><span class="pre">func</span></code> 之前的，它改变了 <em>body</em> 位置，但并没有改变
+tree-sitter 模型里函数声明本身的行号……等等，真的是这样吗？）。这正是
+第 21 章里的 <em>delete-then-insert</em> 纪律体现价值的地方：如果 <code class="docutils literal notranslate"><span class="pre">startLine</span></code>
+真的变了，那 ID 就会变，旧节点会被删除，新节点会以原子方式替换进去。
+你可以把这次编辑反过来做，让 docstring 出现在函数下面，就能看到 ID churn。</p>
+</section>
+</section>
+<section id="id8">
+<h2>示例 —— 一次完整会话的最小实录<a class="headerlink" href="#id8" title="Link to this heading">#</a></h2>
+<p>对于不耐烦的读者，最小复现实验只需要四条命令
+（假设图数据库与代码层参考实现都已经在运行）：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">REPO</span><span class="o">=</span><span class="k">$(</span>curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:9090/api/v1/code-kg/repos<span class="w"> </span><span class="se">\</span>
+<span class="w">       </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">       </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;name&quot;:&quot;code-kg&quot;,&quot;local_path&quot;:&quot;&#39;</span><span class="nv">$PWD</span><span class="s1">&#39;&quot;,&quot;branch&quot;:&quot;main&quot;}&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">       </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.id&#39;</span><span class="k">)</span>
+curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:9090/api/v1/code-kg/repos/<span class="nv">$REPO</span>/sync
+sleep<span class="w"> </span><span class="m">10</span>
+curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:9090/api/v1/code-kg/search<span class="w"> </span><span class="se">\</span>
+<span class="w">     </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">     </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;repo_id&quot;:&quot;&#39;</span><span class="nv">$REPO</span><span class="s1">&#39;&quot;,&quot;query&quot;:&quot;who calls runSync&quot;,&quot;top_k&quot;:5}&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">     </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.answer&#39;</span>
+</pre></div>
+</div>
+<p>如果回答里点名了 <code class="docutils literal notranslate"><span class="pre">TriggerSync</span></code> 和 <code class="docutils literal notranslate"><span class="pre">runIncrementalSync</span></code>，并带有精确的
+<code class="docutils literal notranslate"><span class="pre">file:line</span></code> 锚点，那么第三部分的每一章都正在工作。</p>
+</section>
+<section id="id9">
+<h2>结论<a class="headerlink" href="#id9" title="Link to this heading">#</a></h2>
+<p>这个附录给出了一个工作的证明：第 16 章到第 20 章描述的五个流水线阶段，
+确实能够组合成一个大约用十次 HTTP 调用就能查询的知识库。它也暴露了第五部分
+（尤其是第 21 章）必须驯服的运维表面：full-sync 的 wall clock、
+incremental-sync 的加速比例，以及只有在行号变化时才会显露出来的
+identity churn。把这两个附录一起拿在手里，读者就拥有了 prose 栈
+（第二部分）和 code 栈（第三部分）的端到端复现，各自都不超过二十条命令。</p>
+</section>
+<section id="id10">
+<h2>参考文献<a class="headerlink" href="#id10" title="Link to this heading">#</a></h2>
+<div class="docutils container" id="id11">
+<div role="list" class="citation-list">
+<div class="citation" id="id70" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>Miltiadis Allamanis, Earl T. Barr, Premkumar Devanbu, and Charles Sutton. A survey of machine learning for big code and naturalness. <em>ACM Computing Surveys</em>, 51(4):1–37, 2018. <a class="reference external" href="https://doi.org/10.1145/3212695">doi:10.1145/3212695</a>.</p>
+</div>
+<div class="citation" id="id102" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></span>
+<p>Egor Bogomolov, Aleksandra Eliseeva, Timur Galimzyanov, Evgeniy Glukhov, Anton Shapkin, Maria Shmelev, Yaroslav Smirnov, Sergei Golubev, Timofey Bryksin, and Alberto Bacchelli. Long code arena: a set of benchmarks for long-context code models. <em>arXiv preprint arXiv:2406.11612</em>, 2024. Covers six long-context code tasks: project-level completion, CI repair, bug localization, module summarization, repo QA, and commit-message generation. Key insight for Chapter 15 and Chapter 24: real-world KB evaluation must go beyond single-file metrics to cover these project-scale tasks. URL: <a class="reference external" href="https://arxiv.org/abs/2406.11612">https://arxiv.org/abs/2406.11612</a>, <a class="reference external" href="https://arxiv.org/abs/2406.11612">arXiv:2406.11612</a>.</p>
+</div>
+<div class="citation" id="id68" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></span>
+<p>Max Brunsfeld and Tree-sitter contributors. Tree-sitter: an incremental parsing system for programming tools. 2018–present. Used by the code-layer reference implementation's RAG CodeParser for multi-language uniform parsing. URL: <a class="reference external" href="https://tree-sitter.github.io/tree-sitter/">https://tree-sitter.github.io/tree-sitter/</a>.</p>
+</div>
+<div class="citation" id="id81" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></span>
+<p>Shiqi Chen, Yiran Zhang, Yunze Zhao, Yifei Liu, Chengye Hu, and Yang Liu. Benchmarking large language models in retrieval-augmented generation. In <em>arXiv preprint arXiv:2309.01431</em>. 2023. URL: <a class="reference external" href="https://arxiv.org/abs/2309.01431">https://arxiv.org/abs/2309.01431</a>.</p>
+</div>
+<div class="citation" id="id87" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></span>
+<p>Shahul Es, Jithin James, Luis Espinosa-Anke, and Steven Schockaert. RAGAS: automated evaluation of retrieval augmented generation. In <em>Proceedings of the 18th Conference of the European Chapter of the Association for Computational Linguistics: System Demonstrations</em>. 2024. URL: <a class="reference external" href="https://arxiv.org/abs/2309.15217">https://arxiv.org/abs/2309.15217</a>.</p>
+</div>
+<div class="citation" id="id12" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id6">6</a><span class="fn-bracket">]</span></span>
+<p>Walter (Yamin) Fan. 给代码仓库造一个 DeepWiki：Tree-sitter + embedding + 图谱 + LLM 的方法论. April 2026. v1.2, CC-BY-NC-ND 4.0. URL: <a class="reference external" href="https://www.fanyamin.com/gei-dai-ma-cang-ku-zao-yi-ge-deepwikitree-sitter-embedding-tu-pu-llm-de-fang-fa-lun.html">https://www.fanyamin.com/gei-dai-ma-cang-ku-zao-yi-ge-deepwikitree-sitter-embedding-tu-pu-llm-de-fang-fa-lun.html</a>.</p>
+</div>
+<div class="citation" id="id75" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></span>
+<p>Alex Gleason. Sqlite-vec: a vector search SQLite extension that runs anywhere. 2024–present. URL: <a class="github reference external" href="https://github.com/asg017/sqlite-vec">asg017/sqlite-vec</a>.</p>
+</div>
+<div class="citation" id="id71" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>8<span class="fn-bracket">]</span></span>
+<p>Daya Guo, Shuo Ren, Shuai Lu, Zhangyin Feng, Duyu Tang, Shujie Liu, Long Zhou, Nan Duan, Alexey Svyatkovskiy, and Shengyu Fu. GraphCodeBERT: pre-training code representations with data flow. In <em>International Conference on Learning Representations (ICLR)</em>. 2021. URL: <a class="reference external" href="https://arxiv.org/abs/2009.08366">https://arxiv.org/abs/2009.08366</a>.</p>
+</div>
+<div class="citation" id="id69" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>9<span class="fn-bracket">]</span></span>
+<p>Hamel Husain, Ho-Hsiang Wu, Tiferet Gazit, Miltiadis Allamanis, and Marc Brockschmidt. CodeSearchNet Challenge: evaluating the state of semantic code search. In <em>arXiv preprint arXiv:1909.09436</em>. 2019. URL: <a class="reference external" href="https://arxiv.org/abs/1909.09436">https://arxiv.org/abs/1909.09436</a>.</p>
+</div>
+<div class="citation" id="id76" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>10<span class="fn-bracket">]</span></span>
+<p>Andrew Kane. Pgvector: open-source vector similarity search for PostgreSQL. 2021–present. URL: <a class="github reference external" href="https://github.com/pgvector/pgvector">pgvector/pgvector</a>.</p>
+</div>
+<div class="citation" id="id86" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>11<span class="fn-bracket">]</span></span>
+<p>Martin Klein, Herbert Van de Sompel, Robert Sanderson, Harihar Shankar, Lyudmila Balakireva, Ke Zhou, and Richard Tobin. Scholarly context not found: one in five articles suffers from reference rot. <em>PLOS ONE</em>, 2014. <a class="reference external" href="https://doi.org/10.1371/journal.pone.0115253">doi:10.1371/journal.pone.0115253</a>.</p>
+</div>
+<div class="citation" id="id95" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>12<span class="fn-bracket">]</span></span>
+<p>Di Li, Jingyi Wei, Yewen Peng, Hanbin Bai, Bei Chen, and Yong Li. Repoformer: selective retrieval for repository-level code completion. <em>Proceedings of the 41st International Conference on Machine Learning (ICML 2024)</em>, 2024. Trains a lightweight classifier to predict whether retrieval will help a given code-completion task, skipping it when the local context suffices. Key insight for Chapter 12: not every query needs retrieval, and a retrieval-necessity signal can cut latency and noise. URL: <a class="reference external" href="https://arxiv.org/abs/2403.10059">https://arxiv.org/abs/2403.10059</a>, <a class="reference external" href="https://arxiv.org/abs/2403.10059">arXiv:2403.10059</a>.</p>
+</div>
+<div class="citation" id="id101" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>13<span class="fn-bracket">]</span></span>
+<p>Tianyang Liu, Canwen Xu, and Julian McAuley. RepoBench: benchmarking repository-level code auto-completion systems. <em>arXiv preprint arXiv:2306.03091</em>, 2023. Decomposes evaluation into Retrieval (R), Completion (C), and Pipeline (P) layers, enabling precise diagnosis of whether the bottleneck is retrieval quality or generation quality. Key insight for Chapter 15: layered evaluation (retrieval health → generation health → end-to-end) is the right structure for KB benchmarking. URL: <a class="reference external" href="https://arxiv.org/abs/2306.03091">https://arxiv.org/abs/2306.03091</a>, <a class="reference external" href="https://arxiv.org/abs/2306.03091">arXiv:2306.03091</a>.</p>
+</div>
+<div class="citation" id="id38" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>14<span class="fn-bracket">]</span></span>
+<p>Qinyu Luo, Yining Ye, Shihao Liang, Zhong Zhang, Yujia Qin, Yaxi Lu, Yesai Wu, Xin Cong, Yankai Lin, Yingli Zhang, Xiaoyin Che, Zhiyuan Liu, and Maosong Sun. Repoagent: an LLM-powered open-source framework for repository-level code documentation generation. 2024. URL: <a class="reference external" href="https://arxiv.org/abs/2402.16667">https://arxiv.org/abs/2402.16667</a>, <a class="reference external" href="https://arxiv.org/abs/2402.16667">arXiv:2402.16667</a>.</p>
+</div>
+<div class="citation" id="id34" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>15<span class="fn-bracket">]</span></span>
+<p>Yury A. Malkov and Dmitry A. Yashunin. Efficient and robust approximate nearest neighbor search using hierarchical navigable small world graphs. <em>IEEE Transactions on Pattern Analysis and Machine Intelligence</em>, 42(4):824–836, 2020. <a class="reference external" href="https://doi.org/10.1109/TPAMI.2018.2889473">doi:10.1109/TPAMI.2018.2889473</a>.</p>
+</div>
+<div class="citation" id="id93" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>16<span class="fn-bracket">]</span></span>
+<p>Yury A. Malkov and Dmitry A. Yashunin. Efficient and robust approximate nearest neighbor search using hierarchical navigable small world graphs. <em>IEEE Transactions on Pattern Analysis and Machine Intelligence</em>, 42(4):824–836, 2020. The HNSW index underlying every modern vector store (sqlite-vec, pgvector's hnsw option, Milvus, Faiss). The small-world-graph construction is why an approximate nearest-neighbour query runs in log-time rather than linear-scan time; cited in Chapter 10 to anchor the &quot;vector DB is not magic&quot; argument. <a class="reference external" href="https://doi.org/10.1109/TPAMI.2018.2889473">doi:10.1109/TPAMI.2018.2889473</a>.</p>
+</div>
+<div class="citation" id="id103" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>17<span class="fn-bracket">]</span></span>
+<p>Niklas Muennighoff, Nouamane Tazi, Loïc Magne, and Nils Reimers. Mteb: massive text embedding benchmark. <em>arXiv preprint arXiv:2210.07316</em>, 2023. Defines the leaderboard used to compare embedding models across 8 tasks and 58 datasets. Key insight for Chapter 10: leaderboard ranking on general tasks does not predict performance on domain-specific code retrieval. URL: <a class="reference external" href="https://arxiv.org/abs/2210.07316">https://arxiv.org/abs/2210.07316</a>.</p>
+</div>
+<div class="citation" id="id90" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>18<span class="fn-bracket">]</span></span>
+<p>Rodrigo Nogueira and Kyunghyun Cho. Passage re-ranking with BERT. <em>arXiv preprint arXiv:1901.04085</em>, 2019. Canonical reference for cross-encoder re-ranking — a BERT model scores (query, document) pairs for the second stage of a retrieve-then-rerank pipeline. Widely known as &quot;monoBERT&quot;. URL: <a class="reference external" href="https://arxiv.org/abs/1901.04085">https://arxiv.org/abs/1901.04085</a>.</p>
+</div>
+<div class="citation" id="id97" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>19<span class="fn-bracket">]</span></span>
+<p>Siru Ouyang, Jingqing Yu, Daoguang Zan, Xiangyu Xu, Wei Liu, Shuai Shi, and Hao Peng. RepoGraph: enhancing AI software engineering with repository-level code graph. <em>ICLR 2025 Poster</em>, 2025. Builds a typed repository-level code graph (calls, imports, inherits, defines) and uses graph-enhanced retrieval to expand seed hits along structural edges. Key insight for Chapter 11: code graphs are not just for storage; they are retrieval primitives that produce structurally complete context, not just semantically similar chunks. URL: <a class="reference external" href="https://openreview.net/forum?id=dw9VUsSHGB">https://openreview.net/forum?id=dw9VUsSHGB</a>.</p>
+</div>
+<div class="citation" id="id91" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>20<span class="fn-bracket">]</span></span>
+<p>Nils Reimers and Iryna Gurevych. Sentence-BERT: sentence embeddings using siamese BERT-networks. In <em>Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing</em>. 2019. Introduces the bi-encoder framing that underlies every modern dense retriever: two independent encodings compared by cosine similarity, contrasted explicitly against cross-encoders that concatenate (query, document) before scoring. URL: <a class="reference external" href="https://arxiv.org/abs/1908.10084">https://arxiv.org/abs/1908.10084</a>.</p>
+</div>
+<div class="citation" id="id80" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>21<span class="fn-bracket">]</span></span>
+<p>Stephen Robertson and Hugo Zaragoza. The probabilistic relevance framework: BM25 and beyond. <em>Foundations and Trends in Information Retrieval</em>, 3(4):333–389, 2009. <a class="reference external" href="https://doi.org/10.1561/1500000019">doi:10.1561/1500000019</a>.</p>
+</div>
+<div class="citation" id="id78" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>22<span class="fn-bracket">]</span></span>
+<p>Ian Robinson, Jim Webber, and Emil Eifrem. <em>Graph Databases: New Opportunities for Connected Data</em>. O'Reilly Media, 2015. ISBN 978-1491930892.</p>
+</div>
+<div class="citation" id="id100" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>23<span class="fn-bracket">]</span></span>
+<p>Disha Shrivastava, Hugo Larochelle, and Daniel Tarlow. Repository-level prompt generation for large language models of code. In <em>Proceedings of the 40th International Conference on Machine Learning (ICML 2023)</em>. 2023. The conceptual origin of repo-level RAG: even without fine-tuning, selecting the right cross-file context (imports, similar code, usage examples, type definitions) substantially improves code completion. Key insight for Chapter 12 and Chapter 19: context assembly is a first-class retrieval problem, not a prompt-engineering afterthought. URL: <a class="reference external" href="https://proceedings.mlr.press/v202/shrivastava23a.html">https://proceedings.mlr.press/v202/shrivastava23a.html</a>.</p>
+</div>
+<div class="citation" id="id39" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>24<span class="fn-bracket">]</span></span>
+<p>Hongyuan Tao, Ying Zhang, Zhenhao Tang, Hongen Peng, Xukun Zhu, Bingchang Liu, Yingguang Yang, Ziyin Zhang, Zhaogui Xu, Haipeng Zhang, Linchao Zhu, Rui Wang, Hang Yu, Jianguo Li, and Peng Di. Code graph model (CGM): a graph-integrated large language model for repository-level software engineering tasks. 2025. URL: <a class="reference external" href="https://arxiv.org/abs/2505.16901">https://arxiv.org/abs/2505.16901</a>, <a class="reference external" href="https://arxiv.org/abs/2505.16901">arXiv:2505.16901</a>.</p>
+</div>
+<div class="citation" id="id72" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>25<span class="fn-bracket">]</span></span>
+<p>Shitao Xiao, Zheng Liu, Peitian Zhang, Niklas Muennighoff, Defu Lian, and Jian-Yun Nie. C-Pack: packed resources for general Chinese embeddings. 2024. Includes the BGE family of open embedding models, which can be self-hosted on a single GPU at effectively zero per-token cost. URL: <a class="reference external" href="https://arxiv.org/abs/2309.07597">https://arxiv.org/abs/2309.07597</a>.</p>
+</div>
+<div class="citation" id="id99" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>26<span class="fn-bracket">]</span></span>
+<p>Chuxin Xu, Zhicheng Geng, Zhengtao Liao, and Yifan Wei. Synergizing LLMs and knowledge graphs: a novel approach to software repository-related question answering. <em>arXiv preprint arXiv:2412.03815</em>, 2024. Designs a software-specific KG ontology (Repository, Module, File, Class, Function, Dependency, Issue, Commit, Developer) and a synergistic LLM+KG QA framework that routes structural queries to KG and semantic queries to dense retrieval. Key insight for Chapter 6 and Chapter 11: a purpose-built software ontology plus hybrid query routing covers both structural and semantic questions better than either approach alone. URL: <a class="reference external" href="https://arxiv.org/abs/2412.03815">https://arxiv.org/abs/2412.03815</a>, <a class="reference external" href="https://arxiv.org/abs/2412.03815">arXiv:2412.03815</a>.</p>
+</div>
+<div class="citation" id="id98" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>27<span class="fn-bracket">]</span></span>
+<p>Fengji Zhang, Bei Chen, Yue Zhang, Jacky Keung, Jin Liu, Daoguang Zan, Yi Mao, Jian-Guang Chen, and Wenqiang Chen. RepoCoder: repository-level code completion through iterative retrieval and generation. <em>Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing (EMNLP 2023)</em>, 2023. Proposes a retrieve-generate-re-retrieve iterative loop: the LLM draft becomes a better retrieval query for the next round. Key insight for Chapter 12: multi-round retrieval converges on better context, especially for complex cross-file queries. URL: <a class="reference external" href="https://arxiv.org/abs/2303.12570">https://arxiv.org/abs/2303.12570</a>, <a class="reference external" href="https://arxiv.org/abs/2303.12570">arXiv:2303.12570</a>.</p>
+</div>
+<div class="citation" id="id37" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>28<span class="fn-bracket">]</span></span>
+<p>Yuqi Zhu, Xiaohan Wang, Jing Chen, Shuofei Qiao, Yixin Ou, Yunzhi Yao, Shumin Deng, Huajun Chen, and Ningyu Zhang. LLMs for knowledge graph construction and reasoning: recent capabilities and future opportunities. 2024. URL: <a class="reference external" href="https://arxiv.org/abs/2305.13168">https://arxiv.org/abs/2305.13168</a>, <a class="reference external" href="https://arxiv.org/abs/2305.13168">arXiv:2305.13168</a>.</p>
+</div>
+<div class="citation" id="id21" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>29<span class="fn-bracket">]</span></span>
+<p>Cognition Labs. DeepWiki: ai-generated wikis for any repository. 2025. Closed-source SaaS; auto-generates wiki-style pages from public GitHub repositories. URL: <a class="reference external" href="https://deepwiki.com/">https://deepwiki.com/</a>.</p>
+</div>
+<div class="citation" id="id79" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>30<span class="fn-bracket">]</span></span>
+<p>Memgraph Ltd. Memgraph: an in-memory graph database compatible with the Bolt protocol. 2016–present. URL: <a class="reference external" href="https://memgraph.com/">https://memgraph.com/</a>.</p>
+</div>
+<div class="citation" id="id73" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>31<span class="fn-bracket">]</span></span>
+<p>OpenAI. OpenAI text embeddings v3 (text-embedding-3-small and text-embedding-3-large). 2024. The \texttt text-embedding-3-small launch announcement lists a 5× price reduction relative to \texttt text-embedding-ada-002 (from \$0.0001 to \$0.00002 per 1K tokens) at higher retrieval quality. URL: <a class="reference external" href="https://openai.com/index/new-embedding-models-and-api-updates/">https://openai.com/index/new-embedding-models-and-api-updates/</a>.</p>
+</div>
+<div class="citation" id="id74" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>32<span class="fn-bracket">]</span></span>
+<p>Voyage AI. Voyage-code-2: an embedding model optimised for code retrieval. 2024. URL: <a class="reference external" href="https://docs.voyageai.com/docs/embeddings">https://docs.voyageai.com/docs/embeddings</a>.</p>
+</div>
+<div class="citation" id="id77" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>33<span class="fn-bracket">]</span></span>
+<p>Zilliz, Inc. Milvus: an open-source vector database for scalable similarity search. 2019–present. URL: <a class="reference external" href="https://milvus.io/">https://milvus.io/</a>.</p>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="appendix-a-example-wiki.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">附录 A —— 端到端：从杂乱文件夹到可发布 Wiki</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="appendix-c-deepwiki-checklist.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">附录 C —— 自己动手做 DeepWiki 检查清单</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 目录
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">为什么</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">是什么</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">怎么做</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">第 0 步 —— 启动服务</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">第 1 步 —— 注册仓库</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#full">第 2 步 —— 触发第一次同步（full）</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#kb">第 3 步 —— 向 KB 问三个问题</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#diff">第 4 步 —— 用一个小 diff 验证增量同步</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">第 5 步 —— 观察三个运维不变量</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">示例 —— 一次完整会话的最小实录</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">结论</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">参考文献</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+作者： Walter Fan
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright AI 辅助创作 2026, Walter Fan.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    <p class="last-updated">
+  最后更新于 2026-11-10.
+  <br/>
+</p>
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

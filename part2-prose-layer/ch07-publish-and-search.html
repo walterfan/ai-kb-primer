@@ -1,0 +1,1384 @@
+
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>第 7 章 —— 发布与搜索 &#8212; Use AI to build a knowledge base for a software project</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=591f613d" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=23f7fa08"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../_static/translations.js?v=beaddf03"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.2.0/dist/mermaid-layout-elk.esm.min.mjs"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";import elkLayouts from "https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.2.0/dist/mermaid-layout-elk.esm.min.mjs";mermaid.registerLayoutLoaders(elkLayouts);mermaid.initialize({startOnLoad:false});</script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+const defaultStyle = document.createElement('style');
+defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+`;
+document.head.appendChild(defaultStyle);
+
+const fullscreenStyle = document.createElement('style');
+fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+document.head.appendChild(fullscreenStyle);
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        return brightness < 128;
+    }
+    return false;
+};
+
+const load = async () => {
+    await mermaid.run();
+
+    const all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(load, 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(load, 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(load, 200);
+        return;
+    }
+
+    const darkTheme = isDarkTheme();
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    const modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    const modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    let previousScrollOffset = [window.scrollX, window.scrollY];
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    const allButtons = [];
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+
+        container.appendChild(fullscreenBtn);
+        allButtons.push(fullscreenBtn);
+    });
+
+    // Update theme classes when theme changes
+    const updateTheme = () => {
+        const dark = isDarkTheme();
+        allButtons.forEach(btn => {
+            if (dark) {
+                btn.classList.add('dark-theme');
+            } else {
+                btn.classList.remove('dark-theme');
+            }
+        });
+        if (dark) {
+            modal.classList.add('dark-theme');
+            modalContent.classList.add('dark-theme');
+            closeBtn.classList.add('dark-theme');
+        } else {
+            modal.classList.remove('dark-theme');
+            modalContent.classList.remove('dark-theme');
+            closeBtn.classList.remove('dark-theme');
+        }
+    };
+
+    // Watch for theme changes
+    const observer = new MutationObserver(updateTheme);
+    observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    observer.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style']
+    });
+};
+
+window.addEventListener("load", load);
+</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'part2-prose-layer/ch07-publish-and-search';</script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="第 8 章 —— 文稿层的运维模型" href="ch08-prose-operational-model.html" />
+    <link rel="prev" title="第 6 章 —— 分类流水线" href="ch06-llm-classification-pipeline.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+    <meta name="docbuild:last-update" content="2026-11-10"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Use AI to build a knowledge base for a software project</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">搜索</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Part I — Foundations</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part1-foundations/index.html">第一部分 —— 基础</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch01-why-kb-for-software.html">第 1 章 —— 为什么要给软件建一个知识库？</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch01a-quickstart-30min.html">第 1a 章 —— 30 分钟快速上手</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch02-ir-rag-primer.html">第 2 章 —— IR 与 RAG 入门</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch03-diataxis-and-software-docs.html">第 3 章 —— Diátaxis 与软件文档</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part II — The Prose Layer</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">第二部分 —— 文稿层</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="ch04-file-based-wiki.html">第 4 章 —— 一个基于文件的 wiki</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ch05-frontmatter-provenance-trust.html">第 5 章 —— 把 frontmatter 当作一份来源记录</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ch06-llm-classification-pipeline.html">第 6 章 —— 分类流水线</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">第 7 章 —— 发布与搜索</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ch08-prose-operational-model.html">第 8 章 —— 文稿层的运维模型</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ch09-cold-start-migration.html">第 9 章 —— 冷启动与批量迁移</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part III — The Author Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part3-author-layer/index.html">第三部分 —— 作者层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch10-why-ai-as-author.html">第 10 章 —— 为什么让 AI 当作者</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch11-ai-drafting-and-rewriting.html">第 11 章 —— AI 起草、重写、翻译</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch12-ai-for-metadata.html">第 12 章 —— AI 处理元数据：分类、打标签、实体与关系抽取</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch13-ai-for-maintenance.html">第 13 章 —— AI 做维护：摘要、去重、过期与漂移检测</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch14-ai-as-judge.html">第 14 章 —— AI 作为评判者：评估生成质量与引用合规</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part IV — The Code Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part4-code-layer/index.html">第四部分 —— 代码层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch15-why-code-is-not-prose.html">第 15 章 —— 为什么代码不是文稿</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch16-parsing-and-entity-extraction.html">第 16 章 —— 解析与实体抽取</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch17-embeddings-and-vector-stores.html">第 17 章 —— 嵌入向量与向量存储</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch18-code-knowledge-graph.html">第 18 章 —— 代码知识图谱</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch19-hybrid-retrieval-and-rrf.html">第 19 章 —— 混合检索与 RRF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch20-prompt-and-generation.html">第 20 章 —— 提示词与生成</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part V — Operations &amp; Lifecycle</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part5-operations-lifecycle/index.html">第五部分 —— 运维与生命周期</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part5-operations-lifecycle/ch21-incremental-sync.html">第 21 章 —— 增量同步</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part5-operations-lifecycle/ch22-evaluation-and-benchmarks.html">第 22 章 —— 评测、基准与发布门禁</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part5-operations-lifecycle/ch23-maintenance-drift-and-link-rot.html">第 23 章 —— 维护、漂移与链接腐化</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part VI — The Hybrid Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part6-hybrid-layer/index.html">第六部分 —— 混合层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch24-prose-meets-code.html">第 24 章 —— 文稿与代码相遇</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch25-document-layering-L0-L4.html">第 25 章 —— 文档分层 L0–L4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch26-graph-guided-context-assembly.html">第 26 章 —— 图引导的上下文组装</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch27-harnessing-ai-coding.html">第 27 章 —— 用知识库驾驭 AI 编码</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch28-team-sdlc-integration.html">第 28 章 —— 团队协作与 SDLC 集成</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch29-ai-agents-on-the-kb.html">第 29 章 —— 在知识库上跑的 AI Agent</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part VII — Governance &amp; Outlook</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part7-governance-and-outlook/index.html">第七部分 —— 治理与展望</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch30-cost-privacy-security.html">第 30 章 —— 成本、隐私、安全</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch31-trust-provenance-and-red-teaming.html">第 31 章 —— 信任、出处与红队演练</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch32-outlook-and-open-problems.html">第 32 章 —— 展望与尚未解决的问题</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Appendices</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-a-example-wiki.html">附录 A —— 端到端：从杂乱文件夹到可发布 Wiki</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-b-example-code-kg.html">附录 B —— 示例：从一个 Go 仓库构建代码知识库</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-c-deepwiki-checklist.html">附录 C —— 自己动手做 DeepWiki 检查清单</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-d-glossary.html">附录 D —— 术语表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-e-bilingual-publishing.html">附录 E —— 发布一个双语知识库</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">参考文献</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../reference/index.html">参考文献：仓库级代码理解与软件知识库论文导读</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../reference/01-repoformer-selective-retrieval.html">Repoformer: Selective Retrieval for Repository-Level Code Completion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/02-codeplan-repository-level-planning.html">CodePlan: Repository-Level Coding using LLMs and Planning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/03-repograph-code-graph-navigation.html">RepoGraph: Enhancing AI Software Engineering with Repository-level Code Graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/04-repoagent-documentation-generation.html">RepoAgent: An LLM-Powered Open-Source Framework for Repository-level Code Documentation Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/05-repocoder-iterative-retrieval-generation.html">RepoCoder: Repository-Level Code Completion Through Iterative Retrieval and Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/06-llm-kg-synergy-repo-qa.html">Synergizing LLMs and Knowledge Graphs: A Novel Approach to Software Repository-Related Question Answering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/07-repo-level-prompt-generation.html">Repository-Level Prompt Generation for Large Language Models of Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/08-repobench-benchmarking.html">RepoBench: Benchmarking Repository-Level Code Auto-Completion Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/09-long-code-arena-benchmarks.html">Long Code Arena: A Set of Benchmarks for Long-Context Code Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/10-cgm-graph-integrated-llm.html">Code Graph Model (CGM): A Graph-Integrated Large Language Model for Repository-Level Software Engineering Tasks</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="下载此页面">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="下载源文件"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="列印成 PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="全屏模式"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>第 7 章 —— 发布与搜索</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> 目录 </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">为什么</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">是什么</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">怎么做</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">内存索引</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">分词</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#postings-list">构建 postings list</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">查询</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id13">实时更新</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sphinx">用 Sphinx 做静态发布</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id14">示例</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id15">这台小小的搜索引擎在哪里会失败 —— 以及为什么那仍然没关系</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id16">在把搜索接起来时的常见错误</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id18">其他做法</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id22">结论</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id23">参考文献</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="id1">
+<h1>第 7 章 —— 发布与搜索<a class="headerlink" href="#id1" title="Link to this heading">#</a></h1>
+<p>本章一页速览 —— “<strong>定制的内存索引</strong> vs. <strong>一套要运维的搜索集群</strong>”之间那一次<strong>决定性的取舍</strong>；那个<strong>十行</strong>的分词器 —— 它的默认值却意外地承重；<strong>前缀匹配搜索</strong>在<strong>标识符字面量查询</strong>和 <strong>CJK 查询</strong>上的失败形态；以及一整条<strong>台阶式</strong>的扩容路径 —— 让 <code class="docutils literal notranslate"><span class="pre">Search(...)</span></code> 在<strong>五个数量级</strong>的语料规模上仍然是<strong>同一个稳定的接口</strong>：</p>
+<pre  class="mermaid">
+        mindmap
+  root((Publish &amp; search))
+    Why
+      Navigation is not search
+      Search fails first at scale
+      Static site must survive the server
+    In-memory index
+      Slug map
+      Inverted postings (term -&gt; slugs)
+      Derived views (author, type, status)
+      Whole-map rebuild on write
+    Tokeniser
+      Unicode letter/digit
+      No stemming (identifier-friendly)
+      Length &gt;= 2, deduped
+      Lowercase, locale-insensitive
+    Query
+      Prefix match (not exact)
+      Score = term hits
+      No BM25, no phrases
+      Linear in vocabulary
+    Static publishing
+      Sphinx + MyST
+      Client-side search (Porter stem)
+      Cross-refs as hard errors
+      Themeable output
+    Failure modes
+      CJK segmentation missing
+      Identifier-literal paraphrase
+      Typo intolerance
+      Scale cliff at ~100k pages
+    Staircase
+      In-memory -&gt; Bleve
+      Bleve -&gt; Meilisearch
+      Meilisearch -&gt; ES
+      Interface unchanged
+    </pre><p>上周<strong>新来了一位工程师</strong>。周四，她往 wiki 的搜索框里输了 <code class="docutils literal notranslate"><span class="pre">recieve</span></code> —— <strong>零条结果</strong>。周五，她输的是 <code class="docutils literal notranslate"><span class="pre">配置文件</span></code> —— <strong>零条结果</strong>。周一，她输的是 <code class="docutils literal notranslate"><span class="pre">rate</span> <span class="pre">limit</span></code> —— <strong>排第一的</strong>是<strong>一篇三年前的博客帖</strong>，而真正的那份 runbook —— <strong>标题就叫</strong> <em>“Rate limit configuration”</em> —— <strong>在第四页</strong>。到了周二，她<strong>开了一个 JIRA 工单</strong>，标题是“<strong>wiki 的搜索坏了</strong>”，<strong>指派给你</strong>。</p>
+<p>wiki 的搜索<strong>其实并没有坏</strong>。它是<strong>一个十行的 tokenizer****加一段前缀匹配循环</strong> —— <strong>对着它那份规格</strong>，<strong>它工作得好极了</strong>。<strong>坏的是这件事</strong>：<strong>这个团队把“十行 tokenizer”**<strong>当成了知识库 <em>全生命周期</em> 里交付的东西</strong>，<strong>而没有把它当成一段阶梯的第一级</strong> —— <strong>一段后面几级都很容易上的阶梯</strong>。这一章</strong>两件事都讲**：<strong>那个小小的、凭实力占住阶梯最底层的引擎</strong>，以及<strong>一张诚实的地图</strong> —— **当什么类型的查询开始失败时，**<strong>应该往上爬到阶梯的哪一级</strong>。</p>
+<section id="id2">
+<h2>为什么<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
+<p>第 6 章走到尾声时，我们已经有了<strong>一棵提交进 Git 的、格式规范的 Markdown 页面树</strong>，带着诚实的 frontmatter 。在第二部分能够收尾之前，还剩两个问题：</p>
+<ol class="arabic simple">
+<li><p><strong>读者怎么找到一页？</strong> 导航是一个答案（Diátaxis 形状的 toctree 干的就是这个）。<em>搜索</em>是另一个，而且它是知识库在增长到几百页之后最先失败的地方。</p></li>
+<li><p><strong>读者怎么阅读页面？</strong> 后端负责动态渲染，但同一批文件也必须能构建为静态站点 —— 这样知识库才能在服务器不在时存活、可以被镜像、可以被 vendor 进其他仓库。</p></li>
+</ol>
+<p>这一章两个都讲，同时<strong>顶住生态里两种被反复推销的诱惑</strong>。第一种：“直接上 Elasticsearch”。一套要运维的搜索集群本身就是<strong>一套独立的 on-call 排班</strong>；一个几万页级别的文件型 wiki <strong>还配不上这个代价</strong>。第二种：“别自己发自家搜索”。<strong>十行</strong>分词器 + <strong>一个前缀匹配循环</strong>已经足够让 95% 的软件知识库<strong>够用</strong>，并且它<strong>完全在你手里</strong>、<strong>可调试</strong>、<strong>能塞进单个 binary 里发布</strong>。</p>
+</section>
+<section id="id3">
+<h2>是什么<a class="headerlink" href="#id3" title="Link to this heading">#</a></h2>
+<p>两个系统合作完成这件事：</p>
+<ul class="simple">
+<li><p><strong>内存索引</strong>（本章，<code class="docutils literal notranslate"><span class="pre">backend/internal/wiki/index.go</span></code>）：一个 Go struct，把 slug 映射到解析后的页面，外加一个辅助映射 <code class="docutils literal notranslate"><span class="pre">searchTerms:</span> <span class="pre">map[term]→[]slug</span></code>。它运行在 <code class="docutils literal notranslate"><span class="pre">kb-cli</span> <span class="pre">serve</span></code> 进程内部，持有全部数据以供实时查找，并在每个会写入的流水线阶段从磁盘重建。</p></li>
+<li><p><strong>静态发布器</strong>（<code class="docutils literal notranslate"><span class="pre">wiki-template/metadata/_sphinx/</span></code>）：一个 Sphinx <span id="id4">[<a class="reference internal" href="index.html#id66" title="Georg Brandl and Sphinx contributors. Sphinx: python documentation generator. 2008–present. The static publishing target used by the prose-layer reference implementation to render the prose layer. URL: https://www.sphinx-doc.org/.">Georg Brandl and Sphinx contributors, 2008–present</a>]</span> + MyST-Parser <span id="id5">[<a class="reference internal" href="index.html#id67" title="Executable Books Project. MyST-Parser: a sphinx and docutils extension to parse MyST, a rich and extensible flavour of Markdown. 2020–present. URL: https://myst-parser.readthedocs.io/.">Executable Books Project, 2020–present</a>]</span> 构建目标，输入就是同一棵 <code class="docutils literal notranslate"><span class="pre">content/</span></code> 树。运行 <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">sphinx-build</span></code> 会在 <code class="docutils literal notranslate"><span class="pre">metadata/_build/html/</span></code> 下产出一个完全静态的 HTML 站点，可以部署在任何地方（GitHub Pages、S3、一台笔记本）。</p></li>
+</ul>
+<p>**两套系统都不拥有内容；****两者都是对文件系统的 <em>视图</em> 。**把服务器删掉，静态构建照常渲染。把静态构建删掉，服务器照常搜索。<strong>文件才是权威制品</strong>，第 4 章已经这么承诺过。</p>
+</section>
+<section id="id6">
+<h2>怎么做<a class="headerlink" href="#id6" title="Link to this heading">#</a></h2>
+<section id="id7">
+<h3>内存索引<a class="headerlink" href="#id7" title="Link to this heading">#</a></h3>
+<p>核心数据结构<strong>一屏就能装下</strong>：</p>
+<div class="literal-block-wrapper docutils container" id="id117">
+<div class="code-block-caption"><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">IndexEngine</span></code> — slug map, plus a few specialised views.</span><a class="headerlink" href="#id117" title="Link to this code">#</a></div>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="w">	</span><span class="nx">Heading</span><span class="w">  </span><span class="kt">string</span><span class="w"> </span><span class="s">`json:&quot;heading&quot;`</span>
+<span class="w">	</span><span class="nx">Excerpt</span><span class="w">  </span><span class="kt">string</span><span class="w"> </span><span class="s">`json:&quot;excerpt&quot;`</span>
+<span class="p">}</span>
+
+<span class="kd">type</span><span class="w"> </span><span class="nx">SearchResult</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">Pages</span><span class="w">    </span><span class="p">[]</span><span class="nx">PageSummary</span><span class="w"> </span><span class="s">`json:&quot;pages,omitempty&quot;`</span>
+<span class="w">	</span><span class="nx">Sections</span><span class="w"> </span><span class="p">[]</span><span class="nx">SectionRef</span><span class="w">  </span><span class="s">`json:&quot;sections,omitempty&quot;`</span>
+<span class="w">	</span><span class="nx">Total</span><span class="w">    </span><span class="kt">int</span><span class="w">           </span><span class="s">`json:&quot;total&quot;`</span>
+<span class="p">}</span>
+
+<span class="kd">type</span><span class="w"> </span><span class="nx">IndexEngine</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">mu</span><span class="w"> </span><span class="nx">sync</span><span class="p">.</span><span class="nx">RWMutex</span>
+
+<span class="w">	</span><span class="nx">pages</span><span class="w">         </span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="o">*</span><span class="nx">Page</span>
+</pre></div>
+</div>
+</div>
+<p>有八张辅助视图 —— 按标题首字母、按 category、按词、按作者、按 <code class="docutils literal notranslate"><span class="pre">doc_type</span></code> 、按 source type、按 <code class="docutils literal notranslate"><span class="pre">verification_status</span></code> —— <strong>全部</strong>从 <code class="docutils literal notranslate"><span class="pre">pages</span></code> 派生，<strong>一轮遍历全部重建</strong>。就<strong>全文检索</strong>而言，<strong>真正重要的字段只有 <code class="docutils literal notranslate"><span class="pre">searchTerms</span></code></strong> 。</p>
+<section id="id8">
+<h4>分词<a class="headerlink" href="#id8" title="Link to this heading">#</a></h4>
+<p>分词器是<strong>十行</strong>的 Go：</p>
+<div class="literal-block-wrapper docutils container" id="id118">
+<div class="code-block-caption"><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">tokenize</span></code> — lowercase, letter-or-digit split, length ≥ 2, dedupe.</span><a class="headerlink" href="#id118" title="Link to this code">#</a></div>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">idx</span><span class="w"> </span><span class="o">*</span><span class="nx">IndexEngine</span><span class="p">)</span><span class="w"> </span><span class="nx">buildSearchIndex</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">idx</span><span class="p">.</span><span class="nx">searchTerms</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">make</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">][]</span><span class="kt">string</span><span class="p">)</span>
+<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="nx">slug</span><span class="p">,</span><span class="w"> </span><span class="nx">p</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">idx</span><span class="p">.</span><span class="nx">pages</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">terms</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">tokenize</span><span class="p">(</span><span class="nx">p</span><span class="p">.</span><span class="nx">Frontmatter</span><span class="p">.</span><span class="nx">Title</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot; &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">p</span><span class="p">.</span><span class="nx">Body</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot; &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">strings</span><span class="p">.</span><span class="nx">Join</span><span class="p">(</span><span class="nx">p</span><span class="p">.</span><span class="nx">Frontmatter</span><span class="p">.</span><span class="nx">Tags</span><span class="p">,</span><span class="w"> </span><span class="s">&quot; &quot;</span><span class="p">))</span>
+<span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">term</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">terms</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="nx">idx</span><span class="p">.</span><span class="nx">searchTerms</span><span class="p">[</span><span class="nx">term</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">append</span><span class="p">(</span><span class="nx">idx</span><span class="p">.</span><span class="nx">searchTerms</span><span class="p">[</span><span class="nx">term</span><span class="p">],</span><span class="w"> </span><span class="nx">slug</span><span class="p">)</span>
+<span class="w">		</span><span class="p">}</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">tokenize</span><span class="p">(</span><span class="nx">text</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">text</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">strings</span><span class="p">.</span><span class="nx">ToLower</span><span class="p">(</span><span class="nx">text</span><span class="p">)</span>
+<span class="w">	</span><span class="nx">words</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">strings</span><span class="p">.</span><span class="nx">FieldsFunc</span><span class="p">(</span><span class="nx">text</span><span class="p">,</span><span class="w"> </span><span class="kd">func</span><span class="p">(</span><span class="nx">r</span><span class="w"> </span><span class="kt">rune</span><span class="p">)</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="p">!</span><span class="nx">unicode</span><span class="p">.</span><span class="nx">IsLetter</span><span class="p">(</span><span class="nx">r</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">!</span><span class="nx">unicode</span><span class="p">.</span><span class="nx">IsDigit</span><span class="p">(</span><span class="nx">r</span><span class="p">)</span>
+<span class="w">	</span><span class="p">})</span>
+</pre></div>
+</div>
+</div>
+<p>这里编码进去的<strong>三个选择</strong>值得单独辩护一下：</p>
+<ol class="arabic simple">
+<li><p><strong>Unicode 字母/数字，而非 ASCII 空白。</strong> <code class="docutils literal notranslate"><span class="pre">unicode.IsLetter</span></code> 涵盖 CJK 字符、西里尔文、阿拉伯文 —— 任何 Unicode 字母类别都包括 —— 因此任何语言的 wiki 都能正确分词。</p></li>
+<li><p><strong>不做词干提取。</strong> Porter 1980 年的算法 <span id="id9">[<a class="reference internal" href="../part4-code-layer/ch19-hybrid-retrieval-and-rrf.html#id77" title="Martin F. Porter. An algorithm for suffix stripping. In Program, volume 14, 130–137. 1980. doi:10.1108/eb046814.">Porter, 1980</a>]</span> 能提升英文的召回率（“install” / “installing” / “installed” 全部折叠为 “instal”），但它是语言相关的，而且会让期望字面匹配的工程师觉得搜索结果不对劲。在软件知识库里，这个取舍朝另一个方向倒。</p></li>
+<li><p><strong>长度 ≥ 2，去重。</strong> 杀掉单字母噪声；让内存消耗对文档长度线性增长，而非二次增长。</p></li>
+</ol>
+</section>
+<section id="postings-list">
+<h4>构建 postings list<a class="headerlink" href="#postings-list" title="Link to this heading">#</a></h4>
+<p><strong>构建索引就是一层嵌套循环，不是一棵 B-tree：</strong></p>
+<div class="literal-block-wrapper docutils container" id="id119">
+<div class="code-block-caption"><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">buildSearchIndex</span></code> — tokenise every page, invert into a map.</span><a class="headerlink" href="#id119" title="Link to this code">#</a></div>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">idx</span><span class="w"> </span><span class="o">*</span><span class="nx">IndexEngine</span><span class="p">)</span><span class="w"> </span><span class="nx">buildTrustIndex</span><span class="p">(</span><span class="nx">summaries</span><span class="w"> </span><span class="p">[]</span><span class="nx">PageSummary</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">idx</span><span class="p">.</span><span class="nx">trustIndex</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">make</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="nx">VerificationStatus</span><span class="p">][]</span><span class="nx">PageSummary</span><span class="p">)</span>
+<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">s</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">summaries</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">VerificationStatus</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="nx">idx</span><span class="p">.</span><span class="nx">trustIndex</span><span class="p">[</span><span class="nx">s</span><span class="p">.</span><span class="nx">VerificationStatus</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">append</span><span class="p">(</span><span class="nx">idx</span><span class="p">.</span><span class="nx">trustIndex</span><span class="p">[</span><span class="nx">s</span><span class="p">.</span><span class="nx">VerificationStatus</span><span class="p">],</span><span class="w"> </span><span class="nx">s</span><span class="p">)</span>
+<span class="w">		</span><span class="p">}</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<p>对每一页，把 <code class="docutils literal notranslate"><span class="pre">title</span> <span class="pre">+</span> <span class="pre">body</span> <span class="pre">+</span> <span class="pre">tags</span></code> 一起分词，<strong>每一个 token 都把这一页的 slug 追加进去</strong>。结果就是经典 IR 意义下的<strong>一张 postings list</strong> <span id="id10">[<a class="reference internal" href="../part7-governance-and-outlook/ch30-cost-privacy-security.html#id26" title="Christopher D. Manning, Prabhakar Raghavan, and Hinrich Schütze. Introduction to Information Retrieval. Cambridge University Press, 2008.">Manning <em>et al.</em>, 2008</a>]</span> —— 一张从 term 到“包含该 term 的文档列表”的 map 。<strong>没有</strong>per-token 的 tf-idf 权重，<strong>没有</strong>位置信息，<strong>所以</strong>查询那一侧也很短。</p>
+</section>
+<section id="id11">
+<h4>查询<a class="headerlink" href="#id11" title="Link to this heading">#</a></h4>
+<p>查询也用<strong>同一套分词</strong>，每一个 term 都对索引的 key 做<strong>前缀匹配</strong>，然后 slug 按“<strong>有多少个查询 term 命中了这页</strong>”打分：</p>
+<div class="literal-block-wrapper docutils container" id="id120">
+<div class="code-block-caption"><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">Search</span></code> — prefix match, term-count score, sort, return summaries.</span><a class="headerlink" href="#id120" title="Link to this code">#</a></div>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="w">	</span><span class="k">defer</span><span class="w"> </span><span class="nx">idx</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nx">RUnlock</span><span class="p">()</span>
+<span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nx">idx</span><span class="p">.</span><span class="nx">sourceIndex</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">idx</span><span class="w"> </span><span class="o">*</span><span class="nx">IndexEngine</span><span class="p">)</span><span class="w"> </span><span class="nx">GetTrustIndex</span><span class="p">()</span><span class="w"> </span><span class="kd">map</span><span class="p">[</span><span class="nx">VerificationStatus</span><span class="p">][]</span><span class="nx">PageSummary</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">idx</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nx">RLock</span><span class="p">()</span>
+<span class="w">	</span><span class="k">defer</span><span class="w"> </span><span class="nx">idx</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nx">RUnlock</span><span class="p">()</span>
+<span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nx">idx</span><span class="p">.</span><span class="nx">trustIndex</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">idx</span><span class="w"> </span><span class="o">*</span><span class="nx">IndexEngine</span><span class="p">)</span><span class="w"> </span><span class="nx">Search</span><span class="p">(</span><span class="nx">query</span><span class="p">,</span><span class="w"> </span><span class="nx">searchType</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="nx">SearchResult</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">idx</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nx">RLock</span><span class="p">()</span>
+<span class="w">	</span><span class="k">defer</span><span class="w"> </span><span class="nx">idx</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nx">RUnlock</span><span class="p">()</span>
+
+<span class="w">	</span><span class="nx">terms</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">tokenize</span><span class="p">(</span><span class="nx">query</span><span class="p">)</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="nx">terms</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">SearchResult</span><span class="p">{},</span><span class="w"> </span><span class="kc">nil</span>
+<span class="w">	</span><span class="p">}</span>
+
+<span class="w">	</span><span class="nx">slugScores</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nb">make</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">int</span><span class="p">)</span>
+<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">term</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">terms</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="nx">indexTerm</span><span class="p">,</span><span class="w"> </span><span class="nx">slugs</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">idx</span><span class="p">.</span><span class="nx">searchTerms</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="nx">strings</span><span class="p">.</span><span class="nx">HasPrefix</span><span class="p">(</span><span class="nx">indexTerm</span><span class="p">,</span><span class="w"> </span><span class="nx">term</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">				</span><span class="k">for</span><span class="w"> </span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">slug</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">slugs</span><span class="w"> </span><span class="p">{</span>
+<span class="w">					</span><span class="nx">slugScores</span><span class="p">[</span><span class="nx">slug</span><span class="p">]</span><span class="o">++</span>
+<span class="w">				</span><span class="p">}</span>
+<span class="w">			</span><span class="p">}</span>
+<span class="w">		</span><span class="p">}</span>
+<span class="w">	</span><span class="p">}</span>
+
+<span class="w">	</span><span class="kd">type</span><span class="w"> </span><span class="nx">scored</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">slug</span><span class="w">  </span><span class="kt">string</span>
+<span class="w">		</span><span class="nx">score</span><span class="w"> </span><span class="kt">int</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="w">	</span><span class="kd">var</span><span class="w"> </span><span class="nx">scoredSlugs</span><span class="w"> </span><span class="p">[]</span><span class="nx">scored</span>
+<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="nx">slug</span><span class="p">,</span><span class="w"> </span><span class="nx">score</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">slugScores</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">scoredSlugs</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">append</span><span class="p">(</span><span class="nx">scoredSlugs</span><span class="p">,</span><span class="w"> </span><span class="nx">scored</span><span class="p">{</span><span class="nx">slug</span><span class="p">,</span><span class="w"> </span><span class="nx">score</span><span class="p">})</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="w">	</span><span class="nx">sort</span><span class="p">.</span><span class="nx">Slice</span><span class="p">(</span><span class="nx">scoredSlugs</span><span class="p">,</span><span class="w"> </span><span class="kd">func</span><span class="p">(</span><span class="nx">i</span><span class="p">,</span><span class="w"> </span><span class="nx">j</span><span class="w"> </span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="nx">scoredSlugs</span><span class="p">[</span><span class="nx">i</span><span class="p">].</span><span class="nx">score</span><span class="w"> </span><span class="p">&gt;</span><span class="w"> </span><span class="nx">scoredSlugs</span><span class="p">[</span><span class="nx">j</span><span class="p">].</span><span class="nx">score</span>
+<span class="w">	</span><span class="p">})</span>
+</pre></div>
+</div>
+</div>
+<p>这份实现有<strong>四条属性</strong>：</p>
+<ul class="simple">
+<li><p><strong>前缀匹配</strong>，不是精确匹配。查询 <code class="docutils literal notranslate"><span class="pre">insta</span></code> 能匹配到 <code class="docutils literal notranslate"><span class="pre">install</span></code>、<code class="docutils literal notranslate"><span class="pre">installation</span></code> 和 <code class="docutils literal notranslate"><span class="pre">installer</span></code>。这是一个务实的折中，覆盖了词干提取能给你的大部分东西。</p></li>
+<li><p><strong>没有 BM25，没有 tf-idf</strong> <span id="id12">[<a class="reference internal" href="../part7-governance-and-outlook/ch30-cost-privacy-security.html#id26" title="Christopher D. Manning, Prabhakar Raghavan, and Hinrich Schütze. Introduction to Information Retrieval. Cambridge University Press, 2008.">Manning <em>et al.</em>, 2008</a>, <a class="reference internal" href="../part5-operations-lifecycle/ch22-evaluation-and-benchmarks.html#id35" title="Stephen Robertson and Hugo Zaragoza. The probabilistic relevance framework: BM25 and beyond. Foundations and Trends in Information Retrieval, 3(4):333–389, 2009.">Robertson and Zaragoza, 2009</a>]</span>。得分是匹配到的查询词项的数量。这比真正的 IR 排序器弱，但在这个文档数量级下，用户很少察觉。</p></li>
+<li><p><strong>没有布尔运算符</strong>，没有短语查询，没有字段查询。软件知识库的典型查询是 1–3 个关键词；放弃 Lucene 风格的语法，换来的是简单性。</p></li>
+<li><p><strong>每次查询对 <code class="docutils literal notranslate"><span class="pre">|searchTerms|</span></code> 线性。</strong> 对本书面向的万页级规模，&quot;对索引线性&quot;在单线程上就够快了。超过这个规模，正确的做法是引入 Bleve 或 Meilisearch，而不是在 CLI binary 里重新发明它们。</p></li>
+</ul>
+<p>整套搜索子系统，端到端，<strong>不到 100 行 Go</strong> 。它在它瞄准的规模上 <em>是正确的</em> ，<strong>任何一个 Go 程序员都能调它</strong>，而且它就<strong>跟着那个 binary 一起发布</strong>。规模变了，<strong>接口也不用变</strong> —— <code class="docutils literal notranslate"><span class="pre">SearchService</span></code> <strong>已经</strong>接受一个查询字符串、返回一个 <code class="docutils literal notranslate"><span class="pre">SearchResult</span></code> ；哪天换成一个 Bleve 后端，可以直接<strong>塞在接口后面</strong>，<strong>HTTP 和 CLI 这两层都不用动</strong>。</p>
+</section>
+</section>
+<section id="id13">
+<h3>实时更新<a class="headerlink" href="#id13" title="Link to this heading">#</a></h3>
+<p>每一条写入路径（第 5 章的 <code class="docutils literal notranslate"><span class="pre">CreatePage</span></code> 、第 6 章的 ingest 循环、更新路径、删除路径）最后都会调一下 <code class="docutils literal notranslate"><span class="pre">index.AddPage</span></code> 、 <code class="docutils literal notranslate"><span class="pre">index.UpdatePage</span></code> 、 或 <code class="docutils literal notranslate"><span class="pre">index.DeletePage</span></code> ，<strong>每一个</strong>都会拿锁、重建派生视图：</p>
+<div class="literal-block-wrapper docutils container" id="id121">
+<div class="code-block-caption"><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">AddPage</span></code> — single-writer, whole-map rebuild, simple enough to trust.</span><a class="headerlink" href="#id121" title="Link to this code">#</a></div>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="w">	</span><span class="nx">idx</span><span class="p">.</span><span class="nx">pages</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">make</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="o">*</span><span class="nx">Page</span><span class="p">)</span>
+<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">p</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">pages</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">idx</span><span class="p">.</span><span class="nx">pages</span><span class="p">[</span><span class="nx">p</span><span class="p">.</span><span class="nx">Frontmatter</span><span class="p">.</span><span class="nx">Slug</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">p</span>
+<span class="w">	</span><span class="p">}</span>
+
+<span class="w">	</span><span class="nx">idx</span><span class="p">.</span><span class="nx">rebuildAllLocked</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>“<strong>全部重建</strong>”听起来很浪费，但它在页面数上是<strong>线性</strong>的，并且每一次写入<strong>只跑一次</strong>，<strong>全程锁内</strong>。**它干掉了增量索引器那种典型失败形态：**<strong>那些没人发现的过期条目</strong>——直到用户抱怨才冒出来。**代价以毫秒计；**<strong>收益是每一次操作之后，<strong>索引与 <code class="docutils literal notranslate"><span class="pre">pages</span></code> 之间是</strong>可证一致的</strong>。</p>
+</section>
+<section id="sphinx">
+<h3>用 Sphinx 做静态发布<a class="headerlink" href="#sphinx" title="Link to this heading">#</a></h3>
+<p>在发布这一块，文稿层参考实现<strong>不去发明构建器</strong> —— <strong>直接借力</strong> Sphinx + MyST-Parser，和<strong>这本书自己</strong>用的是同一套栈。一个<strong>最小版</strong>的 <code class="docutils literal notranslate"><span class="pre">metadata/_sphinx/conf.py</span></code> 长这样：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">extensions</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;myst_parser&quot;</span><span class="p">,</span> <span class="s2">&quot;sphinxcontrib.mermaid&quot;</span><span class="p">]</span>
+<span class="n">source_suffix</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;.md&quot;</span><span class="p">:</span> <span class="s2">&quot;markdown&quot;</span><span class="p">}</span>
+<span class="n">html_theme</span>    <span class="o">=</span> <span class="s2">&quot;sphinx_rtd_theme&quot;</span>
+<span class="n">master_doc</span>    <span class="o">=</span> <span class="s2">&quot;index&quot;</span>
+</pre></div>
+</div>
+<p>根目录的 <code class="docutils literal notranslate"><span class="pre">index.md</span></code> 用的就是<strong>那份 <code class="docutils literal notranslate"><span class="pre">INDEX.md</span></code></strong> —— <code class="docutils literal notranslate"><span class="pre">pipeline.Build()</span></code> 在<strong>每一次 ingest 之后都会重新生成</strong>它。<strong>那份文件</strong>就是<strong>实时服务器</strong>和<strong>静态站</strong>之间的桥：<strong>两种视图</strong>都消费它。站点构建<strong>一条 shell 命令</strong>就够了：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>make<span class="w"> </span>sphinx-build<span class="w"> </span><span class="nv">WIKI_DIR</span><span class="o">=</span>./demo
+$<span class="w"> </span>ls<span class="w"> </span>./demo/metadata/_build/html/
+index.html<span class="w">  </span>search.html<span class="w">  </span>_static/<span class="w">  </span>_sources/<span class="w">  </span>...
+</pre></div>
+</div>
+<p><strong>从 Sphinx 里白捡的三件东西：</strong></p>
+<ul class="simple">
+<li><p><strong>页内搜索。</strong> Sphinx 在构建时用 Porter stemmer 生成一份客户端 JavaScript 索引，离线也能用。静态站的读者拥有一份不输给服务器的搜索体验。</p></li>
+<li><p><strong>交叉引用。</strong> <code class="docutils literal notranslate"><span class="pre">{doc}</span></code>、<code class="docutils literal notranslate"><span class="pre">{ref}</span></code> 和 citation 角色在整棵树上解析，解析不到就构建失败。这比实时服务器的前缀匹配严格得多，能捕获 <code class="docutils literal notranslate"><span class="pre">verify</span></code> 没抓到的断裂引用。</p></li>
+<li><p><strong>可主题化的输出。</strong> Read the Docs 主题、Furo、book 主题、通过 xelatex 出 PDF —— 同一棵 Markdown 源文件树可以渲染出所有这些。</p></li>
+</ul>
+<p><strong>你放弃的是 <em>交互性</em> ：<strong>静态站</strong>不能</strong>创建页面、<strong>不能</strong>根据点击率把搜索结果重新排序、<strong>也不能</strong>显示“最近一小时的变更”。对一个<strong>故意用 Git 做版本控制</strong>的软件知识库来说，<strong>这正是对的取舍</strong>。**变更在仓库里、在服务器里；**<strong>发布是一份派生的、不可变的制品。</strong></p>
+</section>
+</section>
+<section id="id14">
+<h2>示例<a class="headerlink" href="#id14" title="Link to this heading">#</a></h2>
+<p><strong>对同一批页面走三次查询</strong>，<strong>手工</strong>演算一遍。</p>
+<p>假设 <code class="docutils literal notranslate"><span class="pre">content/</span></code> 下有以下三页：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">how-to/enable-tls.md</span></code> —— <code class="docutils literal notranslate"><span class="pre">title:</span> <span class="pre">How</span> <span class="pre">to</span> <span class="pre">enable</span> <span class="pre">TLS</span></code> ，tags <code class="docutils literal notranslate"><span class="pre">[tls,</span> <span class="pre">security]</span></code> 。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">reference/api.md</span></code> —— <code class="docutils literal notranslate"><span class="pre">title:</span> <span class="pre">API</span> <span class="pre">Reference</span></code>，正文提到 “install” 和 “tokenization”</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">explanation/auth-model.md</span></code> —— <code class="docutils literal notranslate"><span class="pre">title:</span> <span class="pre">Authentication</span> <span class="pre">Model</span></code>，正文讨论 “TLS” 和 “tokens”</p></li>
+</ul>
+<p><strong>查询 <code class="docutils literal notranslate"><span class="pre">tls</span></code>：</strong></p>
+<ul class="simple">
+<li><p>tokens：<code class="docutils literal notranslate"><span class="pre">[&quot;tls&quot;]</span></code></p></li>
+<li><p>对 <code class="docutils literal notranslate"><span class="pre">tls</span></code> 做前缀匹配 → 命中第 1 页和第 3 页中的 <code class="docutils literal notranslate"><span class="pre">tls</span></code> 。</p></li>
+<li><p>得分：<code class="docutils literal notranslate"><span class="pre">{how-to/enable-tls:</span> <span class="pre">1,</span> <span class="pre">explanation/auth-model:</span> <span class="pre">1}</span></code></p></li>
+<li><p>按得分倒序，两页都返回。</p></li>
+</ul>
+<p><strong>查询 <code class="docutils literal notranslate"><span class="pre">token</span></code>：</strong></p>
+<ul class="simple">
+<li><p>tokens：<code class="docutils literal notranslate"><span class="pre">[&quot;token&quot;]</span></code></p></li>
+<li><p>对 <code class="docutils literal notranslate"><span class="pre">token</span></code> 做前缀匹配 → 命中第 2 页里的 <code class="docutils literal notranslate"><span class="pre">tokenization</span></code> 和第 3 页里的 <code class="docutils literal notranslate"><span class="pre">tokens</span></code> 。</p></li>
+<li><p>得分：<code class="docutils literal notranslate"><span class="pre">{reference/api:</span> <span class="pre">1,</span> <span class="pre">explanation/auth-model:</span> <span class="pre">1}</span></code></p></li>
+<li><p>两页都返回。</p></li>
+</ul>
+<p><strong>查询 <code class="docutils literal notranslate"><span class="pre">tls</span> <span class="pre">token</span></code>：</strong></p>
+<ul class="simple">
+<li><p>tokens：<code class="docutils literal notranslate"><span class="pre">[&quot;tls&quot;,</span> <span class="pre">&quot;token&quot;]</span></code></p></li>
+<li><p>第 3 页同时命中两个前缀 → 得分 2</p></li>
+<li><p>第 1、2 页各命中一个前缀 → 得分 1</p></li>
+<li><p>排序：<code class="docutils literal notranslate"><span class="pre">explanation/auth-model</span></code> 排第一，然后是另外两页。</p></li>
+</ul>
+<p><strong>没有一个查询比用户预期的更聪明 —— 这正是一个 feature 。</strong></p>
+</section>
+<section id="id15">
+<h2>这台小小的搜索引擎在哪里会失败 —— 以及为什么那仍然没关系<a class="headerlink" href="#id15" title="Link to this heading">#</a></h2>
+<p>第 2 章把词汇表搭起来是有理由的 —— TF-IDF、BM25、混合检索、重排序 —— <em>那一层</em> 才是一条<strong>严肃的 RAG 流水线</strong>递给 LLM 的<strong>检索面</strong>。本章这台搜索引擎是<strong>它非常谦卑的表亲</strong>：几千字节的 Go 代码，直接给坐在搜索框前的<strong>人</strong>用的。<strong>值得明确说一句</strong>：这台引擎<strong>做不了什么</strong> —— 因为**“那就给它加个 reranker”**这种诱惑，<strong>恰恰是一个团队应该顶住的诱惑</strong>，<strong>直到问题真的冒出来之前都不要动</strong>。</p>
+<p>有<strong>四类查询</strong>会以<strong>可预见的方式</strong>把前缀匹配索引干翻。每一类都<strong>配一个便宜解和一个昂贵解</strong>；<strong>几乎所有团队一上来都先去抓昂贵解</strong>。</p>
+<ol class="arabic simple">
+<li><p><strong>带有意译的标识符查询。</strong> 用户搜 <code class="docutils literal notranslate"><span class="pre">&quot;rate</span> <span class="pre">limit</span> <span class="pre">ingest&quot;</span></code>，但代码里的符号是 <code class="docutils literal notranslate"><span class="pre">ingestRateLimit</span></code>。分词器在 postings list 里按大小写边界拆分了标识符，所以 <code class="docutils literal notranslate"><span class="pre">rate</span></code>、<code class="docutils literal notranslate"><span class="pre">limit</span></code>、<code class="docutils literal notranslate"><span class="pre">ingest</span></code> 各自成为独立词项 —— 用户查询的 token 恰好也是这三个，因此这种情况实际上能匹配上。真正<em>会</em>失败的是反向的情况：用户搜的是意译 <code class="docutils literal notranslate"><span class="pre">&quot;throttle</span> <span class="pre">incoming</span> <span class="pre">traffic&quot;</span></code>，和标识符以及描述它的文字没有任何共同 token。这正是第 2 章点名的经典词汇不匹配失败；便宜的修法是给页面本身打一套激进的标签（frontmatter 的 <code class="docutils literal notranslate"><span class="pre">tags:</span></code> 字段已经在 postings list 里了），昂贵的修法是稠密检索（第 15 章）。小团队几乎应该总是先试便宜的修法。</p></li>
+<li><p><strong>在没有分词的树上做 CJK 查询。</strong> 分词器用 <code class="docutils literal notranslate"><span class="pre">unicode.IsLetter</span></code> 在非字母/非数字处切分 —— 而对中文或日文来说，<em>每一个字符都是字母，因此什么都不会被切开</em>。一个包含 <code class="docutils literal notranslate"><span class="pre">配置文件路径</span></code> 的页面和一条查询 <code class="docutils literal notranslate"><span class="pre">配置文件</span></code>，只有当页面的<em>完整序列</em>以查询开头时才能匹配上，而通常不是这样。诚实的修法是加一个分词器：中文用 <code class="docutils literal notranslate"><span class="pre">go-jieba</span></code>，日文用 <code class="docutils literal notranslate"><span class="pre">kagome</span></code>，都是 <code class="docutils literal notranslate"><span class="pre">go</span> <span class="pre">get</span></code> 就能拿到。不诚实的修法是宣称 CJK 支持不在范围内；这样做的团队在第一个非英语用户到来时就会后悔。钩子已经在那里了 —— <code class="docutils literal notranslate"><span class="pre">tokenize</span></code> 函数是唯一把正文转成词项的地方，换成一个语言感知的分词器只是一次局部改动。</p></li>
+<li><p><strong>拼写容错。</strong> 搜索 <code class="docutils literal notranslate"><span class="pre">recieve</span></code> 什么都返回不了，因为 postings list 里只有 <code class="docutils literal notranslate"><span class="pre">receive</span></code>。词干提取修不了这个问题（两个词的词干不同）；编辑距离可以。库方案是查询时做 <code class="docutils literal notranslate"><span class="pre">fuzzy</span></code> 匹配，典型配置是对超过某个最小长度的词项用 Damerau-Levenshtein 距离 1 或 2。内存实现在万页规模下可以用十几行 Go 加上这个功能，但它的成本是二次方的（每个查询词项要和 postings list 里的每个词项比较），在超过约 10 万个词项时就不可忽视了。Meilisearch 的拼写容错非常好，运维成本就是一个 binary；到了那个规模，它就是正确的选择。</p></li>
+<li><p><strong>按相关性排序，而非按匹配数。</strong> <code class="docutils literal notranslate"><span class="pre">Search</span></code> 函数按&quot;有多少个查询词项命中了这份文档&quot;打分。一页足够长的页面，只要<em>提到了</em>每一个词项，就能打赢一页<em>就是关于</em>该词项的聚焦页面。这正是 BM25 通过其长度归一化项 <span class="math notranslate nohighlight">\(b\)</span>（第 2 章）来修复的那种病症：长文档不应该仅仅因为长就占据主导。内存实现中便宜的修法是字段加权 —— 标题匹配比正文匹配加分更高，第 2 章也点过这个名 —— <code class="docutils literal notranslate"><span class="pre">searchTerms</span></code> map 可以通过记录每个词项的来源（“这个 token 是在标题里还是正文里？”）并在查询时加一个小系数来实现。仓库里的实现今天没做这件事；但接口支持它，不需要迁移。第 2 章的 <em>Advanced RAG</em> 一节解释了为什么字段加权比它下面的大多数调优旋钮都重要。</p></li>
+</ol>
+<p>**这几类的共同线索是：****抬手去抓第 2 章那套更重的机器的时机，**<em>是当一类具体的查询开始失败时</em> ，<strong>不是在此之前</strong>。<strong>一个</strong>实时搜索是前缀匹配索引、<strong>而</strong>面向 agent 的检索是 BM25+稠密+重排序流水线的软件知识库，<strong>不是自相矛盾</strong> —— <strong>那是健康的设计</strong>。**不同消费者有不同预算、有不同期望；****用同一层存储（磁盘上的文件）把两边都伺候了，**<strong>这本身就是那个让“意见分歧”变便宜的架构层面胜利。</strong></p>
+</section>
+<section id="id16">
+<h2>在把搜索接起来时的常见错误<a class="headerlink" href="#id16" title="Link to this heading">#</a></h2>
+<p><strong>除了“按查询类别”的失败形态，****还有四个</strong>在扩容和接线环节里<strong>频繁出现的错误</strong>，值得单独列一下：</p>
+<ol class="arabic simple">
+<li><p><strong>试图维持一个增量索引的正确性。</strong> 文稿层在写入时做全量重建是有原因的：增量更新是几乎所有基于数据库的 wiki 里&quot;搜索过期&quot;bug 的来源。在本章面向的规模下，全量重建是毫秒级的；为了追逐常数因子的性能而放弃它，是经典的过度工程失败。</p></li>
+<li><p><strong>&quot;给生产站点&quot;硬接第二套搜索系统。</strong> 一个团队加了 Elasticsearch，理由是&quot;内存那套不够正经&quot;，最终得到了两层有时候意见不一致的搜索 —— 实时服务器上的读者看到一套结果，已发布静态站上的读者看到另一套。&quot;其他做法&quot;里的那条台阶是一个<em>序列</em>，不是一个选择：挑当前失败的那个最低台阶，把整个知识库迁过去，并保持一个唯一的 <code class="docutils literal notranslate"><span class="pre">Search(...)</span></code> 接口。</p></li>
+<li><p><strong>索引了信任层不认可的内容。</strong> 一个朴素的 <code class="docutils literal notranslate"><span class="pre">LoadAndIndex</span></code> 索引了 <code class="docutils literal notranslate"><span class="pre">content/</span></code> 下的所有文件，包括 <code class="docutils literal notranslate"><span class="pre">verification_status</span></code> 为 <code class="docutils literal notranslate"><span class="pre">contradicted</span></code> 或 <code class="docutils literal notranslate"><span class="pre">superseded</span></code> 的页面。这些页面随后出现在搜索结果里，没有任何过期的可见信号。正确的做法是索引它们，但在默认查询中过滤掉（通过一个显式的&quot;包含已废弃&quot;开关给考古者使用）。第 5 章的信任字段是检索元数据，不只是展示元数据。</p></li>
+<li><p><strong>把 Sphinx 的页内搜索当&quot;生产&quot;搜索。</strong> Sphinx 的客户端搜索对静态镜像来说很好；如果一个组织完全依赖它就是灾难了。它看不到 frontmatter，无法按 <code class="docutils literal notranslate"><span class="pre">verification_status</span></code> 过滤，它的排序是由 Porter 词干提取驱动的 <span id="id17">[<a class="reference internal" href="../part4-code-layer/ch19-hybrid-retrieval-and-rrf.html#id77" title="Martin F. Porter. An algorithm for suffix stripping. In Program, volume 14, 130–137. 1980. doi:10.1108/eb046814.">Porter, 1980</a>]</span> —— 这对英文散文是好信号，但对标识符字面查询就是<em>噪声</em>信号。让实时服务器的搜索对已认证读者保持权威；让静态构建的搜索为公开或离线场景存在，也仅为那些读者存在。</p></li>
+</ol>
+</section>
+<section id="id18">
+<h2>其他做法<a class="headerlink" href="#id18" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>系统</p></th>
+<th class="head"><p>1 万页的索引体积</p></th>
+<th class="head"><p>搭建成本</p></th>
+<th class="head"><p>与文件型知识库的契合度</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>内存前缀索引（本章）</p></td>
+<td><p>~20 MB</p></td>
+<td><p>0（内置）</p></td>
+<td><p>1 万页以下很好用。</p></td>
+</tr>
+<tr class="row-odd"><td><p>Bleve <span id="id19">[<a class="reference internal" href="../part4-code-layer/ch19-hybrid-retrieval-and-rrf.html#id78" title="Couchbase, Inc. and Bleve contributors. Bleve: a modern text indexing library for Go. 2014–present. Embedded full-text search engine for Go applications — a natural scale-up target from the in-memory token index in \texttt index.go. URL: https://blevesearch.com/.">Couchbase, Inc. and Bleve contributors, 2014–present</a>]</span></p></td>
+<td><p>磁盘上 ~100 MB</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">go</span> <span class="pre">get</span></code> + 几行代码</p></td>
+<td><p><strong>自然的扩容路径</strong>；仍然<strong>内嵌</strong>，<strong>无需服务端进程</strong>。</p></td>
+</tr>
+<tr class="row-even"><td><p>Meilisearch <span id="id20">[<a class="reference internal" href="../part4-code-layer/ch19-hybrid-retrieval-and-rrf.html#id79" title="Meili SAS and Meilisearch contributors. Meilisearch: an open-source, lightning-fast, and hyper relevant search engine. 2018–present. URL: https://www.meilisearch.com/.">Meili SAS and Meilisearch contributors, 2018–present</a>]</span></p></td>
+<td><p>独立进程</p></td>
+<td><p>Docker + 一个 API key</p></td>
+<td><p>排序好，容错拼写好；<strong>有运维成本</strong>。</p></td>
+</tr>
+<tr class="row-odd"><td><p>Algolia DocSearch <span id="id21">[<a class="reference internal" href="../part4-code-layer/ch19-hybrid-retrieval-and-rrf.html#id80" title="Algolia. DocSearch: free search for your documentation. 2015–present. Hosted search crawler targeted specifically at static documentation sites. URL: https://docsearch.algolia.com/.">Algolia, 2015–present</a>]</span></p></td>
+<td><p><strong>爬、托管</strong></p></td>
+<td><p>注册 + 爬虫配置</p></td>
+<td><p>开源项目免费；<strong>私有知识库会被锁定</strong>。</p></td>
+</tr>
+<tr class="row-even"><td><p>Elasticsearch / OpenSearch</p></td>
+<td><p>JVM 集群</p></td>
+<td><p><strong>高</strong></p></td>
+<td><p><strong>对本章规模的知识库是 over-engineer 的</strong>。</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>只用</strong> Sphinx 页内搜索</p></td>
+<td><p>构建时</p></td>
+<td><p>0</p></td>
+<td><p>对<strong>静态文档</strong>来说够用；<strong>没有实时更新</strong>。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>本书的建议是这条台阶：</strong></p>
+<ol class="arabic simple">
+<li><p><strong>从内存索引开始。</strong> <strong>对任何一个团队知识库来说都够用。</strong></p></li>
+<li><p><strong>并行</strong>给已发布的站点加上 Sphinx 的静态搜索。</p></li>
+<li><p>当内存版本变成 CPU-bound 时，把 Bleve 塞进 <code class="docutils literal notranslate"><span class="pre">Search</span></code> 接口后面。</p></li>
+<li><p>只有当你有明确的产品理由时（拼写容错、字段加权、多租户排序），才升级到 Meilisearch 或 Elasticsearch。</p></li>
+</ol>
+<p><strong>每一次上台阶都保留 <code class="docutils literal notranslate"><span class="pre">Search(query,</span> <span class="pre">type)</span> <span class="pre">→</span> <span class="pre">SearchResult</span></code> 这份契约 —— 客户端代码不用改。</strong></p>
+</section>
+<section id="id22">
+<h2>结论<a class="headerlink" href="#id22" title="Link to this heading">#</a></h2>
+<p><strong>一个基于文件的 wiki 要拿到“尽可能简单、但别更简单”那枚徽章</strong>，<strong>前提是搜索层也简单到能被审计</strong>。**一张内存 postings 映射表 + 一个十行的分词器，****对一个中小规模的软件知识库来说，**<strong>就是一台完整、诚实的搜索引擎</strong>。<strong>Sphinx 负责静态视图那一边</strong>，<strong>带着它自己那套基于词干提取的搜索</strong>。**每一页之所以都被一致地索引，**<strong>是因为每一条写入路径都在同一个 mutex 里调同一个 <code class="docutils literal notranslate"><span class="pre">AddPage</span></code> 结束</strong>。</p>
+<p><strong>第二部分到此收尾</strong>。文稿层<strong>所有会动的零件</strong>都齐了：<strong>文件</strong>（第 4 章）、<strong>作为来源的 frontmatter</strong>（第 5 章）、<strong>流水线</strong>（第 6 章）、以及<strong>发布 + 搜索</strong>（本章）。<strong>第四部分</strong>要<strong>从文稿转向代码</strong> —— <strong>embedding、代码图谱、<strong><strong>以及让一个软件知识库</strong></strong>不同于一座文档仓库的那种混合检索</strong>。</p>
+</section>
+<section id="id23">
+<h2>参考文献<a class="headerlink" href="#id23" title="Link to this heading">#</a></h2>
+<div class="docutils container" id="id24">
+<div role="list" class="citation-list">
+<div class="citation" id="id80" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>Alfred V. Aho and Margaret J. Corasick. Efficient string matching: an aid to bibliographic search. <em>Communications of the ACM</em>, 18(6):333–340, 1975. <a class="reference external" href="https://doi.org/10.1145/360825.360855">doi:10.1145/360825.360855</a>.</p>
+</div>
+<div class="citation" id="id73" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></span>
+<p>Tom B. Brown, Benjamin Mann, Nick Ryder, Melanie Subbiah, Jared Kaplan, Prafulla Dhariwal, Arvind Neelakantan, Pranav Shyam, and others. Language models are few-shot learners. <em>Advances in Neural Information Processing Systems</em>, 33:1877–1901, 2020. The paper that made LLM-as-classifier a practical option: a prompt replaces labelled training data.</p>
+</div>
+<div class="citation" id="id38" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></span>
+<p>Tom Christie and contributors. MkDocs: project documentation with Markdown. 2014–present. URL: <a class="reference external" href="https://www.mkdocs.org/">https://www.mkdocs.org/</a>.</p>
+</div>
+<div class="citation" id="id66" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></span>
+<p>Melvin E. Conway. How do committees invent? <em>Datamation</em>, 14(4):28–31, 1968. Origin of “Conway's law”: organisations produce systems whose structure mirrors their communication structure. The prose-layer equivalent is that documentation review follows the same communication lines as the code it describes.</p>
+</div>
+<div class="citation" id="id68" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></span>
+<p>W. Edwards Deming. <em>Out of the Crisis</em>. MIT Press, 1986. Formalised the Plan-Do-Check-Act cycle. Used in Chapter 7a to justify why the four-corner operational model is structurally complete: each corner answers one phase of PDCA applied to a prose-layer artefact.</p>
+</div>
+<div class="citation" id="id105" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>6<span class="fn-bracket">]</span></span>
+<p>Walter (Yamin) Fan. Project knowledge base skill: an opinionated operational model for software documentation. Self-published; private toolkit, 2026. Methodology and operational patterns developed by the author in parallel with this book; not publicly released. Cited throughout for the three-level update strategy, the PKB-metadata footer schema, the hard/soft verification-gate catalog, and the opinionated ten-page documentation set. Chapter prose adapts these ideas in the book's voice; command names and employer-internal infrastructure from the toolkit are deliberately omitted.</p>
+</div>
+<div class="citation" id="id88" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></span>
+<p>Alex Gleason. Sqlite-vec: a vector search SQLite extension that runs anywhere. 2024–present. URL: <a class="github reference external" href="https://github.com/asg017/sqlite-vec">asg017/sqlite-vec</a>.</p>
+</div>
+<div class="citation" id="id64" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>8<span class="fn-bracket">]</span></span>
+<p>Gary Gruver and Tommy Mouser. <em>Starting and Scaling DevOps in the Enterprise</em>. BookBaby, 2016. Popularised the &quot;docs-as-code&quot; treatment of documentation as a first-class artefact of the software delivery pipeline.</p>
+</div>
+<div class="citation" id="id82" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>9<span class="fn-bracket">]</span></span>
+<p>Hamel Husain, Ho-Hsiang Wu, Tiferet Gazit, Miltiadis Allamanis, and Marc Brockschmidt. CodeSearchNet Challenge: evaluating the state of semantic code search. In <em>arXiv preprint arXiv:1909.09436</em>. 2019. URL: <a class="reference external" href="https://arxiv.org/abs/1909.09436">https://arxiv.org/abs/1909.09436</a>.</p>
+</div>
+<div class="citation" id="id89" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>10<span class="fn-bracket">]</span></span>
+<p>Andrew Kane. Pgvector: open-source vector similarity search for PostgreSQL. 2021–present. URL: <a class="github reference external" href="https://github.com/pgvector/pgvector">pgvector/pgvector</a>.</p>
+</div>
+<div class="citation" id="id70" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>11<span class="fn-bracket">]</span></span>
+<p>John MacFarlane. Pandoc: a universal document converter. 2006–present. Defines the YAML metadata block convention adopted by most Markdown tooling. URL: <a class="reference external" href="https://pandoc.org/">https://pandoc.org/</a>.</p>
+</div>
+<div class="citation" id="id63" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>12<span class="fn-bracket">]</span></span>
+<p>John MacFarlane. Gitit: a wiki backed by a git, darcs, or mercurial filestore. 2008–present. Early demonstration that a wiki can be a plain Git repository. URL: <a class="github reference external" href="https://github.com/jgm/gitit">jgm/gitit</a>.</p>
+</div>
+<div class="citation" id="id67" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>13<span class="fn-bracket">]</span></span>
+<p>David L. Parnas. On the criteria to be used in decomposing systems into modules. <em>Communications of the ACM</em>, 15(12):1053–1058, 1972. Introduces information hiding. Extended to documentation in this book: a software KB should be decomposed so that prose and the code it describes share a review boundary. <a class="reference external" href="https://doi.org/10.1145/361598.361623">doi:10.1145/361598.361623</a>.</p>
+</div>
+<div class="citation" id="id74" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>14<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id9">1</a>,<a role="doc-backlink" href="#id17">2</a>)</span>
+<p>Martin F. Porter. An algorithm for suffix stripping. In <em>Program</em>, volume 14, 130–137. 1980. <a class="reference external" href="https://doi.org/10.1108/eb046814">doi:10.1108/eb046814</a>.</p>
+</div>
+<div class="citation" id="id72" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>15<span class="fn-bracket">]</span></span>
+<p>Alexander Ratner, Stephen H. Bach, Henry Ehrenberg, Jason Fries, Sen Wu, and Christopher Ré. Snorkel: rapid training data creation with weak supervision. <em>Proceedings of the VLDB Endowment</em>, 11(3):269–282, 2017. <a class="reference external" href="https://doi.org/10.14778/3157794.3157797">doi:10.14778/3157794.3157797</a>.</p>
+</div>
+<div class="citation" id="id93" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>16<span class="fn-bracket">]</span></span>
+<p>Stephen Robertson and Hugo Zaragoza. The probabilistic relevance framework: BM25 and beyond. <em>Foundations and Trends in Information Retrieval</em>, 3(4):333–389, 2009. <a class="reference external" href="https://doi.org/10.1561/1500000019">doi:10.1561/1500000019</a>.</p>
+</div>
+<div class="citation" id="id71" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>17<span class="fn-bracket">]</span></span>
+<p>Wenpeng Yin, Jamaal Hay, and Dan Roth. Benchmarking zero-shot text classification: datasets, evaluation and entailment approach. In <em>Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing</em>, 3914–3923. 2019. <a class="reference external" href="https://doi.org/10.18653/v1/D19-1404">doi:10.18653/v1/D19-1404</a>.</p>
+</div>
+<div class="citation" id="id77" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id21">18</a><span class="fn-bracket">]</span></span>
+<p>Algolia. DocSearch: free search for your documentation. 2015–present. Hosted search crawler targeted specifically at static documentation sites. URL: <a class="reference external" href="https://docsearch.algolia.com/">https://docsearch.algolia.com/</a>.</p>
+</div>
+<div class="citation" id="id69" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>19<span class="fn-bracket">]</span></span>
+<p>Ben-Kiki, Oren and Evans, Clark and döt Net, Ingy. YAML ain't markup language (YAML) version 1.2. 2021. Specification of YAML, the serialisation format used for wiki frontmatter. URL: <a class="reference external" href="https://yaml.org/spec/1.2.2/">https://yaml.org/spec/1.2.2/</a>.</p>
+</div>
+<div class="citation" id="id75" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id19">20</a><span class="fn-bracket">]</span></span>
+<p>Couchbase, Inc. and Bleve contributors. Bleve: a modern text indexing library for Go. 2014–present. Embedded full-text search engine for Go applications — a natural scale-up target from the in-memory token index in \texttt index.go. URL: <a class="reference external" href="https://blevesearch.com/">https://blevesearch.com/</a>.</p>
+</div>
+<div class="citation" id="id61" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>21<span class="fn-bracket">]</span></span>
+<p>DokuWiki contributors. DokuWiki: a simple to use and highly versatile open source wiki software without a database. 2004–present. File-based wiki storing each page as a plain-text file on disk. URL: <a class="reference external" href="https://www.dokuwiki.org/">https://www.dokuwiki.org/</a>.</p>
+</div>
+<div class="citation" id="id79" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id5">22</a><span class="fn-bracket">]</span></span>
+<p>Executable Books Project. MyST-Parser: a sphinx and docutils extension to parse MyST, a rich and extensible flavour of Markdown. 2020–present. URL: <a class="reference external" href="https://myst-parser.readthedocs.io/">https://myst-parser.readthedocs.io/</a>.</p>
+</div>
+<div class="citation" id="id78" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">23</a><span class="fn-bracket">]</span></span>
+<p>Georg Brandl and Sphinx contributors. Sphinx: python documentation generator. 2008–present. The static publishing target used by the prose-layer reference implementation to render the prose layer. URL: <a class="reference external" href="https://www.sphinx-doc.org/">https://www.sphinx-doc.org/</a>.</p>
+</div>
+<div class="citation" id="id76" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id20">24</a><span class="fn-bracket">]</span></span>
+<p>Meili SAS and Meilisearch contributors. Meilisearch: an open-source, lightning-fast, and hyper relevant search engine. 2018–present. URL: <a class="reference external" href="https://www.meilisearch.com/">https://www.meilisearch.com/</a>.</p>
+</div>
+<div class="citation" id="id62" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>25<span class="fn-bracket">]</span></span>
+<p>MoinMoin contributors. MoinMoin wiki. 2000–present. Python-based file-backed wiki engine with page-per-file storage. URL: <a class="reference external" href="https://moinmo.in/">https://moinmo.in/</a>.</p>
+</div>
+<div class="citation" id="id37" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>26<span class="fn-bracket">]</span></span>
+<p>Obsidian.md. Obsidian: a knowledge base that works on local Markdown files. 2020–present. URL: <a class="reference external" href="https://obsidian.md/">https://obsidian.md/</a>.</p>
+</div>
+<div class="citation" id="id65" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>27<span class="fn-bracket">]</span></span>
+<p>Write the Docs community. Docs as code. n.d. Community reference page distilling the docs-as-code philosophy: plain-text sources, version control, reviews, CI. URL: <a class="reference external" href="https://www.writethedocs.org/guide/docs-as-code/">https://www.writethedocs.org/guide/docs-as-code/</a>.</p>
+</div>
+<div class="citation" id="id90" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>28<span class="fn-bracket">]</span></span>
+<p>Zilliz, Inc. Milvus: an open-source vector database for scalable similarity search. 2019–present. URL: <a class="reference external" href="https://milvus.io/">https://milvus.io/</a>.</p>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="ch06-llm-classification-pipeline.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">第 6 章 —— 分类流水线</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="ch08-prose-operational-model.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">第 8 章 —— 文稿层的运维模型</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 目录
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">为什么</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">是什么</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">怎么做</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">内存索引</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">分词</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#postings-list">构建 postings list</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">查询</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id13">实时更新</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sphinx">用 Sphinx 做静态发布</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id14">示例</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id15">这台小小的搜索引擎在哪里会失败 —— 以及为什么那仍然没关系</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id16">在把搜索接起来时的常见错误</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id18">其他做法</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id22">结论</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id23">参考文献</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+作者： Walter Fan
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright AI 辅助创作 2026, Walter Fan.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    <p class="last-updated">
+  最后更新于 2026-11-10.
+  <br/>
+</p>
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

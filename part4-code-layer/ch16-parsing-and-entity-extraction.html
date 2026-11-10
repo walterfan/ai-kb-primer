@@ -1,0 +1,1388 @@
+
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>第 16 章 —— 解析与实体抽取 &#8212; Use AI to build a knowledge base for a software project</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=591f613d" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=23f7fa08"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../_static/translations.js?v=beaddf03"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.2.0/dist/mermaid-layout-elk.esm.min.mjs"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";import elkLayouts from "https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.2.0/dist/mermaid-layout-elk.esm.min.mjs";mermaid.registerLayoutLoaders(elkLayouts);mermaid.initialize({startOnLoad:false});</script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+const defaultStyle = document.createElement('style');
+defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+`;
+document.head.appendChild(defaultStyle);
+
+const fullscreenStyle = document.createElement('style');
+fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+document.head.appendChild(fullscreenStyle);
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        return brightness < 128;
+    }
+    return false;
+};
+
+const load = async () => {
+    await mermaid.run();
+
+    const all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(load, 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(load, 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(load, 200);
+        return;
+    }
+
+    const darkTheme = isDarkTheme();
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    const modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    const modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    let previousScrollOffset = [window.scrollX, window.scrollY];
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    const allButtons = [];
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+
+        container.appendChild(fullscreenBtn);
+        allButtons.push(fullscreenBtn);
+    });
+
+    // Update theme classes when theme changes
+    const updateTheme = () => {
+        const dark = isDarkTheme();
+        allButtons.forEach(btn => {
+            if (dark) {
+                btn.classList.add('dark-theme');
+            } else {
+                btn.classList.remove('dark-theme');
+            }
+        });
+        if (dark) {
+            modal.classList.add('dark-theme');
+            modalContent.classList.add('dark-theme');
+            closeBtn.classList.add('dark-theme');
+        } else {
+            modal.classList.remove('dark-theme');
+            modalContent.classList.remove('dark-theme');
+            closeBtn.classList.remove('dark-theme');
+        }
+    };
+
+    // Watch for theme changes
+    const observer = new MutationObserver(updateTheme);
+    observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    observer.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style']
+    });
+};
+
+window.addEventListener("load", load);
+</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'part4-code-layer/ch16-parsing-and-entity-extraction';</script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="第 17 章 —— 嵌入向量与向量存储" href="ch17-embeddings-and-vector-stores.html" />
+    <link rel="prev" title="第 15 章 —— 为什么代码不是文稿" href="ch15-why-code-is-not-prose.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+    <meta name="docbuild:last-update" content="2026-11-10"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Use AI to build a knowledge base for a software project</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">搜索</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Part I — Foundations</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part1-foundations/index.html">第一部分 —— 基础</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch01-why-kb-for-software.html">第 1 章 —— 为什么要给软件建一个知识库？</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch01a-quickstart-30min.html">第 1a 章 —— 30 分钟快速上手</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch02-ir-rag-primer.html">第 2 章 —— IR 与 RAG 入门</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch03-diataxis-and-software-docs.html">第 3 章 —— Diátaxis 与软件文档</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part II — The Prose Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part2-prose-layer/index.html">第二部分 —— 文稿层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch04-file-based-wiki.html">第 4 章 —— 一个基于文件的 wiki</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch05-frontmatter-provenance-trust.html">第 5 章 —— 把 frontmatter 当作一份来源记录</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch06-llm-classification-pipeline.html">第 6 章 —— 分类流水线</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch07-publish-and-search.html">第 7 章 —— 发布与搜索</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch08-prose-operational-model.html">第 8 章 —— 文稿层的运维模型</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch09-cold-start-migration.html">第 9 章 —— 冷启动与批量迁移</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part III — The Author Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part3-author-layer/index.html">第三部分 —— 作者层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch10-why-ai-as-author.html">第 10 章 —— 为什么让 AI 当作者</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch11-ai-drafting-and-rewriting.html">第 11 章 —— AI 起草、重写、翻译</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch12-ai-for-metadata.html">第 12 章 —— AI 处理元数据：分类、打标签、实体与关系抽取</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch13-ai-for-maintenance.html">第 13 章 —— AI 做维护：摘要、去重、过期与漂移检测</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch14-ai-as-judge.html">第 14 章 —— AI 作为评判者：评估生成质量与引用合规</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part IV — The Code Layer</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">第四部分 —— 代码层</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="ch15-why-code-is-not-prose.html">第 15 章 —— 为什么代码不是文稿</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">第 16 章 —— 解析与实体抽取</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ch17-embeddings-and-vector-stores.html">第 17 章 —— 嵌入向量与向量存储</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ch18-code-knowledge-graph.html">第 18 章 —— 代码知识图谱</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ch19-hybrid-retrieval-and-rrf.html">第 19 章 —— 混合检索与 RRF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ch20-prompt-and-generation.html">第 20 章 —— 提示词与生成</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part V — Operations &amp; Lifecycle</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part5-operations-lifecycle/index.html">第五部分 —— 运维与生命周期</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part5-operations-lifecycle/ch21-incremental-sync.html">第 21 章 —— 增量同步</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part5-operations-lifecycle/ch22-evaluation-and-benchmarks.html">第 22 章 —— 评测、基准与发布门禁</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part5-operations-lifecycle/ch23-maintenance-drift-and-link-rot.html">第 23 章 —— 维护、漂移与链接腐化</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part VI — The Hybrid Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part6-hybrid-layer/index.html">第六部分 —— 混合层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch24-prose-meets-code.html">第 24 章 —— 文稿与代码相遇</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch25-document-layering-L0-L4.html">第 25 章 —— 文档分层 L0–L4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch26-graph-guided-context-assembly.html">第 26 章 —— 图引导的上下文组装</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch27-harnessing-ai-coding.html">第 27 章 —— 用知识库驾驭 AI 编码</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch28-team-sdlc-integration.html">第 28 章 —— 团队协作与 SDLC 集成</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch29-ai-agents-on-the-kb.html">第 29 章 —— 在知识库上跑的 AI Agent</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part VII — Governance &amp; Outlook</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part7-governance-and-outlook/index.html">第七部分 —— 治理与展望</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch30-cost-privacy-security.html">第 30 章 —— 成本、隐私、安全</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch31-trust-provenance-and-red-teaming.html">第 31 章 —— 信任、出处与红队演练</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch32-outlook-and-open-problems.html">第 32 章 —— 展望与尚未解决的问题</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Appendices</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-a-example-wiki.html">附录 A —— 端到端：从杂乱文件夹到可发布 Wiki</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-b-example-code-kg.html">附录 B —— 示例：从一个 Go 仓库构建代码知识库</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-c-deepwiki-checklist.html">附录 C —— 自己动手做 DeepWiki 检查清单</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-d-glossary.html">附录 D —— 术语表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-e-bilingual-publishing.html">附录 E —— 发布一个双语知识库</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">参考文献</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../reference/index.html">参考文献：仓库级代码理解与软件知识库论文导读</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../reference/01-repoformer-selective-retrieval.html">Repoformer: Selective Retrieval for Repository-Level Code Completion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/02-codeplan-repository-level-planning.html">CodePlan: Repository-Level Coding using LLMs and Planning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/03-repograph-code-graph-navigation.html">RepoGraph: Enhancing AI Software Engineering with Repository-level Code Graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/04-repoagent-documentation-generation.html">RepoAgent: An LLM-Powered Open-Source Framework for Repository-level Code Documentation Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/05-repocoder-iterative-retrieval-generation.html">RepoCoder: Repository-Level Code Completion Through Iterative Retrieval and Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/06-llm-kg-synergy-repo-qa.html">Synergizing LLMs and Knowledge Graphs: A Novel Approach to Software Repository-Related Question Answering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/07-repo-level-prompt-generation.html">Repository-Level Prompt Generation for Large Language Models of Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/08-repobench-benchmarking.html">RepoBench: Benchmarking Repository-Level Code Auto-Completion Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/09-long-code-arena-benchmarks.html">Long Code Arena: A Set of Benchmarks for Long-Context Code Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/10-cgm-graph-integrated-llm.html">Code Graph Model (CGM): A Graph-Integrated Large Language Model for Repository-Level Software Engineering Tasks</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="下载此页面">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="下载源文件"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="列印成 PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="全屏模式"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>第 16 章 —— 解析与实体抽取</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> 目录 </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why">Why —— 为什么</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what">What —— 是什么</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how">How —— 怎么做</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">实体模型</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">每语言适配器</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">来自生产的坑</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">常见错误</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example —— 范例</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">9.5   多语言仓库解析</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">为什么多语言仓库需要特殊处理</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#language-adapter-registry">Language adapter registry 模式</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">各语言实体模型差异</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id12">跨语言实体链接的挑战</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#python-typescript-monorepo">配置示例：Python + TypeScript monorepo</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id13">实用建议</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#conclusion">Conclusion —— 小结</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id14">参考文献</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="id1">
+<h1>第 16 章 —— 解析与实体抽取<a class="headerlink" href="#id1" title="Link to this heading">#</a></h1>
+<p>本章一图览 —— 一个实体模型、每种语言一个适配器、解析器本身必须处理的三类坑：</p>
+<pre  class="mermaid">
+        mindmap
+  root((Parser))
+    Entity model
+      Stable ID
+      Four kinds
+      Location-aware
+      Signature and doc
+    Per-language adapters
+      Go via tree-sitter
+      Python via tree-sitter
+      Java via tree-sitter
+      Add new in 150 LoC
+    Pitfalls
+      Resource leaks
+      Anonymous functions
+      Multi-line signatures
+    Common mistakes
+      Regex MVP
+      Unstable IDs
+      Too many entity kinds
+    </pre><p>昨晚你写了第一版。60 行正则。<code class="docutils literal notranslate"><span class="pre">func</span> </code>、<code class="docutils literal notranslate"><span class="pre">def</span> </code>、<code class="docutils literal notranslate"><span class="pre">class</span> </code> —— 这能有多难？今天早上索引器在一个 4 kLOC 的仓库里吐出了 15 000 个“函数”。其中一半的命中是 <code class="docutils literal notranslate"><span class="pre">map(...)</span></code> 里的闭包字面量。有 3 个是字符串字面量里那个单词 <code class="docutils literal notranslate"><span class="pre">function</span></code>。你基于这些实体建起来的调用图是一出漂亮的虚构：80% 的边都指向匿名的 <code class="docutils literal notranslate"><span class="pre">func1</span></code>、<code class="docutils literal notranslate"><span class="pre">func2</span></code>、<code class="docutils literal notranslate"><span class="pre">func3</span></code>。本章之后的每一章 —— 嵌入、图谱、检索、生成 —— 都在这个模块的输出下游。<strong>本章讲的是：为什么解析器是代码知识库里“杠杆最大”的一个模块，以及一版“乏味地正确”的解析器具体长什么样。</strong></p>
+<section id="why">
+<h2>Why —— 为什么<a class="headerlink" href="#why" title="Link to this heading">#</a></h2>
+<p>下游的一切 —— 嵌入（第 17 章）、图谱（第 18 章）、检索（第 19 章）、回答（第 20 章）—— 都是解析器输出的函数。解析器漏了一个方法，任何检索器都找不到它。解析器把签名和函数体搞混了，每一份嵌入都会偏。解析器是代码知识库中杠杆最大的一个模块；它也最容易在赶工时被仓促写完、之后再也没人碰。</p>
+<p>朴素解析器 —— “Go 按 <code class="docutils literal notranslate"><span class="pre">func</span> </code> 切、Python 按 <code class="docutils literal notranslate"><span class="pre">def</span> </code> 切、Java 靠正则” —— 只要碰上第一个嵌套泛型、第一个多行签名、第一个匿名函数字面量、第一个 heredoc，或者几十种语言特有怪癖中的任何一个，就会当场崩溃。DeepWiki 方法论 <span id="id2">[<a class="reference internal" href="../part5-operations-lifecycle/ch21-incremental-sync.html#id14" title="Walter (Yamin) Fan. 给代码仓库造一个 DeepWiki：Tree-sitter + embedding + 图谱 + LLM 的方法论. April 2026. v1.2, CC-BY-NC-ND 4.0. URL: https://www.fanyamin.com/gei-dai-ma-cang-ku-zao-yi-ge-deepwikitree-sitter-embedding-tu-pu-llm-de-fang-fa-lun.html.">Fan, 2026</a>]</span> 在 §4 明确说：在 * 一个真实的 * 解析器之上，为每种语言写 * 一个薄薄的抽取器 * ，比 grep 风格的替代方案既更便宜也更稳健。</p>
+</section>
+<section id="what">
+<h2>What —— 是什么<a class="headerlink" href="#what" title="Link to this heading">#</a></h2>
+<p>代码层参考实现中 <code class="docutils literal notranslate"><span class="pre">reference-impl/code-kg/parser</span></code> 这个包对抽取契约的定义，由三个设计决策确定。</p>
+<p><strong>1 —— 一个解析器、多种语言。</strong> Tree-sitter <span id="id3">[<a class="reference internal" href="index.html#id75" title="Max Brunsfeld and Tree-sitter contributors. Tree-sitter: an incremental parsing system for programming tools. 2018–present. Used by the code-layer reference implementation's RAG CodeParser for multi-language uniform parsing. URL: https://tree-sitter.github.io/tree-sitter/.">Brunsfeld and Tree-sitter contributors, 2018–present</a>]</span> 为 Go、Java、Python 提供了统一的语法树 API，附带增量解析模型，以及知识库场景很看重的容错性：一个正在被编辑中的文件，仍然能产出可用的语法树。另一条路（每种语言各自一套工具链：<code class="docutils literal notranslate"><span class="pre">go/ast</span></code>、<code class="docutils literal notranslate"><span class="pre">javaparser</span></code>、<code class="docutils literal notranslate"><span class="pre">libcst</span></code>）会把依赖和“一次性 bug”的表面积都翻三倍。</p>
+<p><strong>2 —— 一份与语言无关的中间表示。</strong> Tree-sitter 吐出的东西，一律坍缩到一个 <code class="docutils literal notranslate"><span class="pre">CodeMetadata</span></code> 结构：一张文件列表，每个文件下含其函数和类；每个实体带 <code class="docutils literal notranslate"><span class="pre">name</span></code>、<code class="docutils literal notranslate"><span class="pre">start_line</span></code>、<code class="docutils literal notranslate"><span class="pre">end_line</span></code>、<code class="docutils literal notranslate"><span class="pre">signature</span></code>、<code class="docutils literal notranslate"><span class="pre">docstring</span></code>、<code class="docutils literal notranslate"><span class="pre">body</span></code>。这份 IR 小到可被完整地讨论，大到能喂饱每一个下游阶段，而且 —— 关键是 —— * 与语言无关 * 。第 17 章拿它去嵌入，第 18 章拿它建图，第 21 章拿它做差分。</p>
+<p><strong>3 —— 支持的扩展名和要跳过的目录是“配置”，不是“推断”。</strong> 解析器拒绝深入 <code class="docutils literal notranslate"><span class="pre">vendor/</span></code>、<code class="docutils literal notranslate"><span class="pre">node_modules/</span></code>、<code class="docutils literal notranslate"><span class="pre">.git/</span></code>、<code class="docutils literal notranslate"><span class="pre">__pycache__/</span></code>、<code class="docutils literal notranslate"><span class="pre">dist/</span></code>、<code class="docutils literal notranslate"><span class="pre">build/</span></code>、<code class="docutils literal notranslate"><span class="pre">target/</span></code>、<code class="docutils literal notranslate"><span class="pre">.next/</span></code>。这份默认名单里每一条都来自某次“在 monorepo 上首次运行被噎死”的疤痕。<code class="docutils literal notranslate"><span class="pre">allamanis2018survey</span></code> <span id="id4">[<a class="reference internal" href="index.html#id77" title="Miltiadis Allamanis, Earl T. Barr, Premkumar Devanbu, and Charles Sutton. A survey of machine learning for big code and naturalness. ACM Computing Surveys, 51(4):1–37, 2018. doi:10.1145/3212695.">Allamanis <em>et al.</em>, 2018</a>]</span> 在学术规模上整理了同一类病症：绝大多数 “big code” 语料在模型训练前都需要一轮激进的 vendor 过滤。</p>
+</section>
+<section id="how">
+<h2>How —— 怎么做<a class="headerlink" href="#how" title="Link to this heading">#</a></h2>
+<p>解析器服务一共 66 行。以下代码来自 <code class="docutils literal notranslate"><span class="pre">reference-impl/code-kg/parser/parser.go</span></code>，所属 commit 记录在开头的元数据里：</p>
+<div class="literal-block-wrapper docutils container" id="id108">
+<div class="code-block-caption"><span class="caption-text">parser.Service — supported extensions, skip dirs, single Walk.</span><a class="headerlink" href="#id108" title="Link to this code">#</a></div>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kn">package</span><span class="w"> </span><span class="nx">parser</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="p">(</span>
+<span class="w">	</span><span class="s">&quot;os&quot;</span>
+<span class="w">	</span><span class="s">&quot;path/filepath&quot;</span>
+
+<span class="w">	</span><span class="s">&quot;example.com/reference-impl/code-kg-repo/internal/rag&quot;</span>
+<span class="p">)</span>
+
+<span class="kd">type</span><span class="w"> </span><span class="nx">Service</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">parser</span><span class="w">   </span><span class="o">*</span><span class="nx">rag</span><span class="p">.</span><span class="nx">CodeParser</span>
+<span class="w">	</span><span class="nx">skipDirs</span><span class="w"> </span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">bool</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">New</span><span class="p">()</span><span class="w"> </span><span class="o">*</span><span class="nx">Service</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">Service</span><span class="p">{</span>
+<span class="w">		</span><span class="nx">parser</span><span class="p">:</span><span class="w"> </span><span class="nx">rag</span><span class="p">.</span><span class="nx">NewCodeParser</span><span class="p">(),</span>
+<span class="w">		</span><span class="nx">skipDirs</span><span class="p">:</span><span class="w"> </span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">bool</span><span class="p">{</span>
+<span class="w">			</span><span class="s">&quot;vendor&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;node_modules&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;.git&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">			</span><span class="s">&quot;__pycache__&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;.idea&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;.vscode&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">			</span><span class="s">&quot;dist&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;build&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;target&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;.next&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">		</span><span class="p">},</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">var</span><span class="w"> </span><span class="nx">supportedExtensions</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">bool</span><span class="p">{</span>
+<span class="w">	</span><span class="s">&quot;.go&quot;</span><span class="p">:</span><span class="w">   </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">	</span><span class="s">&quot;.java&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">	</span><span class="s">&quot;.py&quot;</span><span class="p">:</span><span class="w">   </span><span class="kc">true</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">s</span><span class="w"> </span><span class="o">*</span><span class="nx">Service</span><span class="p">)</span><span class="w"> </span><span class="nx">CollectSupportedFiles</span><span class="p">(</span><span class="nx">rootPath</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">([]</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="kd">var</span><span class="w"> </span><span class="nx">files</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span>
+<span class="w">	</span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">filepath</span><span class="p">.</span><span class="nx">Walk</span><span class="p">(</span><span class="nx">rootPath</span><span class="p">,</span><span class="w"> </span><span class="kd">func</span><span class="p">(</span><span class="nx">path</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">info</span><span class="w"> </span><span class="nx">os</span><span class="p">.</span><span class="nx">FileInfo</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span>
+<span class="w">		</span><span class="p">}</span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="nx">info</span><span class="p">.</span><span class="nx">IsDir</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">skipDirs</span><span class="p">[</span><span class="nx">info</span><span class="p">.</span><span class="nx">Name</span><span class="p">()]</span><span class="w"> </span><span class="p">{</span>
+<span class="w">				</span><span class="k">return</span><span class="w"> </span><span class="nx">filepath</span><span class="p">.</span><span class="nx">SkipDir</span>
+</pre></div>
+</div>
+</div>
+<p>这段代码上有三点值得点名：</p>
+<ul class="simple">
+<li><p>第 26–30 行（<code class="docutils literal notranslate"><span class="pre">supportedExtensions</span></code>）就是知识库索引的那个封闭的文件类型集合。增加第四种语言只需改一行 —— 以及一项下游的评审义务，因为 tree-sitter 语法也得跟着链接进来。</p></li>
+<li><p>第 32–50 行（<code class="docutils literal notranslate"><span class="pre">CollectSupportedFiles</span></code>）展示了带 <code class="docutils literal notranslate"><span class="pre">SkipDir</span></code> 快捷路径的 <code class="docutils literal notranslate"><span class="pre">filepath.Walk</span></code>。在一个 12 万文件的 monorepo 里，光 <code class="docutils literal notranslate"><span class="pre">node_modules/</span></code> 分支就占了 95% 的 inode 数量；在下探之前就惰性地跳过它，才是让首次同步可以忍受的关键。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CollectGoFiles</span></code>（源码第 52 行）是一个历史遗留的别名，随时间不断拓宽：它现在返回的是<em>所有</em>支持的文件，不只是 Go。在一个被很多调用方使用的库中，重命名是有风险的，所以项目保留了旧名并添加了一个新方法 —— 这是一种在 Git blame 中有清晰谱系的常见模式。</p></li>
+</ul>
+<section id="id5">
+<h3>实体模型<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
+<p>下游各阶段消费的 IR 就是 <code class="docutils literal notranslate"><span class="pre">CodeEntity</span></code> 这个结构体：</p>
+<div class="literal-block-wrapper docutils container" id="id109">
+<div class="code-block-caption"><span class="caption-text">CodeEntityType enum plus the canonical CodeEntity record.</span><a class="headerlink" href="#id109" title="Link to this code">#</a></div>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="c1">// source_repo:     code-layer-reference-impl</span>
+<span class="c1">// source_path:     reference-impl/code-kg/domain_types.go</span>
+<span class="c1">// commit_sha:      7afa52003fd6  (dirty — uncommitted changes)</span>
+<span class="c1">// captured_at:     2026-04-18T01:15:58Z</span>
+<span class="c1">// content_sha256:  4c9d23323613b9699f3cd98e8ff358dfd5215835933d2e97b869842ae8e4678e</span>
+<span class="c1">// regenerate with: make book-refresh-excerpts</span>
+<span class="w"> </span><span class="o">*/</span>
+
+<span class="kn">package</span><span class="w"> </span><span class="nx">ckg</span>
+
+<span class="kd">type</span><span class="w"> </span><span class="nx">CodeEntityType</span><span class="w"> </span><span class="kt">string</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="p">(</span>
+<span class="w">	</span><span class="nx">EntityTypePackage</span><span class="w">   </span><span class="nx">CodeEntityType</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&quot;package&quot;</span>
+<span class="w">	</span><span class="nx">EntityTypeFile</span><span class="w">      </span><span class="nx">CodeEntityType</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&quot;file&quot;</span>
+<span class="w">	</span><span class="nx">EntityTypeFunction</span><span class="w">  </span><span class="nx">CodeEntityType</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&quot;function&quot;</span>
+<span class="w">	</span><span class="nx">EntityTypeClass</span><span class="w">     </span><span class="nx">CodeEntityType</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&quot;class&quot;</span>
+<span class="w">	</span><span class="nx">EntityTypeStruct</span><span class="w">    </span><span class="nx">CodeEntityType</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&quot;struct&quot;</span>
+<span class="w">	</span><span class="nx">EntityTypeInterface</span><span class="w"> </span><span class="nx">CodeEntityType</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&quot;interface&quot;</span>
+<span class="w">	</span><span class="nx">EntityTypeVariable</span><span class="w">  </span><span class="nx">CodeEntityType</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&quot;variable&quot;</span>
+<span class="w">	</span><span class="nx">EntityTypeConstant</span><span class="w">  </span><span class="nx">CodeEntityType</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&quot;constant&quot;</span>
+<span class="p">)</span>
+
+<span class="kd">type</span><span class="w"> </span><span class="nx">CodeEntity</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">ID</span><span class="w">         </span><span class="kt">string</span><span class="w">            </span><span class="s">`json:&quot;id&quot;`</span>
+<span class="w">	</span><span class="nx">RepoID</span><span class="w">     </span><span class="kt">string</span><span class="w">            </span><span class="s">`json:&quot;repo_id&quot;`</span>
+<span class="w">	</span><span class="nx">EntityType</span><span class="w"> </span><span class="nx">CodeEntityType</span><span class="w">    </span><span class="s">`json:&quot;entity_type&quot;`</span>
+<span class="w">	</span><span class="nx">Name</span><span class="w">       </span><span class="kt">string</span><span class="w">            </span><span class="s">`json:&quot;name&quot;`</span>
+</pre></div>
+</div>
+</div>
+<p>这份定义中有三个方面会带来结构性的连锁后果：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">EntityType</span></code> 是一个小型的封闭枚举（<code class="docutils literal notranslate"><span class="pre">package</span></code>、<code class="docutils literal notranslate"><span class="pre">file</span></code>、<code class="docutils literal notranslate"><span class="pre">function</span></code>、<code class="docutils literal notranslate"><span class="pre">class</span></code>、<code class="docutils literal notranslate"><span class="pre">struct</span></code>、<code class="docutils literal notranslate"><span class="pre">interface</span></code>、<code class="docutils literal notranslate"><span class="pre">variable</span></code>、<code class="docutils literal notranslate"><span class="pre">constant</span></code>）。新增实体类型需要做一次迁移 —— 这是特性，不是 bug。关于边的对称论证参见第 18 章 §<em>有界的关系分类法</em>。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">StartLine</span></code> 和 <code class="docutils literal notranslate"><span class="pre">EndLine</span></code> 是每个实体上的一等公民字段。它们让实体 ID（第 18 章）在跨次索引时保持稳定，并让第 20 章的生成器能以 <code class="docutils literal notranslate"><span class="pre">file.ext:L12-L47</span></code> 的形式引用结果。知识库里所有下游能力，归根结底都依赖于解析器保留了原始源码坐标。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Body</span></code>、<code class="docutils literal notranslate"><span class="pre">Signature</span></code> 和 <code class="docutils literal notranslate"><span class="pre">DocString</span></code> 被分别保存。body 在存储之前（在 <code class="docutils literal notranslate"><span class="pre">parseFileForSync</span></code> 中）截断到 4 000 字符，而 signature 和 docstring 从不截断。这种拆分是第 17 章 <em>嵌入头部而非函数体</em> 规则的基础：signature 和 docstring 完整地存活到嵌入器；body 只存活到检索器，且是截断的。</p></li>
+</ul>
+</section>
+<section id="id6">
+<h3>每语言适配器<a class="headerlink" href="#id6" title="Link to this heading">#</a></h3>
+<p>Tree-sitter 吐出的是语法树，不是命名实体列表。从语法树到实体列表的转换位于另一个包里（<code class="docutils literal notranslate"><span class="pre">reference-impl/code-kg/rag</span></code> 下的每语言适配器，本书没有把它 vendor 进来，因为模板代码太多），但其模式很短，值得显式写一遍。对每种支持的语言，写一个 visitor：</p>
+<ol class="arabic simple">
+<li><p>前序遍历整棵语法树。</p></li>
+<li><p>当它遇到一个 kind 处于每语言白名单中的节点 —— Go 的 <code class="docutils literal notranslate"><span class="pre">function_declaration</span></code>、<code class="docutils literal notranslate"><span class="pre">method_declaration</span></code>、带 <code class="docutils literal notranslate"><span class="pre">struct_type</span></code> 或 <code class="docutils literal notranslate"><span class="pre">interface_type</span></code> 的 <code class="docutils literal notranslate"><span class="pre">type_spec</span></code>；Python 的 <code class="docutils literal notranslate"><span class="pre">function_definition</span></code>、<code class="docutils literal notranslate"><span class="pre">class_definition</span></code>；Java 的 <code class="docutils literal notranslate"><span class="pre">method_declaration</span></code>、<code class="docutils literal notranslate"><span class="pre">class_declaration</span></code> —— 就记录这个实体。</p></li>
+<li><p>使用节点的 source range 来填充 <code class="docutils literal notranslate"><span class="pre">StartLine</span></code>、<code class="docutils literal notranslate"><span class="pre">EndLine</span></code> 和 <code class="docutils literal notranslate"><span class="pre">Body</span></code>。</p></li>
+<li><p>使用前导的 doc-comment 节点（如果存在）作为 <code class="docutils literal notranslate"><span class="pre">DocString</span></code>。</p></li>
+</ol>
+<p>纪律是： * 每种语言一个 visitor，尽可能笨 * 。不做跨文件解析（那是第 18 章的图谱 builder 的事）、不维护符号表、不做类型推断。语言特有的复杂度由 tree-sitter 语法来承担；我们自己的代码保持小。</p>
+</section>
+<section id="id7">
+<h3>来自生产的坑<a class="headerlink" href="#id7" title="Link to this heading">#</a></h3>
+<p>下面三种失败模式值得读者特别留意，因为一旦踩上，排查都要花时间：</p>
+<ul class="simple">
+<li><p><strong>资源泄漏。</strong> Tree-sitter 的树持有一个指向 Rust 所有的 arena 的指针，必须通过 <code class="docutils literal notranslate"><span class="pre">tree.Close()</span></code>（或对应 binding 的等价方法）释放。忘记释放不会立即崩溃；它会在一个长期运行的索引器中以缓慢的内存增长浮现。<code class="docutils literal notranslate"><span class="pre">defer</span> <span class="pre">tree.Close()</span></code> 是强制性的。</p></li>
+<li><p><strong>闭包与匿名函数。</strong> 每种语言都有它们，而且它们<em>全部</em>会以&quot;类函数&quot;节点出现在语法树里。把它们作为实体发出会用数百个叫 <code class="docutils literal notranslate"><span class="pre">func1</span></code>、<code class="docutils literal notranslate"><span class="pre">func2</span></code> 之类的匿名节点污染图谱。修复方法是加一个每语言的过滤器：只发出顶层和方法级的函数；把匿名函数当作其外围实体的 body 的一部分处理。</p></li>
+<li><p><strong>泛型类型与多行签名。</strong> 我们存储的<em>签名</em>是 body 的第一个非空行 —— 通过我们在第 17 章还会再见的 <code class="docutils literal notranslate"><span class="pre">extractSignature</span></code> 辅助函数。对于像 <code class="docutils literal notranslate"><span class="pre">func</span> <span class="pre">Map[K</span> <span class="pre">comparable,</span> <span class="pre">V</span> <span class="pre">any](m</span> <span class="pre">map[K]V)</span> <span class="pre">[]K</span></code> 这样的 Go 泛型，这管用。但对于一个参数跨越五行换行的 Java 方法，它会生成一个截断的签名。我们的修复方案是把完整签名从 tree-sitter 节点的 range 中取出，而不是从朴素的按行拆分中取 —— 参见 <code class="docutils literal notranslate"><span class="pre">extractSignature</span></code> 的用法。这被标注为一个已知 bug，有跟踪的修复计划。</p></li>
+</ul>
+</section>
+<section id="id8">
+<h3>常见错误<a class="headerlink" href="#id8" title="Link to this heading">#</a></h3>
+<p>每当团队试图在解析器阶段抄近道，下面这三种反模式就会冒出来。每一个在前期看起来都 * 挺诱人 * 的，因为好像省事；每一个在下游都会以 10 倍代价偿还。</p>
+<p><strong>1 —— “MVP 用正则就够了”。</strong> 症状是一行识别符正则 —— <code class="docutils literal notranslate"><span class="pre">/func\s+(\w+)/</span></code> —— 在一个 4 kLOC 的仓库里吐出 15 000 个实体。注释也命中。包含单词 <code class="docutils literal notranslate"><span class="pre">function</span></code> 的字符串字面量也命中。测试框架里的 <code class="docutils literal notranslate"><span class="pre">describe(&quot;function</span> <span class="pre">X&quot;,</span> <span class="pre">...)</span></code> 也命中。正则不是 * 近似 * 的解析器 —— 它是一个完全不同的函数。每一个下游章节（嵌入、图谱、检索）都会继承并放大这些噪声。从第一次提交起就用真正的解析器（tree-sitter、语言服务、编译器前端）。它不是那条慢路径。</p>
+<p><strong>2 —— 不稳定的实体 ID。</strong> 症状是：在一个没改过的仓库上重跑 indexer，你的向量存储居然出现了 diff。为什么？因为 <code class="docutils literal notranslate"><span class="pre">id</span></code> 是 <code class="docutils literal notranslate"><span class="pre">filepath</span> <span class="pre">+</span> <span class="pre">name</span></code> 拼的，或者是一个把完整函数体一起哈希进去的 hash（于是一次空白改动就会级联），或者它里面干脆带了一个自增计数器。这样一来，图谱的边就会指向已经不存在的 ID。解决办法是第 17 章的方案：<code class="docutils literal notranslate"><span class="pre">sha256(repoID</span> <span class="pre">+</span> <span class="pre">filePath</span> <span class="pre">+</span> <span class="pre">entityType</span> <span class="pre">+</span> <span class="pre">name</span> <span class="pre">+</span> <span class="pre">startLine)[:16]</span></code>。在重建索引之间稳定；但又敏感到：把一个函数挪到新的一行就会产生新 ID（这正是正确行为）。</p>
+<p><strong>3 —— 吐出“过于聪明”的实体类型。</strong> 症状是：一个解析器吐出了 23 种实体 —— <code class="docutils literal notranslate"><span class="pre">struct-field</span></code>、<code class="docutils literal notranslate"><span class="pre">enum-variant</span></code>、<code class="docutils literal notranslate"><span class="pre">type-alias</span></code>、<code class="docutils literal notranslate"><span class="pre">const-declaration</span></code> —— 然后检索层开始要琢磨“到底哪些类型可以混在一起排”。基数爆炸，排序信号被稀释，图谱的节点类型多到画不下任何像样的可视化。就从第 16 章的四种开始 —— <code class="docutils literal notranslate"><span class="pre">package</span></code>、<code class="docutils literal notranslate"><span class="pre">type</span></code>、<code class="docutils literal notranslate"><span class="pre">method</span></code>、<code class="docutils literal notranslate"><span class="pre">function</span></code> —— 哪怕是 Java（虽然“interface”感觉和“class”不一样）。你随时可以以后再细化；但你没法把一个已经被嵌进下游 200 条规则的实体类型“撤回”。</p>
+</section>
+</section>
+<section id="example">
+<h2>Example —— 范例<a class="headerlink" href="#example" title="Link to this heading">#</a></h2>
+<p>四行命令就能在代码层参考实现自身上复现一次演示：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>~/reference-impl/code-kg
+go<span class="w"> </span>run<span class="w"> </span>./cmd/code-kg<span class="w"> </span>register<span class="w"> </span>--name<span class="w"> </span>code-kg<span class="w"> </span>--path<span class="w"> </span>.<span class="w"> </span>--id<span class="w"> </span>demo
+go<span class="w"> </span>run<span class="w"> </span>./cmd/code-kg<span class="w"> </span>sync<span class="w"> </span>--repo-id<span class="w"> </span>demo
+sqlite3<span class="w"> </span>code-kg.db<span class="w"> </span><span class="s2">&quot;SELECT entity_type, COUNT(*) FROM entities</span>
+<span class="s2">                    WHERE repo_id=&#39;demo&#39; GROUP BY entity_type;&quot;</span>
+</pre></div>
+</div>
+<p>在本章节选对应的 commit 上，输出如下：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">class</span><span class="o">|</span><span class="mi">24</span>
+<span class="n">function</span><span class="o">|</span><span class="mi">412</span>
+</pre></div>
+</div>
+<p>比例比绝对数字更重要：一个健康的 Go 代码库是“函数密集”的。如果你在一个 50 kLOC 的 Java 仓库上看到 5000 个“函数”，那就是你的解析器把每个闭包都当成了实体 —— 去修那个 visitor。</p>
+</section>
+<section id="id9">
+<h2>9.5   多语言仓库解析<a class="headerlink" href="#id9" title="Link to this heading">#</a></h2>
+<p>现实中的代码仓库很少只有一种语言。一个典型的产品 monorepo 可能前端是 TypeScript，后端是 Go 或 Java，脚本工具链是 Python，还有少量 Rust 写的性能关键路径。本节讨论 polyglot（多语言）仓库给解析与实体抽取带来的特殊挑战，以及应对它们的实用模式。</p>
+<section id="id10">
+<h3>为什么多语言仓库需要特殊处理<a class="headerlink" href="#id10" title="Link to this heading">#</a></h3>
+<p>单语言解析器只需加载一份 tree-sitter grammar、写一个 visitor、维护一份实体映射表。当仓库里出现第二种语言，下面三个假设立刻失效：</p>
+<ol class="arabic simple">
+<li><p><strong>节点类型名不再通用。</strong> Go 里的 <code class="docutils literal notranslate"><span class="pre">function_declaration</span></code> 在 Python 里叫 <code class="docutils literal notranslate"><span class="pre">function_definition</span></code>，在 TypeScript 里叫 <code class="docutils literal notranslate"><span class="pre">function_declaration</span></code> <em>和</em> <code class="docutils literal notranslate"><span class="pre">arrow_function</span></code>。如果你的 visitor 硬编码了节点名，增加语言就意味着到处加 <code class="docutils literal notranslate"><span class="pre">if</span></code>。</p></li>
+<li><p><strong>实体语义不再对齐。</strong> Python 的 <code class="docutils literal notranslate"><span class="pre">class</span></code> 和 Java 的 <code class="docutils literal notranslate"><span class="pre">class</span></code> 在语法树层面都叫&quot;类&quot;，但 Python class 可以在函数体内定义、支持多继承且没有访问修饰符。把两者无差别地映射到同一个 <code class="docutils literal notranslate"><span class="pre">EntityType.CLASS</span></code> 会丢失下游图谱推理所需的上下文。</p></li>
+<li><p><strong>文件发现逻辑需要分发。</strong> <code class="docutils literal notranslate"><span class="pre">.go</span></code> 文件走 Go grammar，<code class="docutils literal notranslate"><span class="pre">.py</span></code> 走 Python grammar，<code class="docutils literal notranslate"><span class="pre">.ts</span></code> / <code class="docutils literal notranslate"><span class="pre">.tsx</span></code> 走 TypeScript grammar。分发的注册表越早变成显式配置，后期维护越轻松。</p></li>
+</ol>
+</section>
+<section id="language-adapter-registry">
+<h3>Language adapter registry 模式<a class="headerlink" href="#language-adapter-registry" title="Link to this heading">#</a></h3>
+<p>推荐的做法是维护一张 <strong>language adapter registry</strong>——一份从文件扩展名到 tree-sitter grammar 及对应 visitor 的配置映射：</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># language_registry.yaml</span>
+<span class="nt">adapters</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">extensions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;.go&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">grammar</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;tree-sitter-go&quot;</span>
+<span class="w">    </span><span class="nt">visitor</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;go_visitor&quot;</span>
+<span class="w">    </span><span class="nt">entity_kinds</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;package&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;function&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;struct&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;interface&quot;</span><span class="p p-Indicator">]</span>
+
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">extensions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;.py&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;.pyi&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">grammar</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;tree-sitter-python&quot;</span>
+<span class="w">    </span><span class="nt">visitor</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;python_visitor&quot;</span>
+<span class="w">    </span><span class="nt">entity_kinds</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;module&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;function&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;class&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;decorator&quot;</span><span class="p p-Indicator">]</span>
+
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">extensions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;.ts&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;.tsx&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">grammar</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;tree-sitter-typescript&quot;</span>
+<span class="w">    </span><span class="nt">visitor</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;typescript_visitor&quot;</span>
+<span class="w">    </span><span class="nt">entity_kinds</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;function&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;class&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;module&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;type_alias&quot;</span><span class="p p-Indicator">]</span>
+
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">extensions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;.java&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">grammar</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;tree-sitter-java&quot;</span>
+<span class="w">    </span><span class="nt">visitor</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;java_visitor&quot;</span>
+<span class="w">    </span><span class="nt">entity_kinds</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;package&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;method&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;class&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;interface&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;enum&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;annotation&quot;</span><span class="p p-Indicator">]</span>
+
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">extensions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;.rs&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">grammar</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;tree-sitter-rust&quot;</span>
+<span class="w">    </span><span class="nt">visitor</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;rust_visitor&quot;</span>
+<span class="w">    </span><span class="nt">entity_kinds</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;function&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;struct&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;enum&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;trait&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;mod&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;impl&quot;</span><span class="p p-Indicator">]</span>
+</pre></div>
+</div>
+<p>运行时解析器只需根据文件扩展名查表，加载对应 grammar 并委托给正确的 visitor。新增语言 = 新增一条配置 + 一个约 150 行的 visitor 文件。</p>
+</section>
+<section id="id11">
+<h3>各语言实体模型差异<a class="headerlink" href="#id11" title="Link to this heading">#</a></h3>
+<p>下表汇总了五种常见语言在实体抽取层面的关键差异：</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>Language</p></th>
+<th class="head text-left"><p>Function</p></th>
+<th class="head text-left"><p>Class</p></th>
+<th class="head text-left"><p>Module / Package</p></th>
+<th class="head text-left"><p>Special</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p>Go</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">func</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">struct</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">package</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">interface</span></code></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>Python</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">def</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">class</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">module</span></code> (file)</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">decorator</span></code></p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>TypeScript</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">function</span></code> / arrow</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">class</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">module</span></code> / <code class="docutils literal notranslate"><span class="pre">namespace</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">type</span> <span class="pre">alias</span></code></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>Java</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">method</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">class</span></code> / <code class="docutils literal notranslate"><span class="pre">interface</span></code> / <code class="docutils literal notranslate"><span class="pre">enum</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">package</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">annotation</span></code></p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>Rust</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">fn</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">struct</span></code> / <code class="docutils literal notranslate"><span class="pre">enum</span></code> / <code class="docutils literal notranslate"><span class="pre">trait</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">mod</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">impl</span></code> block</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>要点：每种语言的&quot;函数&quot;和&quot;类&quot;在 tree-sitter 语法树里的节点类型名各不相同。adapter registry 的一项职责就是把这些异构的节点类型<strong>归一化</strong>到第 16 章定义的 <code class="docutils literal notranslate"><span class="pre">CodeEntity</span></code> IR，同时在 <code class="docutils literal notranslate"><span class="pre">metadata</span></code> 字段里保留语言特有的信息（例如 Rust 的 <code class="docutils literal notranslate"><span class="pre">impl</span></code> 目标类型、Python 的 decorator 列表）。</p>
+</section>
+<section id="id12">
+<h3>跨语言实体链接的挑战<a class="headerlink" href="#id12" title="Link to this heading">#</a></h3>
+<p>在 polyglot 仓库中，不同语言的实体可能共享同一个名字但语义完全不同。例如：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">utils.Parse</span></code> 在 Go 里是一个 package-level function，在 TypeScript 里可能是一个 class 的 static method。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Config</span></code> 在 Python 里可能是一个 dataclass，在 Java 里是一个 interface，在 Rust 里是一个 trait。</p></li>
+</ul>
+<p>第 18 章的图谱 builder 在创建跨语言引用边时，必须用 <strong>完全限定名</strong>（<code class="docutils literal notranslate"><span class="pre">language:package/module:entity_name</span></code>）作为节点 ID 的一部分，而不是裸名。否则同名实体会在图谱中被错误合并，导致检索和回答出现严重的语义漂移。</p>
+</section>
+<section id="python-typescript-monorepo">
+<h3>配置示例：Python + TypeScript monorepo<a class="headerlink" href="#python-typescript-monorepo" title="Link to this heading">#</a></h3>
+<p>以下是一个典型的 Python + TypeScript monorepo 的解析配置：</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># repo_parse_config.yaml</span>
+<span class="nt">repository</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;acme-platform&quot;</span>
+<span class="w">  </span><span class="nt">root</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;.&quot;</span>
+
+<span class="nt">languages</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">python</span>
+<span class="w">    </span><span class="nt">source_roots</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;backend/&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;scripts/&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">extensions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;.py&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">skip_dirs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;__pycache__&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;.venv&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;migrations&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">max_file_size_kb</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">512</span>
+
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">typescript</span>
+<span class="w">    </span><span class="nt">source_roots</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;frontend/src/&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;shared/&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">extensions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;.ts&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;.tsx&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">skip_dirs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;node_modules&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;dist&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;.next&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;__tests__&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">max_file_size_kb</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">512</span>
+
+<span class="nt">entity_normalization</span><span class="p">:</span>
+<span class="w">  </span><span class="c1"># 将 Python def 和 TypeScript function/arrow 都映射到统一的 &quot;function&quot; 类型</span>
+<span class="w">  </span><span class="nt">function</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;function_definition&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;function_declaration&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;arrow_function&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;class_definition&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;class_declaration&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">module</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;module&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;program&quot;</span><span class="p p-Indicator">]</span>
+
+<span class="nt">cross_language_linking</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">id_format</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{language}:{relative_path}:{entity_type}:{name}:{start_line}&quot;</span>
+</pre></div>
+</div>
+<p>这份配置把&quot;哪些目录属于哪种语言&quot;、“跳过哪些目录”、&quot;实体类型如何归一化&quot;这三件事都变成了<strong>声明式配置</strong>，而不是埋在代码里的 <code class="docutils literal notranslate"><span class="pre">if-else</span></code>。</p>
+</section>
+<section id="id13">
+<h3>实用建议<a class="headerlink" href="#id13" title="Link to this heading">#</a></h3>
+<p><strong>从两种语言起步，而不是五种。</strong> 在第一次为仓库建索引时，先只支持占代码量最大的两种语言。原因有三：</p>
+<ol class="arabic simple">
+<li><p>每新增一种语言，adapter 的测试矩阵就多一列；两种语言的组合测试量是可控的，五种的组合会让 CI 时间翻倍。</p></li>
+<li><p>跨语言链接的边界情况（编码差异、路径约定、import 风格）在前两种语言上暴露得最充分，第三种语言开始收益递减。</p></li>
+<li><p>你的下游（嵌入、图谱、检索）需要时间适配多语言 IR；同时推五种语言意味着下游也要同时处理五种边界情况。</p></li>
+</ol>
+<p>先让两种语言端到端跑通——从解析到嵌入到检索到回答——确认质量达标后，再逐步增加。这是 DeepWiki 方法论中&quot;渐进式扩展&quot;原则在解析层的具体体现。</p>
+</section>
+</section>
+<section id="conclusion">
+<h2>Conclusion —— 小结<a class="headerlink" href="#conclusion" title="Link to this heading">#</a></h2>
+<p>解析器很小，但第四部分的每一层都靠它立下的三条契约活着：跨语言统一的 IR（主张 1）、每个实体都忠实保留源码坐标（主张 2）、以及对 vendor 目录的激进默认跳过名单（主张 3）。这三条哪一条破了，下游每一章也跟着破。</p>
+<p>第 17 章把这份 IR 作为输入，把每个实体的 * 身份 * 那一半（语言、类型、名字、签名、docstring）变成一个向量 —— 这也正是众所周知、大多数 code-RAG 教程会走偏的那一段。</p>
+</section>
+<section id="id14">
+<h2>参考文献<a class="headerlink" href="#id14" title="Link to this heading">#</a></h2>
+<div class="docutils container" id="id15">
+<div role="list" class="citation-list">
+<div class="citation" id="id74" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">1</a><span class="fn-bracket">]</span></span>
+<p>Miltiadis Allamanis, Earl T. Barr, Premkumar Devanbu, and Charles Sutton. A survey of machine learning for big code and naturalness. <em>ACM Computing Surveys</em>, 51(4):1–37, 2018. <a class="reference external" href="https://doi.org/10.1145/3212695">doi:10.1145/3212695</a>.</p>
+</div>
+<div class="citation" id="id106" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></span>
+<p>Egor Bogomolov, Aleksandra Eliseeva, Timur Galimzyanov, Evgeniy Glukhov, Anton Shapkin, Maria Shmelev, Yaroslav Smirnov, Sergei Golubev, Timofey Bryksin, and Alberto Bacchelli. Long code arena: a set of benchmarks for long-context code models. <em>arXiv preprint arXiv:2406.11612</em>, 2024. Covers six long-context code tasks: project-level completion, CI repair, bug localization, module summarization, repo QA, and commit-message generation. Key insight for Chapter 15 and Chapter 24: real-world KB evaluation must go beyond single-file metrics to cover these project-scale tasks. URL: <a class="reference external" href="https://arxiv.org/abs/2406.11612">https://arxiv.org/abs/2406.11612</a>, <a class="reference external" href="https://arxiv.org/abs/2406.11612">arXiv:2406.11612</a>.</p>
+</div>
+<div class="citation" id="id44" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></span>
+<p>Max Brunsfeld. Tree-sitter: an incremental parsing system for programming tools. 2018–present. URL: <a class="reference external" href="https://tree-sitter.github.io/tree-sitter/">https://tree-sitter.github.io/tree-sitter/</a>.</p>
+</div>
+<div class="citation" id="id72" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">4</a><span class="fn-bracket">]</span></span>
+<p>Max Brunsfeld and Tree-sitter contributors. Tree-sitter: an incremental parsing system for programming tools. 2018–present. Used by the code-layer reference implementation's RAG CodeParser for multi-language uniform parsing. URL: <a class="reference external" href="https://tree-sitter.github.io/tree-sitter/">https://tree-sitter.github.io/tree-sitter/</a>.</p>
+</div>
+<div class="citation" id="id85" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></span>
+<p>Shiqi Chen, Yiran Zhang, Yunze Zhao, Yifei Liu, Chengye Hu, and Yang Liu. Benchmarking large language models in retrieval-augmented generation. In <em>arXiv preprint arXiv:2309.01431</em>. 2023. URL: <a class="reference external" href="https://arxiv.org/abs/2309.01431">https://arxiv.org/abs/2309.01431</a>.</p>
+</div>
+<div class="citation" id="id16" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">6</a><span class="fn-bracket">]</span></span>
+<p>Walter (Yamin) Fan. 给代码仓库造一个 DeepWiki：Tree-sitter + embedding + 图谱 + LLM 的方法论. April 2026. v1.2, CC-BY-NC-ND 4.0. URL: <a class="reference external" href="https://www.fanyamin.com/gei-dai-ma-cang-ku-zao-yi-ge-deepwikitree-sitter-embedding-tu-pu-llm-de-fang-fa-lun.html">https://www.fanyamin.com/gei-dai-ma-cang-ku-zao-yi-ge-deepwikitree-sitter-embedding-tu-pu-llm-de-fang-fa-lun.html</a>.</p>
+</div>
+<div class="citation" id="id79" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></span>
+<p>Alex Gleason. Sqlite-vec: a vector search SQLite extension that runs anywhere. 2024–present. URL: <a class="github reference external" href="https://github.com/asg017/sqlite-vec">asg017/sqlite-vec</a>.</p>
+</div>
+<div class="citation" id="id75" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>8<span class="fn-bracket">]</span></span>
+<p>Daya Guo, Shuo Ren, Shuai Lu, Zhangyin Feng, Duyu Tang, Shujie Liu, Long Zhou, Nan Duan, Alexey Svyatkovskiy, and Shengyu Fu. GraphCodeBERT: pre-training code representations with data flow. In <em>International Conference on Learning Representations (ICLR)</em>. 2021. URL: <a class="reference external" href="https://arxiv.org/abs/2009.08366">https://arxiv.org/abs/2009.08366</a>.</p>
+</div>
+<div class="citation" id="id73" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>9<span class="fn-bracket">]</span></span>
+<p>Hamel Husain, Ho-Hsiang Wu, Tiferet Gazit, Miltiadis Allamanis, and Marc Brockschmidt. CodeSearchNet Challenge: evaluating the state of semantic code search. In <em>arXiv preprint arXiv:1909.09436</em>. 2019. URL: <a class="reference external" href="https://arxiv.org/abs/1909.09436">https://arxiv.org/abs/1909.09436</a>.</p>
+</div>
+<div class="citation" id="id80" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>10<span class="fn-bracket">]</span></span>
+<p>Andrew Kane. Pgvector: open-source vector similarity search for PostgreSQL. 2021–present. URL: <a class="github reference external" href="https://github.com/pgvector/pgvector">pgvector/pgvector</a>.</p>
+</div>
+<div class="citation" id="id99" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>11<span class="fn-bracket">]</span></span>
+<p>Di Li, Jingyi Wei, Yewen Peng, Hanbin Bai, Bei Chen, and Yong Li. Repoformer: selective retrieval for repository-level code completion. <em>Proceedings of the 41st International Conference on Machine Learning (ICML 2024)</em>, 2024. Trains a lightweight classifier to predict whether retrieval will help a given code-completion task, skipping it when the local context suffices. Key insight for Chapter 12: not every query needs retrieval, and a retrieval-necessity signal can cut latency and noise. URL: <a class="reference external" href="https://arxiv.org/abs/2403.10059">https://arxiv.org/abs/2403.10059</a>, <a class="reference external" href="https://arxiv.org/abs/2403.10059">arXiv:2403.10059</a>.</p>
+</div>
+<div class="citation" id="id105" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>12<span class="fn-bracket">]</span></span>
+<p>Tianyang Liu, Canwen Xu, and Julian McAuley. RepoBench: benchmarking repository-level code auto-completion systems. <em>arXiv preprint arXiv:2306.03091</em>, 2023. Decomposes evaluation into Retrieval (R), Completion (C), and Pipeline (P) layers, enabling precise diagnosis of whether the bottleneck is retrieval quality or generation quality. Key insight for Chapter 15: layered evaluation (retrieval health → generation health → end-to-end) is the right structure for KB benchmarking. URL: <a class="reference external" href="https://arxiv.org/abs/2306.03091">https://arxiv.org/abs/2306.03091</a>, <a class="reference external" href="https://arxiv.org/abs/2306.03091">arXiv:2306.03091</a>.</p>
+</div>
+<div class="citation" id="id42" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>13<span class="fn-bracket">]</span></span>
+<p>Qinyu Luo, Yining Ye, Shihao Liang, Zhong Zhang, Yujia Qin, Yaxi Lu, Yesai Wu, Xin Cong, Yankai Lin, Yingli Zhang, Xiaoyin Che, Zhiyuan Liu, and Maosong Sun. Repoagent: an LLM-powered open-source framework for repository-level code documentation generation. 2024. URL: <a class="reference external" href="https://arxiv.org/abs/2402.16667">https://arxiv.org/abs/2402.16667</a>, <a class="reference external" href="https://arxiv.org/abs/2402.16667">arXiv:2402.16667</a>.</p>
+</div>
+<div class="citation" id="id38" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>14<span class="fn-bracket">]</span></span>
+<p>Yury A. Malkov and Dmitry A. Yashunin. Efficient and robust approximate nearest neighbor search using hierarchical navigable small world graphs. <em>IEEE Transactions on Pattern Analysis and Machine Intelligence</em>, 42(4):824–836, 2020. <a class="reference external" href="https://doi.org/10.1109/TPAMI.2018.2889473">doi:10.1109/TPAMI.2018.2889473</a>.</p>
+</div>
+<div class="citation" id="id97" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>15<span class="fn-bracket">]</span></span>
+<p>Yury A. Malkov and Dmitry A. Yashunin. Efficient and robust approximate nearest neighbor search using hierarchical navigable small world graphs. <em>IEEE Transactions on Pattern Analysis and Machine Intelligence</em>, 42(4):824–836, 2020. The HNSW index underlying every modern vector store (sqlite-vec, pgvector's hnsw option, Milvus, Faiss). The small-world-graph construction is why an approximate nearest-neighbour query runs in log-time rather than linear-scan time; cited in Chapter 10 to anchor the &quot;vector DB is not magic&quot; argument. <a class="reference external" href="https://doi.org/10.1109/TPAMI.2018.2889473">doi:10.1109/TPAMI.2018.2889473</a>.</p>
+</div>
+<div class="citation" id="id107" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>16<span class="fn-bracket">]</span></span>
+<p>Niklas Muennighoff, Nouamane Tazi, Loïc Magne, and Nils Reimers. Mteb: massive text embedding benchmark. <em>arXiv preprint arXiv:2210.07316</em>, 2023. Defines the leaderboard used to compare embedding models across 8 tasks and 58 datasets. Key insight for Chapter 10: leaderboard ranking on general tasks does not predict performance on domain-specific code retrieval. URL: <a class="reference external" href="https://arxiv.org/abs/2210.07316">https://arxiv.org/abs/2210.07316</a>.</p>
+</div>
+<div class="citation" id="id94" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>17<span class="fn-bracket">]</span></span>
+<p>Rodrigo Nogueira and Kyunghyun Cho. Passage re-ranking with BERT. <em>arXiv preprint arXiv:1901.04085</em>, 2019. Canonical reference for cross-encoder re-ranking — a BERT model scores (query, document) pairs for the second stage of a retrieve-then-rerank pipeline. Widely known as &quot;monoBERT&quot;. URL: <a class="reference external" href="https://arxiv.org/abs/1901.04085">https://arxiv.org/abs/1901.04085</a>.</p>
+</div>
+<div class="citation" id="id101" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>18<span class="fn-bracket">]</span></span>
+<p>Siru Ouyang, Jingqing Yu, Daoguang Zan, Xiangyu Xu, Wei Liu, Shuai Shi, and Hao Peng. RepoGraph: enhancing AI software engineering with repository-level code graph. <em>ICLR 2025 Poster</em>, 2025. Builds a typed repository-level code graph (calls, imports, inherits, defines) and uses graph-enhanced retrieval to expand seed hits along structural edges. Key insight for Chapter 11: code graphs are not just for storage; they are retrieval primitives that produce structurally complete context, not just semantically similar chunks. URL: <a class="reference external" href="https://openreview.net/forum?id=dw9VUsSHGB">https://openreview.net/forum?id=dw9VUsSHGB</a>.</p>
+</div>
+<div class="citation" id="id95" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>19<span class="fn-bracket">]</span></span>
+<p>Nils Reimers and Iryna Gurevych. Sentence-BERT: sentence embeddings using siamese BERT-networks. In <em>Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing</em>. 2019. Introduces the bi-encoder framing that underlies every modern dense retriever: two independent encodings compared by cosine similarity, contrasted explicitly against cross-encoders that concatenate (query, document) before scoring. URL: <a class="reference external" href="https://arxiv.org/abs/1908.10084">https://arxiv.org/abs/1908.10084</a>.</p>
+</div>
+<div class="citation" id="id84" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>20<span class="fn-bracket">]</span></span>
+<p>Stephen Robertson and Hugo Zaragoza. The probabilistic relevance framework: BM25 and beyond. <em>Foundations and Trends in Information Retrieval</em>, 3(4):333–389, 2009. <a class="reference external" href="https://doi.org/10.1561/1500000019">doi:10.1561/1500000019</a>.</p>
+</div>
+<div class="citation" id="id82" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>21<span class="fn-bracket">]</span></span>
+<p>Ian Robinson, Jim Webber, and Emil Eifrem. <em>Graph Databases: New Opportunities for Connected Data</em>. O'Reilly Media, 2015. ISBN 978-1491930892.</p>
+</div>
+<div class="citation" id="id104" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>22<span class="fn-bracket">]</span></span>
+<p>Disha Shrivastava, Hugo Larochelle, and Daniel Tarlow. Repository-level prompt generation for large language models of code. In <em>Proceedings of the 40th International Conference on Machine Learning (ICML 2023)</em>. 2023. The conceptual origin of repo-level RAG: even without fine-tuning, selecting the right cross-file context (imports, similar code, usage examples, type definitions) substantially improves code completion. Key insight for Chapter 12 and Chapter 19: context assembly is a first-class retrieval problem, not a prompt-engineering afterthought. URL: <a class="reference external" href="https://proceedings.mlr.press/v202/shrivastava23a.html">https://proceedings.mlr.press/v202/shrivastava23a.html</a>.</p>
+</div>
+<div class="citation" id="id43" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>23<span class="fn-bracket">]</span></span>
+<p>Hongyuan Tao, Ying Zhang, Zhenhao Tang, Hongen Peng, Xukun Zhu, Bingchang Liu, Yingguang Yang, Ziyin Zhang, Zhaogui Xu, Haipeng Zhang, Linchao Zhu, Rui Wang, Hang Yu, Jianguo Li, and Peng Di. Code graph model (CGM): a graph-integrated large language model for repository-level software engineering tasks. 2025. URL: <a class="reference external" href="https://arxiv.org/abs/2505.16901">https://arxiv.org/abs/2505.16901</a>, <a class="reference external" href="https://arxiv.org/abs/2505.16901">arXiv:2505.16901</a>.</p>
+</div>
+<div class="citation" id="id76" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>24<span class="fn-bracket">]</span></span>
+<p>Shitao Xiao, Zheng Liu, Peitian Zhang, Niklas Muennighoff, Defu Lian, and Jian-Yun Nie. C-Pack: packed resources for general Chinese embeddings. 2024. Includes the BGE family of open embedding models, which can be self-hosted on a single GPU at effectively zero per-token cost. URL: <a class="reference external" href="https://arxiv.org/abs/2309.07597">https://arxiv.org/abs/2309.07597</a>.</p>
+</div>
+<div class="citation" id="id103" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>25<span class="fn-bracket">]</span></span>
+<p>Chuxin Xu, Zhicheng Geng, Zhengtao Liao, and Yifan Wei. Synergizing LLMs and knowledge graphs: a novel approach to software repository-related question answering. <em>arXiv preprint arXiv:2412.03815</em>, 2024. Designs a software-specific KG ontology (Repository, Module, File, Class, Function, Dependency, Issue, Commit, Developer) and a synergistic LLM+KG QA framework that routes structural queries to KG and semantic queries to dense retrieval. Key insight for Chapter 6 and Chapter 11: a purpose-built software ontology plus hybrid query routing covers both structural and semantic questions better than either approach alone. URL: <a class="reference external" href="https://arxiv.org/abs/2412.03815">https://arxiv.org/abs/2412.03815</a>, <a class="reference external" href="https://arxiv.org/abs/2412.03815">arXiv:2412.03815</a>.</p>
+</div>
+<div class="citation" id="id102" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>26<span class="fn-bracket">]</span></span>
+<p>Fengji Zhang, Bei Chen, Yue Zhang, Jacky Keung, Jin Liu, Daoguang Zan, Yi Mao, Jian-Guang Chen, and Wenqiang Chen. RepoCoder: repository-level code completion through iterative retrieval and generation. <em>Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing (EMNLP 2023)</em>, 2023. Proposes a retrieve-generate-re-retrieve iterative loop: the LLM draft becomes a better retrieval query for the next round. Key insight for Chapter 12: multi-round retrieval converges on better context, especially for complex cross-file queries. URL: <a class="reference external" href="https://arxiv.org/abs/2303.12570">https://arxiv.org/abs/2303.12570</a>, <a class="reference external" href="https://arxiv.org/abs/2303.12570">arXiv:2303.12570</a>.</p>
+</div>
+<div class="citation" id="id41" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>27<span class="fn-bracket">]</span></span>
+<p>Yuqi Zhu, Xiaohan Wang, Jing Chen, Shuofei Qiao, Yixin Ou, Yunzhi Yao, Shumin Deng, Huajun Chen, and Ningyu Zhang. LLMs for knowledge graph construction and reasoning: recent capabilities and future opportunities. 2024. URL: <a class="reference external" href="https://arxiv.org/abs/2305.13168">https://arxiv.org/abs/2305.13168</a>, <a class="reference external" href="https://arxiv.org/abs/2305.13168">arXiv:2305.13168</a>.</p>
+</div>
+<div class="citation" id="id25" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>28<span class="fn-bracket">]</span></span>
+<p>Cognition Labs. DeepWiki: ai-generated wikis for any repository. 2025. Closed-source SaaS; auto-generates wiki-style pages from public GitHub repositories. URL: <a class="reference external" href="https://deepwiki.com/">https://deepwiki.com/</a>.</p>
+</div>
+<div class="citation" id="id83" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>29<span class="fn-bracket">]</span></span>
+<p>Memgraph Ltd. Memgraph: an in-memory graph database compatible with the Bolt protocol. 2016–present. URL: <a class="reference external" href="https://memgraph.com/">https://memgraph.com/</a>.</p>
+</div>
+<div class="citation" id="id77" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>30<span class="fn-bracket">]</span></span>
+<p>OpenAI. OpenAI text embeddings v3 (text-embedding-3-small and text-embedding-3-large). 2024. The \texttt text-embedding-3-small launch announcement lists a 5× price reduction relative to \texttt text-embedding-ada-002 (from \$0.0001 to \$0.00002 per 1K tokens) at higher retrieval quality. URL: <a class="reference external" href="https://openai.com/index/new-embedding-models-and-api-updates/">https://openai.com/index/new-embedding-models-and-api-updates/</a>.</p>
+</div>
+<div class="citation" id="id78" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>31<span class="fn-bracket">]</span></span>
+<p>Voyage AI. Voyage-code-2: an embedding model optimised for code retrieval. 2024. URL: <a class="reference external" href="https://docs.voyageai.com/docs/embeddings">https://docs.voyageai.com/docs/embeddings</a>.</p>
+</div>
+<div class="citation" id="id81" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>32<span class="fn-bracket">]</span></span>
+<p>Zilliz, Inc. Milvus: an open-source vector database for scalable similarity search. 2019–present. URL: <a class="reference external" href="https://milvus.io/">https://milvus.io/</a>.</p>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="ch15-why-code-is-not-prose.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">第 15 章 —— 为什么代码不是文稿</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="ch17-embeddings-and-vector-stores.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">第 17 章 —— 嵌入向量与向量存储</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 目录
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why">Why —— 为什么</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what">What —— 是什么</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how">How —— 怎么做</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">实体模型</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">每语言适配器</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">来自生产的坑</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">常见错误</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example —— 范例</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">9.5   多语言仓库解析</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">为什么多语言仓库需要特殊处理</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#language-adapter-registry">Language adapter registry 模式</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">各语言实体模型差异</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id12">跨语言实体链接的挑战</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#python-typescript-monorepo">配置示例：Python + TypeScript monorepo</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id13">实用建议</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#conclusion">Conclusion —— 小结</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id14">参考文献</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+作者： Walter Fan
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright AI 辅助创作 2026, Walter Fan.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    <p class="last-updated">
+  最后更新于 2026-11-10.
+  <br/>
+</p>
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

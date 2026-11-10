@@ -1,0 +1,1206 @@
+
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>第 10 章 —— 为什么让 AI 当作者 &#8212; Use AI to build a knowledge base for a software project</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=591f613d" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=23f7fa08"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../_static/translations.js?v=beaddf03"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.2.0/dist/mermaid-layout-elk.esm.min.mjs"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";import elkLayouts from "https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.2.0/dist/mermaid-layout-elk.esm.min.mjs";mermaid.registerLayoutLoaders(elkLayouts);mermaid.initialize({startOnLoad:false});</script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+const defaultStyle = document.createElement('style');
+defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+`;
+document.head.appendChild(defaultStyle);
+
+const fullscreenStyle = document.createElement('style');
+fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+document.head.appendChild(fullscreenStyle);
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        return brightness < 128;
+    }
+    return false;
+};
+
+const load = async () => {
+    await mermaid.run();
+
+    const all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(load, 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(load, 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(load, 200);
+        return;
+    }
+
+    const darkTheme = isDarkTheme();
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    const modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    const modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    let previousScrollOffset = [window.scrollX, window.scrollY];
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    const allButtons = [];
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+
+        container.appendChild(fullscreenBtn);
+        allButtons.push(fullscreenBtn);
+    });
+
+    // Update theme classes when theme changes
+    const updateTheme = () => {
+        const dark = isDarkTheme();
+        allButtons.forEach(btn => {
+            if (dark) {
+                btn.classList.add('dark-theme');
+            } else {
+                btn.classList.remove('dark-theme');
+            }
+        });
+        if (dark) {
+            modal.classList.add('dark-theme');
+            modalContent.classList.add('dark-theme');
+            closeBtn.classList.add('dark-theme');
+        } else {
+            modal.classList.remove('dark-theme');
+            modalContent.classList.remove('dark-theme');
+            closeBtn.classList.remove('dark-theme');
+        }
+    };
+
+    // Watch for theme changes
+    const observer = new MutationObserver(updateTheme);
+    observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    observer.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style']
+    });
+};
+
+window.addEventListener("load", load);
+</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'part3-author-layer/ch10-why-ai-as-author';</script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="第 11 章 —— AI 起草、重写、翻译" href="ch11-ai-drafting-and-rewriting.html" />
+    <link rel="prev" title="第三部分 —— 作者层" href="index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+    <meta name="docbuild:last-update" content="2026-11-10"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Use AI to build a knowledge base for a software project</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">搜索</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Part I — Foundations</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part1-foundations/index.html">第一部分 —— 基础</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch01-why-kb-for-software.html">第 1 章 —— 为什么要给软件建一个知识库？</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch01a-quickstart-30min.html">第 1a 章 —— 30 分钟快速上手</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch02-ir-rag-primer.html">第 2 章 —— IR 与 RAG 入门</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch03-diataxis-and-software-docs.html">第 3 章 —— Diátaxis 与软件文档</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part II — The Prose Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part2-prose-layer/index.html">第二部分 —— 文稿层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch04-file-based-wiki.html">第 4 章 —— 一个基于文件的 wiki</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch05-frontmatter-provenance-trust.html">第 5 章 —— 把 frontmatter 当作一份来源记录</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch06-llm-classification-pipeline.html">第 6 章 —— 分类流水线</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch07-publish-and-search.html">第 7 章 —— 发布与搜索</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch08-prose-operational-model.html">第 8 章 —— 文稿层的运维模型</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch09-cold-start-migration.html">第 9 章 —— 冷启动与批量迁移</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part III — The Author Layer</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">第三部分 —— 作者层</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">第 10 章 —— 为什么让 AI 当作者</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ch11-ai-drafting-and-rewriting.html">第 11 章 —— AI 起草、重写、翻译</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ch12-ai-for-metadata.html">第 12 章 —— AI 处理元数据：分类、打标签、实体与关系抽取</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ch13-ai-for-maintenance.html">第 13 章 —— AI 做维护：摘要、去重、过期与漂移检测</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ch14-ai-as-judge.html">第 14 章 —— AI 作为评判者：评估生成质量与引用合规</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part IV — The Code Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part4-code-layer/index.html">第四部分 —— 代码层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch15-why-code-is-not-prose.html">第 15 章 —— 为什么代码不是文稿</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch16-parsing-and-entity-extraction.html">第 16 章 —— 解析与实体抽取</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch17-embeddings-and-vector-stores.html">第 17 章 —— 嵌入向量与向量存储</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch18-code-knowledge-graph.html">第 18 章 —— 代码知识图谱</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch19-hybrid-retrieval-and-rrf.html">第 19 章 —— 混合检索与 RRF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch20-prompt-and-generation.html">第 20 章 —— 提示词与生成</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part V — Operations &amp; Lifecycle</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part5-operations-lifecycle/index.html">第五部分 —— 运维与生命周期</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part5-operations-lifecycle/ch21-incremental-sync.html">第 21 章 —— 增量同步</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part5-operations-lifecycle/ch22-evaluation-and-benchmarks.html">第 22 章 —— 评测、基准与发布门禁</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part5-operations-lifecycle/ch23-maintenance-drift-and-link-rot.html">第 23 章 —— 维护、漂移与链接腐化</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part VI — The Hybrid Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part6-hybrid-layer/index.html">第六部分 —— 混合层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch24-prose-meets-code.html">第 24 章 —— 文稿与代码相遇</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch25-document-layering-L0-L4.html">第 25 章 —— 文档分层 L0–L4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch26-graph-guided-context-assembly.html">第 26 章 —— 图引导的上下文组装</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch27-harnessing-ai-coding.html">第 27 章 —— 用知识库驾驭 AI 编码</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch28-team-sdlc-integration.html">第 28 章 —— 团队协作与 SDLC 集成</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch29-ai-agents-on-the-kb.html">第 29 章 —— 在知识库上跑的 AI Agent</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part VII — Governance &amp; Outlook</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part7-governance-and-outlook/index.html">第七部分 —— 治理与展望</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch30-cost-privacy-security.html">第 30 章 —— 成本、隐私、安全</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch31-trust-provenance-and-red-teaming.html">第 31 章 —— 信任、出处与红队演练</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch32-outlook-and-open-problems.html">第 32 章 —— 展望与尚未解决的问题</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Appendices</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-a-example-wiki.html">附录 A —— 端到端：从杂乱文件夹到可发布 Wiki</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-b-example-code-kg.html">附录 B —— 示例：从一个 Go 仓库构建代码知识库</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-c-deepwiki-checklist.html">附录 C —— 自己动手做 DeepWiki 检查清单</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-d-glossary.html">附录 D —— 术语表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-e-bilingual-publishing.html">附录 E —— 发布一个双语知识库</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">参考文献</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../reference/index.html">参考文献：仓库级代码理解与软件知识库论文导读</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../reference/01-repoformer-selective-retrieval.html">Repoformer: Selective Retrieval for Repository-Level Code Completion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/02-codeplan-repository-level-planning.html">CodePlan: Repository-Level Coding using LLMs and Planning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/03-repograph-code-graph-navigation.html">RepoGraph: Enhancing AI Software Engineering with Repository-level Code Graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/04-repoagent-documentation-generation.html">RepoAgent: An LLM-Powered Open-Source Framework for Repository-level Code Documentation Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/05-repocoder-iterative-retrieval-generation.html">RepoCoder: Repository-Level Code Completion Through Iterative Retrieval and Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/06-llm-kg-synergy-repo-qa.html">Synergizing LLMs and Knowledge Graphs: A Novel Approach to Software Repository-Related Question Answering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/07-repo-level-prompt-generation.html">Repository-Level Prompt Generation for Large Language Models of Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/08-repobench-benchmarking.html">RepoBench: Benchmarking Repository-Level Code Auto-Completion Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/09-long-code-arena-benchmarks.html">Long Code Arena: A Set of Benchmarks for Long-Context Code Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/10-cgm-graph-integrated-llm.html">Code Graph Model (CGM): A Graph-Integrated Large Language Model for Repository-Level Software Engineering Tasks</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="下载此页面">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="下载源文件"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="列印成 PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="全屏模式"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>第 10 章 —— 为什么让 AI 当作者</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> 目录 </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why">Why —— 为什么</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">周六上午十点的同一个人</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">不对称：消费侧吃光了 AI 预算</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">把消费侧的预算分一半到生产侧，会发生什么</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">风险也不对称：写错比读错更难撤销</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what">What —— 是什么</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">五角色分类法</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">人审契约</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id14">它<strong>不</strong>是什么</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how">How —— 怎么做</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id15">经济账：每一角色的边际成本</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id17">什么时候<strong>不</strong>要用 AI 当作者</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id19">与 第 6 章、第 8 章、第 27 章 的边界</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example —— 范例</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id21">贯穿案例：林宇的笔记库</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id22">五角色在林宇的笔记库里各自跑一次</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#conclusion">Conclusion —— 小结</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id23">参考文献</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="ai">
+<h1>第 10 章 —— 为什么让 AI 当作者<a class="headerlink" href="#ai" title="Link to this heading">#</a></h1>
+<p>本章是第三部分的入口。它把第二部分讲过的&quot;文稿层契约 + 闸&quot;作为已知条件，正面回答一个长期被绕过的问题：<strong>在 2026 年，让 AI 来当知识库的作者</strong>（起草、分类、抽取、总结、评判），相对于让 AI 只当读者，杠杆为什么会大几个量级。本章一次性建立后面四章共同复用的两件东西 —— <strong>五角色分类法</strong> 和 <strong>人审契约</strong>。</p>
+<pre  class="mermaid">
+        mindmap
+  root((Why AI as Author))
+    The asymmetry
+      Consumer side ate all AI budget
+      Producer side stayed 100% human
+      Cost gap is 100x not 2x
+    Five roles
+      drafter — writes for humans
+      classifier — assigns finite labels
+      extractor — pulls entities and relations
+      summarizer — compresses and merges
+      judge — scores another piece
+    HITL contract
+      AI output starts at pending
+      Provenance is mandatory
+      Three decisions stay human
+    Where it does NOT apply
+      High-stakes one-shot writing
+      No eval rubric exists
+      No reviewer available
+      Not your domain to begin with
+      Sources cannot be cited
+    </pre><section id="why">
+<h2>Why —— 为什么<a class="headerlink" href="#why" title="Link to this heading">#</a></h2>
+<section id="id1">
+<h3>周六上午十点的同一个人<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
+<p>第 1 章 的&quot;周日晚上十点&quot;那位研究者，把场景往前挪十二小时：<strong>周六上午十点</strong>，她在给团队（两个学生 + 她）的笔记库写一份新 runbook，主题是&quot;数据预处理脚本失败时该按什么顺序排查&quot;。她已经在脑子里搭好这件事的形状，但她需要写出来：开头要说明读者是谁、中间要列七步排查、每一步要给一个能贴的命令。她估算这件事要四十分钟 —— 四十分钟里有三十五分钟是把脑子里已经清楚的东西<strong>机械地搬运到 Markdown 上</strong>，只有五分钟是真正的判断（哪条命令优先、哪步要加截图、要不要附一个 ADR 风格的&quot;我们为什么不上 dbt&quot;侧记）。</p>
+<p>四十分钟之后，runbook 写完了，她合上电脑。下一次再有类似的&quot;主题已经清楚，只是要搬运&quot;的内容要写，是十天后，主题是&quot;实验结果归档约定&quot;，又是四十分钟。再下一次是三周后。一年下来，她至少十次以四十分钟的代价把脑子里清楚的东西搬到 KB —— 总计七小时左右纯搬运工。这七小时是她不写其它东西的代价，<strong>而真正没被写进 KB 的东西</strong>（因为她周末没空、因为暂时没遇到搬运动机），比这七小时的成果还多。这个团队的 KB 看起来&quot;还行&quot;，但它的真实状态是：被写下来的内容只是她意愿写的内容的一个低采样率快照。</p>
+</section>
+<section id="id2">
+<h3>不对称：消费侧吃光了 AI 预算<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
+<p>过去三年，几乎所有对个人 / 小团队 KB 投入的 AI 工程，都集中在<strong>消费侧</strong> —— 给笔记加搜索框、加问答 agent、加引用追溯、加 RAG pipeline。Obsidian 的 plugin 市场、Notion AI、各类&quot;第二脑&quot; SaaS 都长这个样子 <span id="id3">[<a class="reference internal" href="../part2-prose-layer/index.html#id25" title="Obsidian.md. Obsidian: a knowledge base that works on local Markdown files. 2020–present. URL: https://obsidian.md/.">Obsidian.md, 2020–present</a>, <a class="reference internal" href="../part1-foundations/ch03-diataxis-and-software-docs.html#id28" title="Notion Labs. Notion AI: ask, find, write with your wiki. 2023–present. Closed-source SaaS; LLM-assisted authoring and Q&amp;A over Notion workspaces. URL: https://www.notion.com/product/ai.">Notion Labs, 2023–present</a>]</span>。消费侧的故事确实成立：从一千两百条笔记里找一句话，三秒钟出结果带引用，比 grep 加二十五分钟人工筛选好太多。第六部分整部分讲的就是怎么把消费侧做到 production-grade。</p>
+<p>但消费侧之所以重要，是因为有内容<strong>可以</strong>被消费。Lethbridge、Singer、Forward 在 2003 年记录的那个尴尬现实 —— 工程师承认文档重要、但常规性地不看不信 <span id="id4">[<a class="reference internal" href="../part7-governance-and-outlook/ch30-cost-privacy-security.html#id16" title="Timothy C. Lethbridge, Janice Singer, and Andrew Forward. How software engineers use documentation: the state of the practice. IEEE Software, 20(6):35–39, 2003.">Lethbridge <em>et al.</em>, 2003</a>]</span> —— 在 2026 年的小团队 KB 上换了个剧本继续上演：<strong>重要的内容压根没被写下来</strong>。Aghajani 等人 2019 年的文档问题清单 <span id="id5">[<a class="reference internal" href="../part7-governance-and-outlook/ch30-cost-privacy-security.html#id17" title="Emad Aghajani, Csaba Nagy, Olga Lucero Vega-Márquez, Mario Linares-Vásquez, Laura Moreno, Gabriele Bavota, and Michele Lanza. Software documentation issues unveiled. Proc. IEEE/ACM ICSE, 2019.">Aghajani <em>et al.</em>, 2019</a>]</span> 上排在最前的三类（过期、不完整、面向错误读者），底层都是同一件事：<strong>写文档很贵，所以人会少写、会拖到没空补、会写完就走人</strong>。把这三类问题都归咎于&quot;作者懒&quot;是搞错了归因 —— 这是一个<strong>生产成本</strong>问题，不是一个<strong>生产意愿</strong>问题。</p>
+<p>而生产成本，正是过去十八个月里被 AI 真正改变了一个数量级的那一项 —— 但几乎所有相关投资都流向了消费侧。结果是：今天一个个人 KB 用户能用 AI 一秒钟在自己的笔记里找回一句话，但他每写下一条新笔记的时间成本<strong>和十年前一样</strong>。这个不对称就是杠杆所在。</p>
+</section>
+<section id="id6">
+<h3>把消费侧的预算分一半到生产侧，会发生什么<a class="headerlink" href="#id6" title="Link to this heading">#</a></h3>
+<p>把上一节那位研究者每周四十分钟的搬运工换成&quot;AI 起草 + 她审 5 分钟&quot;。她仍然花掉同样的脑力（决定结构、决定哪步优先），但<strong>写出来</strong>这一动作的边际成本从三十五分钟降到三分钟。换算下来：原来一年只有十次写下来的内容，可能变成五十次。这不是把同一份产出做得更便宜 —— 是把<strong>没被写过的东西现在被写下来</strong>。这是不同性质的杠杆，跟&quot;快十倍&quot;不一样，跟&quot;省 70% 工时&quot;也不一样；它是&quot;原本不存在的产出现在存在&quot;。</p>
+<p>这件事的工程后果在 第 1 章 已经讲过：从已有工件<strong>推导</strong>一个 KB 的成本被 embedding 价格、解析器商品化、LLM 把生成端打开 <span id="id7">[<a class="reference internal" href="../part7-governance-and-outlook/ch30-cost-privacy-security.html#id71" title="Shitao Xiao, Zheng Liu, Peitian Zhang, Niklas Muennighoff, Defu Lian, and Jian-Yun Nie. C-Pack: packed resources for general Chinese embeddings. 2024. Includes the BGE family of open embedding models, which can be self-hosted on a single GPU at effectively zero per-token cost. URL: https://arxiv.org/abs/2309.07597.">Xiao <em>et al.</em>, 2024</a>]</span> 这三股力量压到一个新水平。RepoAgent 这类把&quot;仓库级文档建设&quot;拆成全局结构分析 → 起草 → 更新流水线的工作 <span id="id8">[<a class="reference internal" href="../part7-governance-and-outlook/index.html#id30" title="Qinyu Luo, Yining Ye, Shihao Liang, Zhong Zhang, Yujia Qin, Yaxi Lu, Yesai Wu, Xin Cong, Yankai Lin, Yingli Zhang, Xiaoyin Che, Zhiyuan Liu, and Maosong Sun. Repoagent: an LLM-powered open-source framework for repository-level code documentation generation. 2024. URL: https://arxiv.org/abs/2402.16667, arXiv:2402.16667.">Luo <em>et al.</em>, 2024</a>]</span> 证明：这条流水线不是 “prompt 一下就好”，而是一个<strong>可工程化的系统</strong>。第三部分要做的，就是把同一个工程化思路从代码仓库迁移到任何知识工作者手里的文件式 KB 上。</p>
+</section>
+<section id="id9">
+<h3>风险也不对称：写错比读错更难撤销<a class="headerlink" href="#id9" title="Link to this heading">#</a></h3>
+<p>要诚实地说一件事：让 AI 当作者比让 AI 当读者风险更高。AI 读错答案，用户当场困惑、下一次换个问法；AI 写错内容、人没看出来就 commit 进 KB，错误会被后续几十次检索复用，每次都看起来&quot;被引用了多次因此可信&quot;。这是<strong>幻觉的复利</strong>问题，第二部分 第 6 章 已经在分类流水线层面接触过它，第七部分会从治理角度系统讲。</p>
+<p>但接受这件事，并不意味着退回到&quot;AI 只能当读者&quot;。它意味着：本部分讲的每一个 AI 角色都不是单点功能，而是一份<strong>角色 + 人审契约</strong>的捆绑。下一节就一次性把这份契约定死，后面四章按相同模板执行。</p>
+</section>
+</section>
+<section id="what">
+<h2>What —— 是什么<a class="headerlink" href="#what" title="Link to this heading">#</a></h2>
+<section id="id10">
+<h3>五角色分类法<a class="headerlink" href="#id10" title="Link to this heading">#</a></h3>
+<p>本部分把 AI 在生产侧能做的事压成五个名字。这五个名字在第 11–14 章按名引用、不再重定义；第 6 章现在的&quot;AI 在分类流水线里&quot;也对应到其中两角色（classifier + extractor），后续会把第 6 章 narrow 成 prose 流水线的工程细节，把分类法本身留在这里。</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>角色</p></th>
+<th class="head text-left"><p>一句话定义</p></th>
+<th class="head text-left"><p>输出形状</p></th>
+<th class="head text-left"><p>风险样式</p></th>
+<th class="head text-left"><p>主要在哪一章</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p><strong>起草者 drafter</strong></p></td>
+<td class="text-left"><p>AI 起草、改写、翻译人类可读的内容</p></td>
+<td class="text-left"><p>散文 / Markdown 段落</p></td>
+<td class="text-left"><p>幻觉、漏引、风格漂移</p></td>
+<td class="text-left"><p>第 11 章</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><strong>分类者 classifier</strong></p></td>
+<td class="text-left"><p>AI 给一段内容贴<strong>有限词汇表</strong>的标签或 frontmatter 字段</p></td>
+<td class="text-left"><p>受控值（来自固定列表）</p></td>
+<td class="text-left"><p>越界打不在词汇表里的标签</p></td>
+<td class="text-left"><p>第 12 章</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p><strong>抽取者 extractor</strong></p></td>
+<td class="text-left"><p>AI 从非结构化内容里抽出实体与关系</p></td>
+<td class="text-left"><p>结构化记录（JSON / 表格）</p></td>
+<td class="text-left"><p>边界判断错、关系方向错、引入幻觉实体</p></td>
+<td class="text-left"><p>第 12 章</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><strong>总结者 summarizer</strong></p></td>
+<td class="text-left"><p>AI 把长内容压成短摘要，或在多份内容间做归并</p></td>
+<td class="text-left"><p>短散文 / 要点列表</p></td>
+<td class="text-left"><p>选择性遗漏、把弱信号当强信号</p></td>
+<td class="text-left"><p>第 13 章</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p><strong>评估者 judge</strong></p></td>
+<td class="text-left"><p>AI 评估另一段（人写或 AI 写）内容的质量</p></td>
+<td class="text-left"><p>数值分 + 简短理由</p></td>
+<td class="text-left"><p>自评偏高、对同源风格内容打高分</p></td>
+<td class="text-left"><p>第 14 章</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>这张表上有两件事值得显式说出来：</p>
+<ol class="arabic simple">
+<li><p><strong>输出形状决定校验难度</strong>。drafter 的输出是散文 —— 校验它要读完它，便宜的程序化检查只能抓表层问题（引用是否存在、词汇是否一致）。classifier 的输出是受控值 —— 校验它便宜得多，因为越界本身就是错误信号。这就是为什么本部分对各角色的人审密度不一样：drafter 必须人审，classifier 可以&quot;抽样人审 + 越界即拒&quot;，extractor 介于两者之间。每一章的 How 段会量化这件事。</p></li>
+<li><p><strong>judge 是元角色</strong>。AI 评判 AI（或评判人）开了一个无限回归的口子 —— 谁来评 judge？答案在第 14 章：用一组<strong>有标准答案的小校准集</strong>去定期评 judge 本身，并且<strong>永远不让 judge 把内容自动 promote 到 <code class="docutils literal notranslate"><span class="pre">approved</span></code></strong>。判断&quot;够好&quot;是人的决定，不是 judge 的决定。</p></li>
+</ol>
+</section>
+<section id="id11">
+<h3>人审契约<a class="headerlink" href="#id11" title="Link to this heading">#</a></h3>
+<p>每一个 AI 产出的制品，必须同时满足下面三条；任何一条不满足，闸（第 5 章 / 第 8 章 那套机制）应当拒绝合并。</p>
+<ol class="arabic simple">
+<li><p><strong>初始评审状态：<code class="docutils literal notranslate"><span class="pre">pending</span></code>。</strong> 制品的 frontmatter / footer 的 <code class="docutils literal notranslate"><span class="pre">review_status</span></code> 起始值是 <code class="docutils literal notranslate"><span class="pre">pending</span></code>，无论模型多自信、judge 评了多高。这条规则不是这一部分发明的 —— 第 5 章 和 第 8 章 已经把它写进文稿层的 C3（任何自动化路径修改一页都要把 <code class="docutils literal notranslate"><span class="pre">review_status</span></code> 设回 <code class="docutils literal notranslate"><span class="pre">pending</span></code>）<span id="id12">[<a class="reference internal" href="../part7-governance-and-outlook/ch30-cost-privacy-security.html#id17" title="Emad Aghajani, Csaba Nagy, Olga Lucero Vega-Márquez, Mario Linares-Vásquez, Laura Moreno, Gabriele Bavota, and Michele Lanza. Software documentation issues unveiled. Proc. IEEE/ACM ICSE, 2019.">Aghajani <em>et al.</em>, 2019</a>]</span>。本部分把这条规则<strong>显式扩展</strong>到 AI 生产的每一类制品：散文页、frontmatter 标签、抽取出的关系记录、AI 评分本身。AI 不能给自己盖 <code class="docutils literal notranslate"><span class="pre">approved</span></code> 章，永远不能。</p></li>
+<li><p><strong>provenance 是强制的。</strong> footer 至少记录三件事：<code class="docutils literal notranslate"><span class="pre">updated_by</span></code>（取值 <code class="docutils literal notranslate"><span class="pre">ai</span></code> 或 <code class="docutils literal notranslate"><span class="pre">ai+human</span></code>，永不是裸 <code class="docutils literal notranslate"><span class="pre">ai+approved</span></code>）、模型名 / 版本（例如 <code class="docutils literal notranslate"><span class="pre">claude-sonnet-2026-04</span></code>）、生成时间。这是 第 5 章 frontmatter 契约 + 经典 provenance 文献 <span id="id13">[<a class="reference internal" href="../part7-governance-and-outlook/ch31-trust-provenance-and-red-teaming.html#id38" title="Peter Buneman, Sanjeev Khanna, and Wang-Chiew Tan. Why and where: a characterization of data provenance. ICDT, 2001.">Buneman <em>et al.</em>, 2001</a>]</span> 的最小可执行版本。本书不要求记录 prompt 全文（那会膨胀 footer），但每个 AI 角色的实现脚本必须把 prompt 哈希存到一个独立的审计日志里，footer 引用日志条目 ID。</p></li>
+<li><p><strong>三类决策永远不下放给 AI。</strong> (a) 把页面状态提升到 <code class="docutils literal notranslate"><span class="pre">approved</span></code>；(b) 删除任何已经 <code class="docutils literal notranslate"><span class="pre">approved</span></code> 的内容；© 修改 <code class="docutils literal notranslate"><span class="pre">created</span></code> / <code class="docutils literal notranslate"><span class="pre">created_by</span></code> / <code class="docutils literal notranslate"><span class="pre">last_approved_by</span></code> 等溯源字段。前两件是质量决策，第三件是审计决策；前两件可以由人在 review UI 上点按钮完成，第三件<strong>应当由 git history 保护、不应当让任何运行时脚本修改</strong>。</p></li>
+</ol>
+<p>这三条合起来对应一个简洁的口号：<strong>AI 起草、AI 标记、AI 评分；人定稿、人删除、人盖章</strong>。后续每一章都把这条契约具体化到自己那个 AI 角色 —— 第 11 章讲 drafter 的 review-gate 状态机，第 12 章讲 classifier 的&quot;越界拒绝&quot;和 extractor 的抽样人审，第 13 章讲 summarizer 的&quot;涉及删除时降级到人&quot;，第 14 章讲 judge 的元校准。</p>
+</section>
+<section id="id14">
+<h3>它<strong>不</strong>是什么<a class="headerlink" href="#id14" title="Link to this heading">#</a></h3>
+<p>为了避免后面四章被错读，这里把作者层划清边界：</p>
+<ul class="simple">
+<li><p><strong>它不是&quot;端到端自动文档生成&quot;。</strong> 不要把整本书读成&quot;按一下按钮，AI 把整个 KB 写出来&quot;。本部分始终在讲<strong>人 + AI 流水线</strong>，人是不会被去除的角色 —— 只是从&quot;无差别校对每一页&quot;被压缩为&quot;只看 <code class="docutils literal notranslate"><span class="pre">pending</span></code> 那几个 diff&quot;。</p></li>
+<li><p><strong>它不是一个新工具栈。</strong> 第二部分讲的文件 + frontmatter + Git + 闸是足够的；本部分加的只有几个 prompt 模板、几个解析 / 校验脚本、几个 fixture。Obsidian、Notion 这些 UI 是可选的便利，不是必需的依赖。</p></li>
+<li><p><strong>它不是消费侧 RAG 的替代品。</strong> 第六部分讲的混合检索、agent、引用追溯不会被本部分取消 —— 反过来，作者层让消费侧有更多、更结构化、更新鲜的内容<strong>可以</strong>被消费。两者是上下游关系，不是 either-or。</p></li>
+</ul>
+</section>
+</section>
+<section id="how">
+<h2>How —— 怎么做<a class="headerlink" href="#how" title="Link to this heading">#</a></h2>
+<section id="id15">
+<h3>经济账：每一角色的边际成本<a class="headerlink" href="#id15" title="Link to this heading">#</a></h3>
+<p>下表是个人 / 小团队 KB 用 AI 做完五个角色的一次 80 / 20 估算（80% 的小团队场景能落在这个区间里；20% 的高复杂度内容会偏高）。基线工具栈：一个商业 LLM API（按 2026 年中前列模型平均报价）+ 一个本地 embedding 模型（BGE 级别 <span id="id16">[<a class="reference internal" href="../part7-governance-and-outlook/ch30-cost-privacy-security.html#id71" title="Shitao Xiao, Zheng Liu, Peitian Zhang, Niklas Muennighoff, Defu Lian, and Jian-Yun Nie. C-Pack: packed resources for general Chinese embeddings. 2024. Includes the BGE family of open embedding models, which can be self-hosted on a single GPU at effectively zero per-token cost. URL: https://arxiv.org/abs/2309.07597.">Xiao <em>et al.</em>, 2024</a>]</span>）+ 几百行胶水 Python。</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>角色</p></th>
+<th class="head text-left"><p>每页 / 每条 LLM 成本</p></th>
+<th class="head text-left"><p>每页人审时间</p></th>
+<th class="head text-left"><p>一年规模假设（100 页）的总成本</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p>drafter</p></td>
+<td class="text-left"><p>1 ~ 3 美分</p></td>
+<td class="text-left"><p>3 ~ 5 分钟</p></td>
+<td class="text-left"><p>LLM ≈ $2，人 ≈ 7 小时</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>classifier</p></td>
+<td class="text-left"><p>&lt; 0.5 美分</p></td>
+<td class="text-left"><p>&lt; 30 秒（抽样）</p></td>
+<td class="text-left"><p>LLM ≈ $0.5，人 ≈ 0.5 小时</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>extractor</p></td>
+<td class="text-left"><p>0.5 ~ 1 美分</p></td>
+<td class="text-left"><p>1 ~ 2 分钟</p></td>
+<td class="text-left"><p>LLM ≈ $1，人 ≈ 2.5 小时</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>summarizer</p></td>
+<td class="text-left"><p>1 ~ 2 美分</p></td>
+<td class="text-left"><p>2 ~ 3 分钟</p></td>
+<td class="text-left"><p>LLM ≈ $1.5，人 ≈ 4 小时</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>judge</p></td>
+<td class="text-left"><p>&lt; 1 美分</p></td>
+<td class="text-left"><p>校准集每月 30 分钟</p></td>
+<td class="text-left"><p>LLM ≈ $1，人 ≈ 6 小时 / 年</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>加起来：每年 100 页规模的小团队 KB，LLM 调用费 ≈ 6 美元，人审 ≈ 20 小时。<strong>对照基线</strong>：同样 100 页要求人<strong>从零开始写</strong>，按本节开头那位研究者的每页 40 分钟估算，是 ≈ 67 小时。把 67 小时压到 20 小时，对一个 sole maintainer 而言已经是&quot;原本写不下来的内容现在能写下来&quot;。这是这一部分要兑现的承诺。</p>
+</section>
+<section id="id17">
+<h3>什么时候<strong>不</strong>要用 AI 当作者<a class="headerlink" href="#id17" title="Link to this heading">#</a></h3>
+<p>明确画一条不做的线，比把会做的事讲漂亮更要紧：</p>
+<ol class="arabic simple">
+<li><p><strong>单次高风险的写作。</strong> 给监管机构提交的合规答复、给客户公开发布的事故根因报告 —— 这些场景里，写作本身就是判断的延伸，AI 起草反而提高了&quot;人没认真想就提交&quot;的风险。</p></li>
+<li><p><strong>你的领域里没有可执行的评估准则。</strong> 如果你自己都说不清&quot;这一页好&quot;是什么意思，AI 起草出来的东西你也无法判断好坏。先把评估标准写下来 —— 哪怕只有 5 条 checklist —— 再让 AI 起草。第 14 章会更系统地讲这件事 <span id="id18">[<a class="reference internal" href="../part5-operations-lifecycle/index.html#id80" title="Shahul Es, Jithin James, Luis Espinosa-Anke, and Steven Schockaert. RAGAS: automated evaluation of retrieval augmented generation. In Proceedings of the 18th Conference of the European Chapter of the Association for Computational Linguistics: System Demonstrations. 2024. URL: https://arxiv.org/abs/2309.15217.">Es <em>et al.</em>, 2024</a>]</span>。</p></li>
+<li><p><strong>没有任何人会做人审。</strong> 没有 reviewer 的 AI 起草等于直接发布，而本部分整部分都建立在&quot;<code class="docutils literal notranslate"><span class="pre">pending</span></code> → 人 → <code class="docutils literal notranslate"><span class="pre">approved</span></code>&quot;的回路上。如果你确定永远没人会回头审，<strong>不要启动这条流水线</strong>；让那部分内容继续以&quot;暂时没空写&quot;的状态留着，比把 AI 草稿盖章成 <code class="docutils literal notranslate"><span class="pre">approved</span></code> 安全得多。</p></li>
+<li><p><strong>内容超出你的判断半径。</strong> AI 可以替你写代码注释，因为你会读代码；AI 也可以替你写一个你不懂的领域的&quot;通用介绍&quot;，但那一页一旦进 KB，会被未来的检索引用，而你<strong>没有能力</strong>审它。这一类内容最好留白或外包给人。</p></li>
+<li><p><strong>源材料不可被引用。</strong> 如果让 AI 起草一篇综述，但来源是不让外传的内部材料 / 没有稳定 URL 的群聊截图 —— AI 写出来的内容<strong>不能附上可解析的锚点</strong>（第 1 章 反复强调的那条）。这种内容应当由人撰写并显式标注 “no citation”，因为人能为缺引用负责，AI 不能。</p></li>
+</ol>
+</section>
+<section id="id19">
+<h3>与 第 6 章、第 8 章、第 27 章 的边界<a class="headerlink" href="#id19" title="Link to this heading">#</a></h3>
+<p>最后把作者层在书里的位置钉死：</p>
+<ul class="simple">
+<li><p><strong>与 第 6 章（prose 层 LLM 分类流水线）。</strong> 第 6 章 是 classifier 角色在文稿层的一个<strong>具体工程化实例</strong>：用受控词汇表、idempotent 重跑、heuristic-default-on-LLM-failure。本部分把 classifier 当<strong>抽象角色</strong>定义（输出形状、HITL 契约），第 12 章把它推广到 frontmatter 抽取与实体 / 关系抽取。从第 12 章读完回头读 第 6 章，你会看到&quot;通用 → 专用&quot;两层；从 第 6 章 读到第 12 章，你会看到&quot;专用 → 通用&quot;。两条路径都成立。</p></li>
+<li><p><strong>与 第 8 章（文稿层运维模型 C1–C4 + L0–L3）。</strong> 本部分的&quot;人审契约&quot;是 第 8 章 的 C3（永远把 AI 写过的页设回 <code class="docutils literal notranslate"><span class="pre">pending</span></code>）的<strong>子集 + 显式化</strong>。本部分不替换 第 8 章 的契约，只是给它增加 L0–L3 之上的一层语义：“这次自动化修改是哪一类 AI 角色做的”。后续若要把审计仪表盘按角色拆维度，依据就在这里。</p></li>
+<li><p><strong>与第六部分 第 27 章（AI 作为编码 / 查询助手）。</strong> 一句话：<strong>第 27 章 讲消费侧 agent，本部分讲生产侧作者。</strong> 第 27 章 的 agent 在已经入库的内容上做检索 + 综合；本部分的角色在内容入库<strong>之前</strong>做起草 + 分类 + 抽取 + 评判。两者的安全策略也完全不同：第 27 章 关心 prompt injection（外部内容污染 agent <span id="id20">[<a class="reference internal" href="../part7-governance-and-outlook/ch30-cost-privacy-security.html#id93" title="Kai Greshake, Sahar Abdelnabi, Shailesh Mishra, Christoph Endres, Thorsten Holz, and Mario Fritz. Not what you have signed up for: compromising real-world LLM-integrated applications with indirect prompt injection. arXiv preprint arXiv:2302.12173, 2023. Formalises the indirect-prompt-injection threat model that RAG systems inherit the moment retrieved documents can contain attacker-controlled text. Cited in Chapter 13 as the named threat model the two-step defence (system preamble + context escaping) addresses, and re-visited in Chapter 23's red-teaming treatment. URL: https://arxiv.org/abs/2302.12173.">Greshake <em>et al.</em>, 2023</a>]</span>），本部分关心 hallucination 复利（AI 写错被反复引用）。</p></li>
+</ul>
+</section>
+</section>
+<section id="example">
+<h2>Example —— 范例<a class="headerlink" href="#example" title="Link to this heading">#</a></h2>
+<section id="id21">
+<h3>贯穿案例：林宇的笔记库<a class="headerlink" href="#id21" title="Link to this heading">#</a></h3>
+<p>第三部分所有章节的 Example 段共享一个虚构但形状真实的运行 fixture，叫 <em>林宇的笔记库</em>（synthetic，本书发行版仓库里附一份脱敏 fixture，结构如下；正文样本只够 demo，<strong>不构成可发布的研究内容</strong>）：</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>lin-yu-vault/
+├── notes/             # 120 条研究笔记 (.md)
+│   ├── 2024-*.md      # 历史归档（不参与流水线）
+│   ├── 2025-*.md      # 半年内活跃笔记
+│   └── 2026-*.md      # 近期笔记，是流水线主要操作对象
+├── runbooks/          # 5 份 SOP / 排障流程
+│   ├── data-preprocess-failure.md
+│   ├── experiment-archive.md
+│   └── ...
+├── policies/          # 3 份小团队约定（命名、归档、数据保留）
+├── vocab/             # 受控词汇表
+│   ├── topics.yaml    # ~40 个研究主题标签
+│   └── statuses.yaml  # frontmatter 状态枚举
+└── _audit/            # AI 操作的审计日志（每条 ≈ 200 字节）
+</pre></div>
+</div>
+<p>每篇笔记的 frontmatter 沿用第二部分 第 5 章 的 schema：</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nn">---</span>
+<span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;...&quot;</span>
+<span class="nt">created</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2026-04-12</span>
+<span class="nt">authors</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">lin-yu</span><span class="p p-Indicator">]</span>
+<span class="nt">status</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">review</span>
+<span class="nt">topics</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">hierarchical-clustering</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">single-cell</span><span class="p p-Indicator">]</span>
+<span class="nt">review_status</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pending</span>
+<span class="nn">---</span>
+</pre></div>
+</div>
+<p>footer 沿用 第 8 章 的 PKB-metadata block，外加本部分新增的两个字段：</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>&lt;!-- PKB-metadata
+layer: author
+updated_by: ai+human
+ai_role: drafter            # 本部分新增：哪个角色动过这页
+ai_model: claude-sonnet-2026-04
+review_status: pending
+review_score: 0
+commit: 4a1c92b
+audit_log: _audit/2026-05-17-001
+--&gt;
+</pre></div>
+</div>
+<p>只多了 <code class="docutils literal notranslate"><span class="pre">ai_role</span></code> 和 <code class="docutils literal notranslate"><span class="pre">ai_model</span></code> 两个字段；其它字段沿用 第 5 章 / 第 8 章 的契约。这两个字段是后面四章共用的 provenance 最小集。</p>
+</section>
+<section id="id22">
+<h3>五角色在林宇的笔记库里各自跑一次<a class="headerlink" href="#id22" title="Link to this heading">#</a></h3>
+<p>下面是五个角色在 fixture 上各跑一次的成果速览。<strong>每一段都不是终态</strong> —— 各角色的完整生命周期由第 11–14 章逐章展开；这里只是让读者闻一下气味、并验证上一节的成本估算合理。</p>
+<p><strong>drafter（第 11 章）。</strong> 林宇周六上午十点要写的那份 <code class="docutils literal notranslate"><span class="pre">data-preprocess-failure.md</span></code> runbook，让 AI 起草。AI 收到的输入：runbook 主题 + 三段她口述要点（30 秒语音转文字）。输出：~500 字的草稿，七步排障，每步带一个待填的命令占位符。林宇审 4 分钟、填入真实命令、改两处措辞、把 <code class="docutils literal notranslate"><span class="pre">review_status</span></code> 从 <code class="docutils literal notranslate"><span class="pre">pending</span></code> 推到 <code class="docutils literal notranslate"><span class="pre">approved</span></code>。总耗时：约 7 分钟（vs. 全人手 40 分钟）。</p>
+<p><strong>classifier（第 12 章）。</strong> 一次 batch 跑 30 篇刚写的 <code class="docutils literal notranslate"><span class="pre">2026-*.md</span></code> 笔记，对每篇从 <code class="docutils literal notranslate"><span class="pre">vocab/topics.yaml</span></code> 里选 1–3 个主题标签。AI 输出 88 个标签提议，其中 5 个越界（不在词汇表里）—— 越界即拒，流水线自动丢弃。林宇抽 6 篇审，其余按&quot;无人异议即生效&quot;在 7 天后自动 <code class="docutils literal notranslate"><span class="pre">approved</span></code>。</p>
+<p><strong>extractor（第 12 章）。</strong> 对 <code class="docutils literal notranslate"><span class="pre">runbooks/*.md</span></code> 抽 <code class="docutils literal notranslate"><span class="pre">(系统,</span> <span class="pre">失败模式,</span> <span class="pre">修复步骤)</span></code> 三元组，填进一个小 SQLite 表。AI 抽出 23 条，6 条关系方向错。这种比例下，整批降级到人审。</p>
+<p><strong>summarizer（第 13 章）。</strong> 对 <code class="docutils literal notranslate"><span class="pre">2025-*.md</span></code> 那批历史笔记做 topic-level 摘要：每个主题一段 200 字。AI 输出 8 段，林宇接收 5 段、改写 2 段、拒绝 1 段（漏掉了一篇 2025-11 的关键结论）。</p>
+<p><strong>judge（第 14 章）。</strong> 在新写的 drafter 输出上跑 judge，对&quot;引用完整性、措辞中立性、与现有笔记是否矛盾&quot;三个维度各打 0–5 分。Judge 给上面那份 runbook 总分 12/15，理由是引用占位符未填。林宇填入命令后再跑一次，得 14/15。<strong>Judge 没有把页面 promote 到 <code class="docutils literal notranslate"><span class="pre">approved</span></code></strong> —— 那一步永远由林宇按按钮完成。</p>
+<p>把上面五次跑的成本加起来，对照&quot;什么时候不要用 AI 当作者&quot;那一节的五条不做线，林宇这次跑没有触发任何一条：runbook 不是单次高风险写作（内部使用、可改）；评估准则她有；reviewer 是她自己；内容在她判断半径内；源材料是她自己脑子 + 三段语音，可引用为 <code class="docutils literal notranslate"><span class="pre">audit_log</span></code> 里的语音文件哈希。这是作者层最佳工作区间的一个典型样本。</p>
+</section>
+</section>
+<section id="conclusion">
+<h2>Conclusion —— 小结<a class="headerlink" href="#conclusion" title="Link to this heading">#</a></h2>
+<p>让 AI 当 KB 的作者不是把人移出回路，而是把人从&quot;无差别校对每一页&quot;压缩到&quot;只看 AI 标了 <code class="docutils literal notranslate"><span class="pre">pending</span></code> 的那几个 diff&quot;。五个角色（drafter / classifier / extractor / summarizer / judge）按&quot;输出形状决定校验难度&quot;排出难度梯度；一个三条款的人审契约（AI 起草、AI 标记、AI 评分；人定稿、人删除、人盖章）把这条压缩从&quot;想法&quot;变成&quot;流水线 + 闸&quot;。这件事在 2026 年的边际成本足够低，以至于不做它的真正代价不是&quot;少写了几页&quot;，而是<strong>有一类内容从来不会被写下来</strong>。</p>
+<p>后面四章是把这一章的五个角色一个一个铺开：第 11 章讲 drafter 的状态机和常见幻觉模式；第 12 章把 classifier + extractor 合并讲；第 13 章讲 summarizer 在维护视角下的角色；第 14 章讲 judge 的元校准。每一章都把本章的人审契约具体化到自己那个角色上 —— 读完四章，你应当能在自己的 KB 上把图 1 那张 mindmap 的每一支都跑一遍。</p>
+</section>
+<section id="id23">
+<h2>参考文献<a class="headerlink" href="#id23" title="Link to this heading">#</a></h2>
+<div class="docutils container" id="id24">
+<div role="list" class="citation-list">
+<div class="citation" id="id101" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>Yang Liu, Dan Iter, Yichong Xu, Shuohang Wang, Ruochen Xu, and Chenguang Zhu. G-Eval: NLG evaluation using GPT-4 with better human alignment. In <em>Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing</em>. 2023. URL: <a class="reference external" href="https://arxiv.org/abs/2303.16634">https://arxiv.org/abs/2303.16634</a>.</p>
+</div>
+<div class="citation" id="id102" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></span>
+<p>Lianmin Zheng, Wei-Lin Chiang, Ying Sheng, Siyuan Zhuang, Zhanghao Wu, Yonghao Zhuang, Zi Lin, Zhuohan Li, Dacheng Li, Eric P. Xing, Hao Zhang, Joseph E. Gonzalez, and Ion Stoica. Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena. In <em>Advances in Neural Information Processing Systems 36 (NeurIPS 2023)</em>. 2023. URL: <a class="reference external" href="https://arxiv.org/abs/2306.05685">https://arxiv.org/abs/2306.05685</a>.</p>
+</div>
+</div>
+</div>
+<!-- PKB-metadata
+layer: author
+updated_by: human
+review_status: pending
+review_score: 0
+commit: HEAD
+-->
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">第三部分 —— 作者层</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="ch11-ai-drafting-and-rewriting.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">第 11 章 —— AI 起草、重写、翻译</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 目录
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why">Why —— 为什么</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">周六上午十点的同一个人</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">不对称：消费侧吃光了 AI 预算</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">把消费侧的预算分一半到生产侧，会发生什么</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">风险也不对称：写错比读错更难撤销</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what">What —— 是什么</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">五角色分类法</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">人审契约</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id14">它<strong>不</strong>是什么</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how">How —— 怎么做</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id15">经济账：每一角色的边际成本</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id17">什么时候<strong>不</strong>要用 AI 当作者</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id19">与 第 6 章、第 8 章、第 27 章 的边界</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example —— 范例</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id21">贯穿案例：林宇的笔记库</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id22">五角色在林宇的笔记库里各自跑一次</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#conclusion">Conclusion —— 小结</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id23">参考文献</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+作者： Walter Fan
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright AI 辅助创作 2026, Walter Fan.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    <p class="last-updated">
+  最后更新于 2026-11-10.
+  <br/>
+</p>
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

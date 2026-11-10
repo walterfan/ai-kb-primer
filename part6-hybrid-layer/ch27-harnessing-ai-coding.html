@@ -1,0 +1,1458 @@
+
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>第 27 章 —— 用知识库驾驭 AI 编码 &#8212; Use AI to build a knowledge base for a software project</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=591f613d" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=23f7fa08"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../_static/translations.js?v=beaddf03"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.2.0/dist/mermaid-layout-elk.esm.min.mjs"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";import elkLayouts from "https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.2.0/dist/mermaid-layout-elk.esm.min.mjs";mermaid.registerLayoutLoaders(elkLayouts);mermaid.initialize({startOnLoad:false});</script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+const defaultStyle = document.createElement('style');
+defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+`;
+document.head.appendChild(defaultStyle);
+
+const fullscreenStyle = document.createElement('style');
+fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+document.head.appendChild(fullscreenStyle);
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        return brightness < 128;
+    }
+    return false;
+};
+
+const load = async () => {
+    await mermaid.run();
+
+    const all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(load, 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(load, 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(load, 200);
+        return;
+    }
+
+    const darkTheme = isDarkTheme();
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    const modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    const modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    let previousScrollOffset = [window.scrollX, window.scrollY];
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    const allButtons = [];
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+
+        container.appendChild(fullscreenBtn);
+        allButtons.push(fullscreenBtn);
+    });
+
+    // Update theme classes when theme changes
+    const updateTheme = () => {
+        const dark = isDarkTheme();
+        allButtons.forEach(btn => {
+            if (dark) {
+                btn.classList.add('dark-theme');
+            } else {
+                btn.classList.remove('dark-theme');
+            }
+        });
+        if (dark) {
+            modal.classList.add('dark-theme');
+            modalContent.classList.add('dark-theme');
+            closeBtn.classList.add('dark-theme');
+        } else {
+            modal.classList.remove('dark-theme');
+            modalContent.classList.remove('dark-theme');
+            closeBtn.classList.remove('dark-theme');
+        }
+    };
+
+    // Watch for theme changes
+    const observer = new MutationObserver(updateTheme);
+    observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    observer.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style']
+    });
+};
+
+window.addEventListener("load", load);
+</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'part6-hybrid-layer/ch27-harnessing-ai-coding';</script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="第 28 章 —— 团队协作与 SDLC 集成" href="ch28-team-sdlc-integration.html" />
+    <link rel="prev" title="第 26 章 —— 图引导的上下文组装" href="ch26-graph-guided-context-assembly.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+    <meta name="docbuild:last-update" content="2026-11-10"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Use AI to build a knowledge base for a software project</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">搜索</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Part I — Foundations</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part1-foundations/index.html">第一部分 —— 基础</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch01-why-kb-for-software.html">第 1 章 —— 为什么要给软件建一个知识库？</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch01a-quickstart-30min.html">第 1a 章 —— 30 分钟快速上手</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch02-ir-rag-primer.html">第 2 章 —— IR 与 RAG 入门</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch03-diataxis-and-software-docs.html">第 3 章 —— Diátaxis 与软件文档</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part II — The Prose Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part2-prose-layer/index.html">第二部分 —— 文稿层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch04-file-based-wiki.html">第 4 章 —— 一个基于文件的 wiki</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch05-frontmatter-provenance-trust.html">第 5 章 —— 把 frontmatter 当作一份来源记录</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch06-llm-classification-pipeline.html">第 6 章 —— 分类流水线</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch07-publish-and-search.html">第 7 章 —— 发布与搜索</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch08-prose-operational-model.html">第 8 章 —— 文稿层的运维模型</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch09-cold-start-migration.html">第 9 章 —— 冷启动与批量迁移</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part III — The Author Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part3-author-layer/index.html">第三部分 —— 作者层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch10-why-ai-as-author.html">第 10 章 —— 为什么让 AI 当作者</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch11-ai-drafting-and-rewriting.html">第 11 章 —— AI 起草、重写、翻译</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch12-ai-for-metadata.html">第 12 章 —— AI 处理元数据：分类、打标签、实体与关系抽取</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch13-ai-for-maintenance.html">第 13 章 —— AI 做维护：摘要、去重、过期与漂移检测</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch14-ai-as-judge.html">第 14 章 —— AI 作为评判者：评估生成质量与引用合规</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part IV — The Code Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part4-code-layer/index.html">第四部分 —— 代码层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch15-why-code-is-not-prose.html">第 15 章 —— 为什么代码不是文稿</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch16-parsing-and-entity-extraction.html">第 16 章 —— 解析与实体抽取</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch17-embeddings-and-vector-stores.html">第 17 章 —— 嵌入向量与向量存储</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch18-code-knowledge-graph.html">第 18 章 —— 代码知识图谱</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch19-hybrid-retrieval-and-rrf.html">第 19 章 —— 混合检索与 RRF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch20-prompt-and-generation.html">第 20 章 —— 提示词与生成</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part V — Operations &amp; Lifecycle</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part5-operations-lifecycle/index.html">第五部分 —— 运维与生命周期</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part5-operations-lifecycle/ch21-incremental-sync.html">第 21 章 —— 增量同步</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part5-operations-lifecycle/ch22-evaluation-and-benchmarks.html">第 22 章 —— 评测、基准与发布门禁</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part5-operations-lifecycle/ch23-maintenance-drift-and-link-rot.html">第 23 章 —— 维护、漂移与链接腐化</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part VI — The Hybrid Layer</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">第六部分 —— 混合层</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="ch24-prose-meets-code.html">第 24 章 —— 文稿与代码相遇</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ch25-document-layering-L0-L4.html">第 25 章 —— 文档分层 L0–L4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ch26-graph-guided-context-assembly.html">第 26 章 —— 图引导的上下文组装</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">第 27 章 —— 用知识库驾驭 AI 编码</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ch28-team-sdlc-integration.html">第 28 章 —— 团队协作与 SDLC 集成</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ch29-ai-agents-on-the-kb.html">第 29 章 —— 在知识库上跑的 AI Agent</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part VII — Governance &amp; Outlook</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part7-governance-and-outlook/index.html">第七部分 —— 治理与展望</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch30-cost-privacy-security.html">第 30 章 —— 成本、隐私、安全</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch31-trust-provenance-and-red-teaming.html">第 31 章 —— 信任、出处与红队演练</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch32-outlook-and-open-problems.html">第 32 章 —— 展望与尚未解决的问题</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Appendices</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-a-example-wiki.html">附录 A —— 端到端：从杂乱文件夹到可发布 Wiki</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-b-example-code-kg.html">附录 B —— 示例：从一个 Go 仓库构建代码知识库</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-c-deepwiki-checklist.html">附录 C —— 自己动手做 DeepWiki 检查清单</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-d-glossary.html">附录 D —— 术语表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-e-bilingual-publishing.html">附录 E —— 发布一个双语知识库</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">参考文献</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../reference/index.html">参考文献：仓库级代码理解与软件知识库论文导读</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../reference/01-repoformer-selective-retrieval.html">Repoformer: Selective Retrieval for Repository-Level Code Completion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/02-codeplan-repository-level-planning.html">CodePlan: Repository-Level Coding using LLMs and Planning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/03-repograph-code-graph-navigation.html">RepoGraph: Enhancing AI Software Engineering with Repository-level Code Graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/04-repoagent-documentation-generation.html">RepoAgent: An LLM-Powered Open-Source Framework for Repository-level Code Documentation Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/05-repocoder-iterative-retrieval-generation.html">RepoCoder: Repository-Level Code Completion Through Iterative Retrieval and Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/06-llm-kg-synergy-repo-qa.html">Synergizing LLMs and Knowledge Graphs: A Novel Approach to Software Repository-Related Question Answering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/07-repo-level-prompt-generation.html">Repository-Level Prompt Generation for Large Language Models of Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/08-repobench-benchmarking.html">RepoBench: Benchmarking Repository-Level Code Auto-Completion Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/09-long-code-arena-benchmarks.html">Long Code Arena: A Set of Benchmarks for Long-Context Code Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/10-cgm-graph-integrated-llm.html">Code Graph Model (CGM): A Graph-Integrated Large Language Model for Repository-Level Software Engineering Tasks</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="下载此页面">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="下载源文件"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="列印成 PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="全屏模式"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>第 27 章 —— 用知识库驾驭 AI 编码</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> 目录 </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why">Why —— 为什么</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what">What —— 是什么</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">能力 1：设计理据感知</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">能力 2：引用可校验</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">能力 3：权威性分层</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how">How —— 怎么做</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#kb">交互模式：三种典型的 KB 增强编码场景</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">集成架构</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">上下文预算纪律</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cursor-rules">Cursor Rules 与知识库的互补</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example —— 范例</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#codex-agent">20.5   Codex 集成：后台 Agent 模式</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#codex">集成模式：知识库作为 Codex 的上下文源</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id8"><code class="docutils literal notranslate"><span class="pre">.codex/</span></code> 目录约定</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">Codex 优势与局限</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">范例：带 KB 支撑的重构任务</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#claude-code-agent">20.6   Claude Code 集成：Agent 工具模式</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mcp">集成模式：知识库作为 MCP 工具服务器</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#claude"><code class="docutils literal notranslate"><span class="pre">.claude/</span></code> 目录约定</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">MCP 配置范例</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#claude-code">Claude Code 优势与局限</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#kb-api">范例：带实时 KB 查询的 API 开发</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id12">20.7   三工具对比</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#conclusion">Conclusion —— 小结</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id13">参考文献</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="ai">
+<h1>第 27 章 —— 用知识库驾驭 AI 编码<a class="headerlink" href="#ai" title="Link to this heading">#</a></h1>
+<section id="why">
+<h2>Why —— 为什么<a class="headerlink" href="#why" title="Link to this heading">#</a></h2>
+<p>AI 编码助手 —— Cursor、GitHub Copilot、Windsurf、以及数不清的 IDE 插件 —— 已经从自动补全进化到了仓库级对话。它们能读文件、跑命令、改代码。它们<strong>不能</strong>做的事情同样重要：它们不知道团队为什么选了这个设计、三个月前的 ADR 做了什么取舍、那份 runbook 的第 4 节包含了凌晨 3 点的唯一正确操作步骤。</p>
+<p>没有知识库的 AI 编码助手，是一个<strong>没有记忆的操作员</strong>。它对当前文件很擅长；对跨文件结构还行；对<em>为什么代码是这样的</em> 一无所知 —— 除非你在 prompt 里手动粘贴相关上下文。这就是每天都在发生的事：工程师花 5 分钟给 AI 粘 context，AI 花 5 秒钟回答。粘贴动作本身就是在做人工检索。</p>
+<p>本章的命题是：<strong>一个有结构的知识库可以取代那个人工检索步骤</strong>。AI 编码助手不再需要工程师手动选择哪些文件和文档与当前任务相关 —— 知识库通过第 26 章的上下文组装自动提供那个上下文包。 CodePlan 在 FSE 2024 上展示了这种场景的完整框架：把仓库级变更建模为&quot;影响分析 → 规划 → 迭代执行&quot;的三阶段流水线 <span id="id1">[<a class="reference internal" href="index.html#id88" title="Ramakrishna Bairi, Atharv Sonwane, Aditya Kanade, Vageesh D C, Arun Iyer, Suresh Parthasarathy, Sriram Rajamani, B. Ashok, and Shashank Shet. CodePlan: repository-level coding using LLMs and planning. Proceedings of the ACM on Software Engineering (FSE 2024), 2024. Models repo-level code changes as a planning problem: seed edit → change-impact analysis on the dependency graph → ordered sub-task list → iterative LLM execution with validation. Key insight for Chapter 20: KB-backed AI coding assistants can generate structured multi-file refactoring plans using the same dependency graph the KB already maintains. URL: https://www.microsoft.com/en-us/research/publication/codeplan-repository-level-coding-using-llms-and-planning-2/.">Bairi <em>et al.</em>, 2024</a>]</span>。知识库已经维护着的代码依赖图（第 18 章）和跨层链接（第 24 章），恰好是 CodePlan 所需的影响分析输入 —— 不需要从零构建。代价是需要维护知识库（已有答案：第五部分的运维纪律）；收益是 AI 编码的每一次交互都建立在可验证的组织知识之上，而不是模型的参数记忆。</p>
+</section>
+<section id="what">
+<h2>What —— 是什么<a class="headerlink" href="#what" title="Link to this heading">#</a></h2>
+<p>本章不讨论如何构建一个 AI 编码助手 —— 那是产品问题。本章讨论的是：<strong>一个已经存在的 AI 编码助手，如何通过知识库获得以下三种它原本不具备的能力。</strong></p>
+<section id="id2">
+<h3>能力 1：设计理据感知<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
+<p>AI 助手能读函数签名，但不知道签名背后的设计决策。一个知识库暴露的 <code class="docutils literal notranslate"><span class="pre">kb.search(query,</span> <span class="pre">filter=&quot;layer</span> <span class="pre">in</span> <span class="pre">{L0,</span> <span class="pre">L1}&quot;)</span></code> 可以只返回代码和 ADR 层的内容 —— 恰好是设计理据住的地方。助手在回答 <em>“为什么用 mutex 而不是 channel？”</em> 时，可以引用 ADR 而不是猜测。</p>
+</section>
+<section id="id3">
+<h3>能力 2：引用可校验<a class="headerlink" href="#id3" title="Link to this heading">#</a></h3>
+<p>没有知识库的助手回答中的代码引用 —— <em>“见 <code class="docutils literal notranslate"><span class="pre">auth.go:42</span></code>”</em> —— 可能是幻觉。有知识库的助手调用 <code class="docutils literal notranslate"><span class="pre">kb.cite()</span></code> 得到的每一条 <code class="docutils literal notranslate"><span class="pre">file:line</span></code> 锚点都在构建期经过了解析。第 22 章门禁 H4 保证了只有可解析的引用才能发布。助手拿到的引用不需要人去二次验证。</p>
+</section>
+<section id="id4">
+<h3>能力 3：权威性分层<a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
+<p>助手从知识库获取的每个结果都带有第 25 章的元组 <span class="math notranslate nohighlight">\(\langle L, U, R, S \rangle\)</span>。助手可以只使用 <code class="docutils literal notranslate"><span class="pre">review_status</span> <span class="pre">==</span> <span class="pre">approved</span></code> 的页面来支撑回答，把 <code class="docutils literal notranslate"><span class="pre">pending</span></code> 的页面降级为&quot;仅供参考&quot;。这在安全敏感场景中尤其重要 —— 一个安全审计问题的回答不应该建立在 AI 起草的、尚未评审的页面之上。</p>
+</section>
+</section>
+<section id="how">
+<h2>How —— 怎么做<a class="headerlink" href="#how" title="Link to this heading">#</a></h2>
+<section id="kb">
+<h3>交互模式：三种典型的 KB 增强编码场景<a class="headerlink" href="#kb" title="Link to this heading">#</a></h3>
+<p><strong>场景 A：上下文注入式编码。</strong> 工程师在 IDE 中编辑一个文件时，AI 助手在后台调用 <code class="docutils literal notranslate"><span class="pre">kb.search()</span></code> 获取与当前文件相关的文稿页面，注入到系统提示词（system prompt）中。工程师不需要手动选择上下文。</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>工程师打开 internal/pipeline/csv_loader.go
+AI 助手后台执行:
+  seeds = kb.search(&quot;csv_loader.go pipeline ingest&quot;, k=3,
+                     filter=&quot;review_status==approved&quot;)
+  → 命中: ch06 (分类流水线), ingest-runbook (操作手册), ADR-0009 (CSV 解析策略)
+  
+  将三份文档的摘要注入 system prompt
+  
+工程师输入: &quot;这个 loader 支持 TSV 吗？&quot;
+AI 助手回答时引用了 ADR-0009 §3 的 &quot;仅支持 RFC 4180 格式&quot; 决策。
+</pre></div>
+</div>
+<p><strong>场景 B：代码审查辅助。</strong> AI 助手对一个 merge request 做自动审查时，通过 <code class="docutils literal notranslate"><span class="pre">kb.search()</span></code> 查找变更涉及的代码实体是否有关联的 ADR 或架构文档。如果有，审查意见中可以引用相关决策；如果 ADR 已过期或被变更违反，审查意见中可以标记。</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>MR 修改了 pkg/auth/token_validator.go 中的过期逻辑
+AI 审查器执行:
+  cite_result = kb.cite(&quot;token_validator expiry&quot;, k=3)
+  → 命中: ADR-0021 (Token grace period for clock skew)
+  
+  读取 ADR-0021，发现 grace period 被设定为 30 秒
+  MR 将 grace period 改为 0（即不接受过期 token）
+
+AI 审查器标记:
+  &quot;⚠️ 此变更与 ADR-0021 的设计决策冲突。
+   ADR-0021 规定 30 秒的 grace period 以容忍时钟偏差。
+   如需更改此策略，请先更新 ADR。&quot;
+</pre></div>
+</div>
+<p><strong>场景 C：多文件重构导航。</strong> 工程师要求 AI 助手重构一个跨多个文件的功能。助手通过 <code class="docutils literal notranslate"><span class="pre">kb.search()</span></code> 加上图扩展（第 26 章），找到所有受影响的文件和相关文档。</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>工程师: &quot;重构 ingest pipeline，把 CSV 和 JSON loader 合并为统一接口&quot;
+AI 助手执行:
+  seeds = kb.search(&quot;ingest pipeline csv json loader&quot;, k=5)
+  → 种子: csv_loader.go, json_loader.go, pipeline.go, ingest-runbook, ADR-0009
+
+  graph_expand(seeds, relations=[&quot;CALLS&quot;, &quot;IMPLEMENTS&quot;, &quot;DOCUMENTS&quot;])
+  → 扩展: loader_interface.go, pipeline_test.go, config.yaml
+
+AI 助手生成重构计划，列出所有受影响文件，
+引用 ADR-0009 作为当前设计的约束条件。
+</pre></div>
+</div>
+</section>
+<section id="id5">
+<h3>集成架构<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
+<p>AI 编码助手与知识库的集成不需要修改助手的内部实现。集成发生在<strong>工具层</strong> —— 助手调用 MCP 工具，知识库作为 MCP 服务器响应。</p>
+<pre  class="mermaid">
+        flowchart LR
+    subgraph ide [&quot;IDE / CLI&quot;]
+        DEV[&quot;工程师&quot;]
+        AGENT[&quot;AI 编码助手&quot;]
+    end
+    subgraph kb_server [&quot;知识库 MCP 服务器&quot;]
+        SEARCH[&quot;kb.search&quot;]
+        READ[&quot;kb.read&quot;]
+        CITE[&quot;kb.cite&quot;]
+    end
+    subgraph kb_stack [&quot;知识库存储栈&quot;]
+        VEC[&quot;向量索引&quot;]
+        GRAPH[&quot;代码图 + 跨层边&quot;]
+        PROSE[&quot;文稿页面 + frontmatter&quot;]
+    end
+    DEV --&gt;|&quot;提问 / 指令&quot;| AGENT
+    AGENT --&gt;|&quot;MCP 调用&quot;| SEARCH
+    AGENT --&gt;|&quot;MCP 调用&quot;| READ
+    AGENT --&gt;|&quot;MCP 调用&quot;| CITE
+    SEARCH --&gt; VEC
+    SEARCH --&gt; GRAPH
+    READ --&gt; PROSE
+    CITE --&gt; VEC
+    CITE --&gt; GRAPH
+    </pre><p>这个架构的关键性质是<strong>助手不需要知道知识库的内部结构</strong>。它只需要知道三个工具的输入输出格式。这意味着同一个知识库可以同时服务 Cursor、Copilot、或任何支持 MCP（或其他函数调用协议）的助手。</p>
+</section>
+<section id="id6">
+<h3>上下文预算纪律<a class="headerlink" href="#id6" title="Link to this heading">#</a></h3>
+<p>AI 编码助手的上下文窗口有限。即使是 100k+ token 的模型，有效利用也需要纪律。知识库提供的上下文包不应该&quot;把能找到的全塞进去&quot; —— 那只是把信息过载的问题从工程师转移到了模型。</p>
+<p>来自第 26 章的上下文组装已经有预算约束。面对 AI 编码场景，补充三条规则：</p>
+<ol class="arabic simple">
+<li><p><strong>代码优先。</strong> 当问题涉及代码时，上下文包的 token 预算中至少 60% 分配给代码片段（L0），剩余分配给文稿（L1–L4）。原因：AI 编码助手的核心任务是写代码，文稿是辅助理据，不应该挤占代码的上下文空间。</p></li>
+<li><p><strong>评审状态作为断路器。</strong> 如果上下文窗口紧张，优先丢弃 <code class="docutils literal notranslate"><span class="pre">review_status:</span> <span class="pre">pending</span></code> 的页面。已评审的少量页面比未评审的大量页面更有用 —— AI 编码场景尤其如此，因为一条错误的文稿引用可能导致助手写出违反设计决策的代码。</p></li>
+<li><p><strong>陈旧度惩罚。</strong> <code class="docutils literal notranslate"><span class="pre">last_updated</span></code> 超过 90 天的文稿页面，在上下文预算竞争中降权。代码层内容（L0）不受此规则影响 —— 代码的陈旧度由 Git 本身管理。 此外，Repoformer 的选择性检索思路在此同样适用：并非每次 AI 编码交互都需要从知识库检索 —— 纯局部代码逻辑（如 <code class="docutils literal notranslate"><span class="pre">return</span> <span class="pre">a</span> <span class="pre">+</span> <span class="pre">b</span></code>）不需要额外上下文 <span id="id7">[<a class="reference internal" href="index.html#id87" title="Di Li, Jingyi Wei, Yewen Peng, Hanbin Bai, Bei Chen, and Yong Li. Repoformer: selective retrieval for repository-level code completion. Proceedings of the 41st International Conference on Machine Learning (ICML 2024), 2024. Trains a lightweight classifier to predict whether retrieval will help a given code-completion task, skipping it when the local context suffices. Key insight for Chapter 12: not every query needs retrieval, and a retrieval-necessity signal can cut latency and noise. URL: https://arxiv.org/abs/2403.10059, arXiv:2403.10059.">Li <em>et al.</em>, 2024</a>]</span>。一个&quot;是否需要知识库上下文&quot;的轻量判断器，可以进一步降低延迟和噪声。</p></li>
+</ol>
+</section>
+<section id="cursor-rules">
+<h3>Cursor Rules 与知识库的互补<a class="headerlink" href="#cursor-rules" title="Link to this heading">#</a></h3>
+<p>许多团队使用 Cursor Rules（<code class="docutils literal notranslate"><span class="pre">.cursor/rules/</span></code> 下的规则文件）来约束 AI 编码助手的行为。Rules 和知识库是互补的，不是竞争的：</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>维度</p></th>
+<th class="head text-left"><p>Cursor Rules</p></th>
+<th class="head text-left"><p>知识库</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p>内容类型</p></td>
+<td class="text-left"><p>编码规范、代码风格、禁止的模式</p></td>
+<td class="text-left"><p>设计理据、架构决策、操作手册</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>更新频率</p></td>
+<td class="text-left"><p>低 —— 规范变化缓慢</p></td>
+<td class="text-left"><p>高 —— 文档随代码同步更新</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>上下文注入方式</p></td>
+<td class="text-left"><p>自动注入每次会话</p></td>
+<td class="text-left"><p>按需检索 —— 只在相关时注入</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>权威性模型</p></td>
+<td class="text-left"><p>二值 —— 规则要么生效要么不生效</p></td>
+<td class="text-left"><p>元组 <span class="math notranslate nohighlight">\(\langle L, U, R, S \rangle\)</span> —— 多层级</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>最佳实践是：<strong>把&quot;总是适用&quot;的约束放在 Rules 里，把&quot;有时相关&quot;的知识放在知识库里。</strong> Rules 是常量上下文，知识库是变量上下文。</p>
+</section>
+</section>
+<section id="example">
+<h2>Example —— 范例<a class="headerlink" href="#example" title="Link to this heading">#</a></h2>
+<p>一个开发者在 Cursor 中的 30 分钟工作片段，展示知识库如何改变 AI 编码体验：</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>09:00  开发者打开 pkg/auth/token_validator.go
+       Cursor 后台: kb.search(&quot;token_validator auth&quot;, k=3)
+       → 注入上下文: ADR-0021 (grace period), auth-runbook §2, ch20 (安全审计)
+
+09:03  开发者: &quot;@agent 这个函数的 grace period 是怎么确定的？&quot;
+       Cursor: &quot;30 秒的 grace period 在 ADR-0021 中确定，
+               理由是服务器间最大时钟偏差的经验值。
+               见 ADR-0021 §3。&quot;
+       → 引用来自 kb.read(&quot;adr-0021&quot;)，不是模型记忆。
+
+09:05  开发者: &quot;@agent 修改这个值需要注意什么？&quot;
+       Cursor: &quot;修改 grace period 需要：
+               1. 更新 ADR-0021 或写一份新的变更提案
+               2. 同步更新 ingest-runbook §4 中的超时配置
+               3. 通知安全团队（ADR-0021 标记为安全相关）
+               见 kb.cite 结果: token_validator.go:89,
+               adr-0021.md:§3, ingest-runbook.md:§4。&quot;
+       → 三个引用全部来自知识库，每个都可解析。
+
+09:10  开发者修改 grace period 为 15 秒，提交 MR
+       AI 审查器: kb.search(&quot;token_validator grace period&quot;, k=3)
+       → 检测到与 ADR-0021 的冲突
+       → 审查意见: &quot;建议先更新 ADR-0021 再合并此变更。&quot;
+
+09:15  开发者写了一份 OpenSpec 变更提案
+       → 第 31 章流水线将其以 review_status: pending 摄入知识库
+       → 评审通过后，ADR-0021 更新，知识库增量同步
+       → 下次 AI 助手读到的 ADR 已包含新的 grace period 值
+</pre></div>
+</div>
+<p>这个工作流与没有知识库的工作流的区别不是 AI 助手变&quot;聪明&quot;了。它是：<strong>每一步的上下文都来自有出处、有评审状态的组织知识，而不是模型的参数权重或工程师的手动粘贴。</strong></p>
+</section>
+<section id="codex-agent">
+<h2>20.5   Codex 集成：后台 Agent 模式<a class="headerlink" href="#codex-agent" title="Link to this heading">#</a></h2>
+<p>Codex 是 OpenAI 推出的 CLI 编码 Agent。与 Cursor 等编辑器内置助手不同，Codex 在一个<strong>沙箱环境</strong>中自主运行：它接收一条高层任务描述，然后独立完成代码阅读、修改、测试和解释，最终返回一组变更和自然语言总结。这种&quot;后台 Agent&quot;模式特别适合批量重构、迁移、和跨文件修改——工程师不需要在 IDE 中逐步引导。</p>
+<section id="codex">
+<h3>集成模式：知识库作为 Codex 的上下文源<a class="headerlink" href="#codex" title="Link to this heading">#</a></h3>
+<p>Codex 的核心挑战是<strong>任务启动时的上下文质量</strong>。一个没有额外上下文的 Codex 任务只能看到仓库中的代码——它不知道 ADR、runbook、或架构决策。知识库恰好补了这个缺口。</p>
+<p>集成分三个阶段：</p>
+<ol class="arabic simple">
+<li><p><strong>任务前（Pre-task）：查询知识库，注入上下文。</strong> 在提交 Codex 任务之前，脚本调用 <code class="docutils literal notranslate"><span class="pre">kb.search()</span></code> 获取与任务相关的文稿页面，将结果写入 <code class="docutils literal notranslate"><span class="pre">.codex/instructions.md</span></code> 或直接拼接到任务 prompt 中。这是最简单、最可靠的集成方式——不需要 Codex 本身支持外部工具调用。</p></li>
+<li><p><strong>任务中（During-task）：通过 MCP 桥接实时访问。</strong> 如果 Codex 配置了 MCP 支持，它可以在执行过程中调用 <code class="docutils literal notranslate"><span class="pre">kb.search</span></code>、<code class="docutils literal notranslate"><span class="pre">kb.read</span></code> 来获取额外上下文。这需要在沙箱中暴露一个 MCP 端点——目前需要额外的桥接配置。</p></li>
+<li><p><strong>任务后（Post-task）：输出回流知识库。</strong> Codex 完成任务后产生的变更说明和设计解释，可以作为 L3（AI 起草层）候选内容自动摄入知识库。第 31 章的 AI-authored 摄入管道可以直接对接这个输出。</p></li>
+</ol>
+</section>
+<section id="id8">
+<h3><code class="docutils literal notranslate"><span class="pre">.codex/</span></code> 目录约定<a class="headerlink" href="#id8" title="Link to this heading">#</a></h3>
+<p>Codex 使用 <code class="docutils literal notranslate"><span class="pre">.codex/instructions.md</span></code> 作为项目级的系统提示词。这个文件相当于 Codex 的&quot;项目记忆&quot;——每次任务启动时自动加载。</p>
+<div class="highlight-markdown notranslate"><div class="highlight"><pre><span></span><span class="gh"># .codex/instructions.md — 项目级 Codex 指令</span>
+
+<span class="gu">## 项目概览</span>
+本项目是一个支付网关服务，核心模块包括 payment、settlement、reconciliation。
+
+<span class="gu">## 知识库集成</span>
+<span class="k">-</span><span class="w"> </span>在进行架构变更前，请查阅 ADR 目录 (docs/adr/) 中的相关决策
+<span class="k">-</span><span class="w"> </span>设计理据查询: 使用 kb.search(query, filter=&quot;layer in {L0, L1}&quot;)
+<span class="k">-</span><span class="w"> </span>所有变更必须符合 docs/adr/ADR-0015 中的错误处理策略
+
+<span class="gu">## 编码规范</span>
+<span class="k">-</span><span class="w"> </span>错误处理: 使用 pkg/errors 包，不使用裸 error
+<span class="k">-</span><span class="w"> </span>日志: 结构化日志，必须包含 trace_id
+<span class="k">-</span><span class="w"> </span>测试: 每个公开函数必须有表驱动测试
+
+<span class="gu">## 知识库上下文（由 CI 脚本自动注入）</span>
+&lt;!-- KB_CONTEXT_START --&gt;
+&lt;!-- 此区域由 pre-task 脚本自动填充，每次任务前更新 --&gt;
+&lt;!-- KB_CONTEXT_END --&gt;
+</pre></div>
+</div>
+</section>
+<section id="id9">
+<h3>Codex 优势与局限<a class="headerlink" href="#id9" title="Link to this heading">#</a></h3>
+<p><strong>优势：自主多文件变更 + KB 背景支撑。</strong> Codex 擅长的是&quot;给我一个任务，我自己搞定&quot;的场景。当 <code class="docutils literal notranslate"><span class="pre">instructions.md</span></code> 中注入了知识库上下文（ADR、架构文档、代码规范），Codex 的自主决策质量显著提升——它不再需要猜测设计意图。</p>
+<p><strong>局限：沙箱隔离意味着默认无实时 KB 访问。</strong> Codex 的沙箱设计是安全优势，但也意味着它不能像 Cursor 那样在每次对话轮次中实时调用 <code class="docutils literal notranslate"><span class="pre">kb.search</span></code>。除非配置了 MCP 桥接，否则知识库上下文只能在任务前一次性注入。对于长时间运行的复杂任务，这可能导致上下文不够新鲜。</p>
+</section>
+<section id="id10">
+<h3>范例：带 KB 支撑的重构任务<a class="headerlink" href="#id10" title="Link to this heading">#</a></h3>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>任务: &quot;重构 payment 模块，将同步的支付确认流程改为异步事件驱动&quot;
+
+Pre-task KB 查询:
+  kb.search(&quot;payment confirmation async event&quot;, k=5,
+            filter=&quot;review_status==approved&quot;)
+  → 命中: ADR-0012 (事件驱动架构决策), ADR-0015 (错误处理策略),
+          payment-runbook §3 (支付确认超时处理),
+          ch16 (消息队列集成模式), settlement-design.md
+
+注入到 .codex/instructions.md 的 KB_CONTEXT 区域
+
+Codex 执行:
+  1. 读取 payment/ 目录下所有文件
+  2. 参考 ADR-0012 确定事件架构（选择 CloudEvents 格式）
+  3. 参考 ADR-0015 确定错误处理（异步失败走死信队列）
+  4. 修改 12 个文件，新增 3 个文件，删除 2 个废弃文件
+  5. 生成变更说明 + 设计解释
+
+Post-task:
+  Codex 的变更说明作为 L3 候选页面摄入知识库
+  → 标记 review_status: pending，等待人工评审
+</pre></div>
+</div>
+</section>
+</section>
+<section id="claude-code-agent">
+<h2>20.6   Claude Code 集成：Agent 工具模式<a class="headerlink" href="#claude-code-agent" title="Link to this heading">#</a></h2>
+<p>Claude Code 是 Anthropic 推出的 CLI 编码 Agent，核心特点是<strong>原生工具调用能力</strong>。与 Codex 的沙箱自主模式不同，Claude Code 在终端中以交互方式运行，并且可以直接调用外部工具——包括 MCP 服务器提供的知识库工具。这意味着 Claude Code 不需要&quot;预注入&quot;上下文：它可以在编码过程中<strong>实时查询知识库</strong>。</p>
+<section id="mcp">
+<h3>集成模式：知识库作为 MCP 工具服务器<a class="headerlink" href="#mcp" title="Link to this heading">#</a></h3>
+<p>Claude Code 的 MCP 支持是原生的：在项目配置中声明 MCP 服务器，Claude Code 就可以像调用文件系统工具一样调用 <code class="docutils literal notranslate"><span class="pre">kb.search</span></code>、<code class="docutils literal notranslate"><span class="pre">kb.read</span></code>、<code class="docutils literal notranslate"><span class="pre">kb.cite</span></code>。这是三种编码助手中最直接的知识库集成方式。</p>
+<p>集成步骤：</p>
+<ol class="arabic simple">
+<li><p><strong>配置 MCP 服务器。</strong> 在项目根目录的 <code class="docutils literal notranslate"><span class="pre">.mcp.json</span></code>（或全局的 <code class="docutils literal notranslate"><span class="pre">claude_desktop_config.json</span></code>）中注册知识库 MCP 服务器。Claude Code 启动时自动加载这些配置。</p></li>
+<li><p><strong>原生工具调用。</strong> Claude Code 在编码过程中可以随时调用 <code class="docutils literal notranslate"><span class="pre">kb.search</span></code>、<code class="docutils literal notranslate"><span class="pre">kb.read</span></code>、<code class="docutils literal notranslate"><span class="pre">kb.cite</span></code>——不需要工程师手动触发。当 Claude Code 遇到一个它不确定的架构问题时，它会自动查询知识库。</p></li>
+<li><p><strong>CLAUDE.md 引用 KB 约定。</strong> <code class="docutils literal notranslate"><span class="pre">.claude/CLAUDE.md</span></code> 是 Claude Code 的项目上下文文件，相当于 Cursor 的 <code class="docutils literal notranslate"><span class="pre">.cursorrules</span></code>。在其中写明知识库的使用约定，Claude Code 会遵循。</p></li>
+</ol>
+</section>
+<section id="claude">
+<h3><code class="docutils literal notranslate"><span class="pre">.claude/</span></code> 目录约定<a class="headerlink" href="#claude" title="Link to this heading">#</a></h3>
+<div class="highlight-markdown notranslate"><div class="highlight"><pre><span></span><span class="gh"># .claude/CLAUDE.md — 项目级 Claude Code 上下文</span>
+
+<span class="gu">## 项目概览</span>
+支付网关服务。核心模块: payment, settlement, reconciliation。
+
+<span class="gu">## 知识库使用规则</span>
+<span class="k">1.</span> <span class="gs">**架构变更前必须查询 KB。**</span> 任何涉及模块边界、接口定义、错误处理策略的
+   变更，必须先调用 kb.search 查找相关 ADR。如果存在冲突的 ADR，
+   停止修改并报告冲突。
+<span class="k">2.</span> <span class="gs">**引用必须可验证。**</span> 回答中引用的文档必须来自 kb.cite 的返回结果。
+   不要凭记忆引用文件路径或行号。
+<span class="k">3.</span> <span class="gs">**优先使用已评审内容。**</span> 调用 kb.search 时始终加上
+   filter=&quot;review_status==approved&quot;。pending 状态的内容仅供参考。
+
+<span class="gu">## 编码规范</span>
+<span class="k">-</span><span class="w"> </span>错误处理: pkg/errors, 不使用裸 error
+<span class="k">-</span><span class="w"> </span>日志: 结构化, 必须包含 trace_id
+<span class="k">-</span><span class="w"> </span>测试: 表驱动测试, 覆盖率 &gt; 80%
+
+<span class="gu">## 自定义命令</span>
+<span class="k">-</span><span class="w"> </span>/kb-check: 查询 KB 中与当前文件相关的所有 ADR 和 runbook
+<span class="k">-</span><span class="w"> </span>/kb-conflict: 检查当前修改是否与任何 ADR 冲突
+</pre></div>
+</div>
+</section>
+<section id="id11">
+<h3>MCP 配置范例<a class="headerlink" href="#id11" title="Link to this heading">#</a></h3>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="c1">// .mcp.json — 项目级 MCP 服务器配置</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;mcpServers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;project-kb&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;npx&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;-y&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@anthropic/kb-mcp-server&quot;</span><span class="p">],</span>
+<span class="w">      </span><span class="nt">&quot;env&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;KB_ENDPOINT&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;http://localhost:8741&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;KB_INDEX_PATH&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;./kb-index&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;KB_DEFAULT_FILTER&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;review_status==approved&quot;</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="claude-code">
+<h3>Claude Code 优势与局限<a class="headerlink" href="#claude-code" title="Link to this heading">#</a></h3>
+<p><strong>优势：原生 MCP 支持 = 实时 KB 访问。</strong> Claude Code 不需要预注入或桥接——它在每一步决策中都可以查询知识库。这对架构感知的编码任务尤其重要：当 Claude Code 修改一个接口时，它可以即时查询相关 ADR，确保变更不违反设计决策。</p>
+<p><strong>局限：上下文窗口限制要求 KB 结果预过滤。</strong> 虽然 Claude Code 可以实时查询，但每次查询返回的结果仍然受上下文窗口约束。知识库的元组 <span class="math notranslate nohighlight">\(\langle L, U, R, S \rangle\)</span> 在此发挥关键作用——Claude Code 应该只请求高权威性、已评审的结果，而不是&quot;把所有相关内容都拿来&quot;。CLAUDE.md 中的使用规则正是为此设计的。</p>
+</section>
+<section id="kb-api">
+<h3>范例：带实时 KB 查询的 API 开发<a class="headerlink" href="#kb-api" title="Link to this heading">#</a></h3>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>任务: &quot;添加一个新的 /api/v2/refund 端点&quot;
+
+Claude Code 在终端中交互式执行:
+
+Step 1: 工程师输入任务
+  &gt; claude &quot;添加 /api/v2/refund 端点，支持部分退款&quot;
+
+Step 2: Claude Code 自动查询 KB
+  → kb.search(&quot;api endpoint refund convention&quot;, k=3,
+              filter=&quot;review_status==approved&quot;)
+  → 命中: ADR-0018 (API 版本策略: v2 使用 OpenAPI 3.1),
+          api-style-guide.md (响应格式、错误码规范),
+          ADR-0023 (退款需要幂等键)
+
+Step 3: Claude Code 读取 ADR 详情
+  → kb.read(&quot;adr-0018&quot;) → 得到 OpenAPI 3.1 的具体要求
+  → kb.read(&quot;adr-0023&quot;) → 得到幂等键的实现规范
+
+Step 4: Claude Code 生成代码
+  - 创建 pkg/api/v2/refund_handler.go（符合 API style guide）
+  - 创建 pkg/api/v2/refund_handler_test.go（表驱动测试）
+  - 更新 pkg/api/router.go（注册新路由）
+  - 创建 api/openapi/v2/refund.yaml（OpenAPI 3.1 spec）
+
+Step 5: Claude Code 验证引用
+  → kb.cite(&quot;refund handler idempotency&quot;, k=2)
+  → 确认实现与 ADR-0023 一致
+
+输出: 4 个新文件 + 1 个修改文件，全部引用可追溯。
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id12">
+<h2>20.7   三工具对比<a class="headerlink" href="#id12" title="Link to this heading">#</a></h2>
+<p>Cursor、Codex、Claude Code 代表了三种不同的 AI 编码助手与知识库的集成范式。选择哪种工具（或组合使用）取决于任务类型和团队工作流。</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>维度</p></th>
+<th class="head text-left"><p>Cursor</p></th>
+<th class="head text-left"><p>Codex</p></th>
+<th class="head text-left"><p>Claude Code</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p><strong>KB 访问方式</strong></p></td>
+<td class="text-left"><p>MCP 工具调用</p></td>
+<td class="text-left"><p>预注入或 MCP 桥接</p></td>
+<td class="text-left"><p>原生 MCP 工具调用</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><strong>执行环境</strong></p></td>
+<td class="text-left"><p>编辑器内</p></td>
+<td class="text-left"><p>沙箱（自主）</p></td>
+<td class="text-left"><p>终端（交互式）</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p><strong>多文件支持</strong></p></td>
+<td class="text-left"><p>是</p></td>
+<td class="text-left"><p>是（强）</p></td>
+<td class="text-left"><p>是</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><strong>上下文配置</strong></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">.cursorrules</span></code> + MCP</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">.codex/instructions.md</span></code> + MCP</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">CLAUDE.md</span></code> + MCP</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p><strong>最佳场景</strong></p></td>
+<td class="text-left"><p>交互式开发</p></td>
+<td class="text-left"><p>批量重构</p></td>
+<td class="text-left"><p>架构感知编码</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><strong>KB 反馈闭环</strong></p></td>
+<td class="text-left"><p>手动</p></td>
+<td class="text-left"><p>任务后注入</p></td>
+<td class="text-left"><p>工具实时回流</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p><strong>启动成本</strong></p></td>
+<td class="text-left"><p>低（IDE 内置）</p></td>
+<td class="text-left"><p>中（需配置沙箱）</p></td>
+<td class="text-left"><p>中（需配置 MCP）</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><strong>实时 KB 查询</strong></p></td>
+<td class="text-left"><p>是</p></td>
+<td class="text-left"><p>仅通过桥接</p></td>
+<td class="text-left"><p>是（原生）</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>选择建议：</strong></p>
+<ul class="simple">
+<li><p><strong>日常编码</strong>（写新功能、修 bug、局部重构）→ Cursor。编辑器内的即时交互和 MCP 集成已经足够。</p></li>
+<li><p><strong>大规模重构</strong>（跨模块迁移、批量 API 升级、代码风格统一）→ Codex。自主沙箱模式适合&quot;设定目标、自动执行&quot;的任务。提前把 KB 上下文注入 <code class="docutils literal notranslate"><span class="pre">instructions.md</span></code> 即可。</p></li>
+<li><p><strong>架构敏感的开发</strong>（新增核心接口、修改安全相关逻辑、跨团队 API 约定）→ Claude Code。原生 MCP 支持确保每一步决策都有 KB 背书。</p></li>
+</ul>
+<p>三种工具不是互斥的。一个典型的工作流可能是：用 Claude Code 做架构设计和接口定义（实时查询 KB），用 Codex 做批量实现和迁移（预注入 KB 上下文），用 Cursor 做日常的代码编辑和调试。知识库是三者共享的上下文基础设施。</p>
+</section>
+<section id="conclusion">
+<h2>Conclusion —— 小结<a class="headerlink" href="#conclusion" title="Link to this heading">#</a></h2>
+<p>AI 编码助手的瓶颈从来不是模型能力 —— 模型一年比一年强。瓶颈是<strong>上下文质量</strong>。一个没有知识库的助手只能看到当前打开的文件和有限的仓库搜索。一个有知识库的助手能看到设计理据、操作手册、架构决策，并且知道哪些是经过评审的、哪些是 AI 起草的、哪些已经过期。</p>
+<p>知识库不是给 AI 编码助手加了一个功能。它改变的是 AI 编码的<strong>信任基础</strong>：从&quot;我希望 AI 猜对了&quot;到&quot;我可以验证 AI 引用了什么&quot;。第 29 章将把这个思路推向更完整的形态 —— 知识库不再只是 AI 编码的被动上下文源，而是 agent 的一等工具。</p>
+</section>
+<section id="id13">
+<h2>参考文献<a class="headerlink" href="#id13" title="Link to this heading">#</a></h2>
+<div class="docutils container" id="id14">
+<div role="list" class="citation-list">
+<div class="citation" id="id99" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Ramakrishna Bairi, Atharv Sonwane, Aditya Kanade, Vageesh D C, Arun Iyer, Suresh Parthasarathy, Sriram Rajamani, B. Ashok, and Shashank Shet. CodePlan: repository-level coding using LLMs and planning. <em>Proceedings of the ACM on Software Engineering (FSE 2024)</em>, 2024. Models repo-level code changes as a planning problem: seed edit → change-impact analysis on the dependency graph → ordered sub-task list → iterative LLM execution with validation. Key insight for Chapter 20: KB-backed AI coding assistants can generate structured multi-file refactoring plans using the same dependency graph the KB already maintains. URL: <a class="reference external" href="https://www.microsoft.com/en-us/research/publication/codeplan-repository-level-coding-using-llms-and-planning-2/">https://www.microsoft.com/en-us/research/publication/codeplan-repository-level-coding-using-llms-and-planning-2/</a>.</p>
+</div>
+<div class="citation" id="id84" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></span>
+<p>Shiqi Chen, Yiran Zhang, Yunze Zhao, Yifei Liu, Chengye Hu, and Yang Liu. Benchmarking large language models in retrieval-augmented generation. In <em>arXiv preprint arXiv:2309.01431</em>. 2023. URL: <a class="reference external" href="https://arxiv.org/abs/2309.01431">https://arxiv.org/abs/2309.01431</a>.</p>
+</div>
+<div class="citation" id="id17" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></span>
+<p>Walter (Yamin) Fan. RAG 进阶指南：别只盯着向量数据库，Elasticsearch 才是扫地僧. January 2026. v1.0, CC-BY-NC-ND 4.0. URL: <a class="reference external" href="https://www.fanyamin.com/2026-01-15-rag-elasticsearch-database.html">https://www.fanyamin.com/2026-01-15-rag-elasticsearch-database.html</a>.</p>
+</div>
+<div class="citation" id="id97" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></span>
+<p>Kai Greshake, Sahar Abdelnabi, Shailesh Mishra, Christoph Endres, Thorsten Holz, and Mario Fritz. Not what you have signed up for: compromising real-world LLM-integrated applications with indirect prompt injection. <em>arXiv preprint arXiv:2302.12173</em>, 2023. Formalises the indirect-prompt-injection threat model that RAG systems inherit the moment retrieved documents can contain attacker-controlled text. Cited in Chapter 13 as the named threat model the two-step defence (system preamble + context escaping) addresses, and re-visited in Chapter 23's red-teaming treatment. URL: <a class="reference external" href="https://arxiv.org/abs/2302.12173">https://arxiv.org/abs/2302.12173</a>.</p>
+</div>
+<div class="citation" id="id98" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id7">5</a><span class="fn-bracket">]</span></span>
+<p>Di Li, Jingyi Wei, Yewen Peng, Hanbin Bai, Bei Chen, and Yong Li. Repoformer: selective retrieval for repository-level code completion. <em>Proceedings of the 41st International Conference on Machine Learning (ICML 2024)</em>, 2024. Trains a lightweight classifier to predict whether retrieval will help a given code-completion task, skipping it when the local context suffices. Key insight for Chapter 12: not every query needs retrieval, and a retrieval-necessity signal can cut latency and noise. URL: <a class="reference external" href="https://arxiv.org/abs/2403.10059">https://arxiv.org/abs/2403.10059</a>, <a class="reference external" href="https://arxiv.org/abs/2403.10059">arXiv:2403.10059</a>.</p>
+</div>
+<div class="citation" id="id41" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>6<span class="fn-bracket">]</span></span>
+<p>Qinyu Luo, Yining Ye, Shihao Liang, Zhong Zhang, Yujia Qin, Yaxi Lu, Yesai Wu, Xin Cong, Yankai Lin, Yingli Zhang, Xiaoyin Che, Zhiyuan Liu, and Maosong Sun. Repoagent: an LLM-powered open-source framework for repository-level code documentation generation. 2024. URL: <a class="reference external" href="https://arxiv.org/abs/2402.16667">https://arxiv.org/abs/2402.16667</a>, <a class="reference external" href="https://arxiv.org/abs/2402.16667">arXiv:2402.16667</a>.</p>
+</div>
+<div class="citation" id="id93" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></span>
+<p>Rodrigo Nogueira and Kyunghyun Cho. Passage re-ranking with BERT. <em>arXiv preprint arXiv:1901.04085</em>, 2019. Canonical reference for cross-encoder re-ranking — a BERT model scores (query, document) pairs for the second stage of a retrieve-then-rerank pipeline. Widely known as &quot;monoBERT&quot;. URL: <a class="reference external" href="https://arxiv.org/abs/1901.04085">https://arxiv.org/abs/1901.04085</a>.</p>
+</div>
+<div class="citation" id="id100" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>8<span class="fn-bracket">]</span></span>
+<p>Siru Ouyang, Jingqing Yu, Daoguang Zan, Xiangyu Xu, Wei Liu, Shuai Shi, and Hao Peng. RepoGraph: enhancing AI software engineering with repository-level code graph. <em>ICLR 2025 Poster</em>, 2025. Builds a typed repository-level code graph (calls, imports, inherits, defines) and uses graph-enhanced retrieval to expand seed hits along structural edges. Key insight for Chapter 11: code graphs are not just for storage; they are retrieval primitives that produce structurally complete context, not just semantically similar chunks. URL: <a class="reference external" href="https://openreview.net/forum?id=dw9VUsSHGB">https://openreview.net/forum?id=dw9VUsSHGB</a>.</p>
+</div>
+<div class="citation" id="id94" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>9<span class="fn-bracket">]</span></span>
+<p>Nils Reimers and Iryna Gurevych. Sentence-BERT: sentence embeddings using siamese BERT-networks. In <em>Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing</em>. 2019. Introduces the bi-encoder framing that underlies every modern dense retriever: two independent encodings compared by cosine similarity, contrasted explicitly against cross-encoders that concatenate (query, document) before scoring. URL: <a class="reference external" href="https://arxiv.org/abs/1908.10084">https://arxiv.org/abs/1908.10084</a>.</p>
+</div>
+<div class="citation" id="id47" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>10<span class="fn-bracket">]</span></span>
+<p>Timo Schick, Janvijay Dwivedi-Yu, Roberto Dessì, Roberta Raileanu, Maria Lomeli, Luke Zettlemoyer, Nicola Cancedda, and Thomas Scialom. Toolformer: language models can teach themselves to use tools. <em>arXiv preprint arXiv:2302.04761</em>, 2023.</p>
+</div>
+<div class="citation" id="id103" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>11<span class="fn-bracket">]</span></span>
+<p>Disha Shrivastava, Hugo Larochelle, and Daniel Tarlow. Repository-level prompt generation for large language models of code. In <em>Proceedings of the 40th International Conference on Machine Learning (ICML 2023)</em>. 2023. The conceptual origin of repo-level RAG: even without fine-tuning, selecting the right cross-file context (imports, similar code, usage examples, type definitions) substantially improves code completion. Key insight for Chapter 12 and Chapter 19: context assembly is a first-class retrieval problem, not a prompt-engineering afterthought. URL: <a class="reference external" href="https://proceedings.mlr.press/v202/shrivastava23a.html">https://proceedings.mlr.press/v202/shrivastava23a.html</a>.</p>
+</div>
+<div class="citation" id="id42" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>12<span class="fn-bracket">]</span></span>
+<p>Hongyuan Tao, Ying Zhang, Zhenhao Tang, Hongen Peng, Xukun Zhu, Bingchang Liu, Yingguang Yang, Ziyin Zhang, Zhaogui Xu, Haipeng Zhang, Linchao Zhu, Rui Wang, Hang Yu, Jianguo Li, and Peng Di. Code graph model (CGM): a graph-integrated large language model for repository-level software engineering tasks. 2025. URL: <a class="reference external" href="https://arxiv.org/abs/2505.16901">https://arxiv.org/abs/2505.16901</a>, <a class="reference external" href="https://arxiv.org/abs/2505.16901">arXiv:2505.16901</a>.</p>
+</div>
+<div class="citation" id="id102" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>13<span class="fn-bracket">]</span></span>
+<p>Chuxin Xu, Zhicheng Geng, Zhengtao Liao, and Yifan Wei. Synergizing LLMs and knowledge graphs: a novel approach to software repository-related question answering. <em>arXiv preprint arXiv:2412.03815</em>, 2024. Designs a software-specific KG ontology (Repository, Module, File, Class, Function, Dependency, Issue, Commit, Developer) and a synergistic LLM+KG QA framework that routes structural queries to KG and semantic queries to dense retrieval. Key insight for Chapter 6 and Chapter 11: a purpose-built software ontology plus hybrid query routing covers both structural and semantic questions better than either approach alone. URL: <a class="reference external" href="https://arxiv.org/abs/2412.03815">https://arxiv.org/abs/2412.03815</a>, <a class="reference external" href="https://arxiv.org/abs/2412.03815">arXiv:2412.03815</a>.</p>
+</div>
+<div class="citation" id="id46" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>14<span class="fn-bracket">]</span></span>
+<p>Shunyu Yao, Jeffrey Zhao, Dian Yu, Nan Du, Izhak Shafran, Karthik Narasimhan, and Yuan Cao. ReAct: synergizing reasoning and acting in language models. <em>ICLR</em>, 2023.</p>
+</div>
+<div class="citation" id="id101" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>15<span class="fn-bracket">]</span></span>
+<p>Fengji Zhang, Bei Chen, Yue Zhang, Jacky Keung, Jin Liu, Daoguang Zan, Yi Mao, Jian-Guang Chen, and Wenqiang Chen. RepoCoder: repository-level code completion through iterative retrieval and generation. <em>Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing (EMNLP 2023)</em>, 2023. Proposes a retrieve-generate-re-retrieve iterative loop: the LLM draft becomes a better retrieval query for the next round. Key insight for Chapter 12: multi-round retrieval converges on better context, especially for complex cross-file queries. URL: <a class="reference external" href="https://arxiv.org/abs/2303.12570">https://arxiv.org/abs/2303.12570</a>, <a class="reference external" href="https://arxiv.org/abs/2303.12570">arXiv:2303.12570</a>.</p>
+</div>
+<div class="citation" id="id40" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>16<span class="fn-bracket">]</span></span>
+<p>Yuqi Zhu, Xiaohan Wang, Jing Chen, Shuofei Qiao, Yixin Ou, Yunzhi Yao, Shumin Deng, Huajun Chen, and Ningyu Zhang. LLMs for knowledge graph construction and reasoning: recent capabilities and future opportunities. 2024. URL: <a class="reference external" href="https://arxiv.org/abs/2305.13168">https://arxiv.org/abs/2305.13168</a>, <a class="reference external" href="https://arxiv.org/abs/2305.13168">arXiv:2305.13168</a>.</p>
+</div>
+<div class="citation" id="id85" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>17<span class="fn-bracket">]</span></span>
+<p>Anthropic. Model context protocol (mcp) specification. 2024–present. URL: <a class="reference external" href="https://modelcontextprotocol.io/">https://modelcontextprotocol.io/</a>.</p>
+</div>
+<div class="citation" id="id48" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>18<span class="fn-bracket">]</span></span>
+<p>Anthropic. Model context protocol (MCP) specification. 2024–present. URL: <a class="reference external" href="https://modelcontextprotocol.io/">https://modelcontextprotocol.io/</a>.</p>
+</div>
+<div class="citation" id="id86" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>19<span class="fn-bracket">]</span></span>
+<p>Cloudflare. Cloudflare Workers: serverless execution at the network edge. Documentation, 2024. URL: <a class="reference external" href="https://developers.cloudflare.com/workers/">https://developers.cloudflare.com/workers/</a>.</p>
+</div>
+<div class="citation" id="id87" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>20<span class="fn-bracket">]</span></span>
+<p>Deno Land Inc. Deno Deploy: a globally-distributed serverless javascript runtime. Documentation, 2024. URL: <a class="reference external" href="https://deno.com/deploy">https://deno.com/deploy</a>.</p>
+</div>
+<div class="citation" id="id25" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>21<span class="fn-bracket">]</span></span>
+<p>Sourcegraph. Cody: an AI coding assistant that knows your codebase. 2023–present. Closed-source IDE assistant; uses Sourcegraph's code-graph and embedding index. URL: <a class="reference external" href="https://sourcegraph.com/cody">https://sourcegraph.com/cody</a>.</p>
+</div>
+<div class="citation" id="id88" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>22<span class="fn-bracket">]</span></span>
+<p>Vercel. Vercel Edge Functions: serverless functions at the edge. Documentation, 2024. URL: <a class="reference external" href="https://vercel.com/docs/functions">https://vercel.com/docs/functions</a>.</p>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="ch26-graph-guided-context-assembly.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">第 26 章 —— 图引导的上下文组装</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="ch28-team-sdlc-integration.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">第 28 章 —— 团队协作与 SDLC 集成</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 目录
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why">Why —— 为什么</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what">What —— 是什么</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">能力 1：设计理据感知</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">能力 2：引用可校验</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">能力 3：权威性分层</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how">How —— 怎么做</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#kb">交互模式：三种典型的 KB 增强编码场景</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">集成架构</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">上下文预算纪律</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cursor-rules">Cursor Rules 与知识库的互补</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example —— 范例</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#codex-agent">20.5   Codex 集成：后台 Agent 模式</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#codex">集成模式：知识库作为 Codex 的上下文源</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id8"><code class="docutils literal notranslate"><span class="pre">.codex/</span></code> 目录约定</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">Codex 优势与局限</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">范例：带 KB 支撑的重构任务</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#claude-code-agent">20.6   Claude Code 集成：Agent 工具模式</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mcp">集成模式：知识库作为 MCP 工具服务器</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#claude"><code class="docutils literal notranslate"><span class="pre">.claude/</span></code> 目录约定</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">MCP 配置范例</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#claude-code">Claude Code 优势与局限</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#kb-api">范例：带实时 KB 查询的 API 开发</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id12">20.7   三工具对比</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#conclusion">Conclusion —— 小结</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id13">参考文献</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+作者： Walter Fan
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright AI 辅助创作 2026, Walter Fan.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    <p class="last-updated">
+  最后更新于 2026-11-10.
+  <br/>
+</p>
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

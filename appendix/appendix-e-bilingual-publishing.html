@@ -1,0 +1,770 @@
+
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>附录 E —— 发布一个双语知识库 &#8212; Use AI to build a knowledge base for a software project</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=591f613d" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=23f7fa08"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../_static/translations.js?v=beaddf03"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'appendix/appendix-e-bilingual-publishing';</script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="参考文献：仓库级代码理解与软件知识库论文导读" href="../reference/index.html" />
+    <link rel="prev" title="附录 D —— 术语表" href="appendix-d-glossary.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+    <meta name="docbuild:last-update" content="2026-11-10"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Use AI to build a knowledge base for a software project</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">搜索</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Part I — Foundations</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part1-foundations/index.html">第一部分 —— 基础</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch01-why-kb-for-software.html">第 1 章 —— 为什么要给软件建一个知识库？</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch01a-quickstart-30min.html">第 1a 章 —— 30 分钟快速上手</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch02-ir-rag-primer.html">第 2 章 —— IR 与 RAG 入门</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch03-diataxis-and-software-docs.html">第 3 章 —— Diátaxis 与软件文档</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part II — The Prose Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part2-prose-layer/index.html">第二部分 —— 文稿层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch04-file-based-wiki.html">第 4 章 —— 一个基于文件的 wiki</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch05-frontmatter-provenance-trust.html">第 5 章 —— 把 frontmatter 当作一份来源记录</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch06-llm-classification-pipeline.html">第 6 章 —— 分类流水线</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch07-publish-and-search.html">第 7 章 —— 发布与搜索</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch08-prose-operational-model.html">第 8 章 —— 文稿层的运维模型</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch09-cold-start-migration.html">第 9 章 —— 冷启动与批量迁移</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part III — The Author Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part3-author-layer/index.html">第三部分 —— 作者层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch10-why-ai-as-author.html">第 10 章 —— 为什么让 AI 当作者</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch11-ai-drafting-and-rewriting.html">第 11 章 —— AI 起草、重写、翻译</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch12-ai-for-metadata.html">第 12 章 —— AI 处理元数据：分类、打标签、实体与关系抽取</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch13-ai-for-maintenance.html">第 13 章 —— AI 做维护：摘要、去重、过期与漂移检测</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch14-ai-as-judge.html">第 14 章 —— AI 作为评判者：评估生成质量与引用合规</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part IV — The Code Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part4-code-layer/index.html">第四部分 —— 代码层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch15-why-code-is-not-prose.html">第 15 章 —— 为什么代码不是文稿</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch16-parsing-and-entity-extraction.html">第 16 章 —— 解析与实体抽取</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch17-embeddings-and-vector-stores.html">第 17 章 —— 嵌入向量与向量存储</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch18-code-knowledge-graph.html">第 18 章 —— 代码知识图谱</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch19-hybrid-retrieval-and-rrf.html">第 19 章 —— 混合检索与 RRF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch20-prompt-and-generation.html">第 20 章 —— 提示词与生成</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part V — Operations &amp; Lifecycle</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part5-operations-lifecycle/index.html">第五部分 —— 运维与生命周期</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part5-operations-lifecycle/ch21-incremental-sync.html">第 21 章 —— 增量同步</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part5-operations-lifecycle/ch22-evaluation-and-benchmarks.html">第 22 章 —— 评测、基准与发布门禁</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part5-operations-lifecycle/ch23-maintenance-drift-and-link-rot.html">第 23 章 —— 维护、漂移与链接腐化</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part VI — The Hybrid Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part6-hybrid-layer/index.html">第六部分 —— 混合层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch24-prose-meets-code.html">第 24 章 —— 文稿与代码相遇</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch25-document-layering-L0-L4.html">第 25 章 —— 文档分层 L0–L4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch26-graph-guided-context-assembly.html">第 26 章 —— 图引导的上下文组装</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch27-harnessing-ai-coding.html">第 27 章 —— 用知识库驾驭 AI 编码</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch28-team-sdlc-integration.html">第 28 章 —— 团队协作与 SDLC 集成</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch29-ai-agents-on-the-kb.html">第 29 章 —— 在知识库上跑的 AI Agent</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part VII — Governance &amp; Outlook</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part7-governance-and-outlook/index.html">第七部分 —— 治理与展望</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch30-cost-privacy-security.html">第 30 章 —— 成本、隐私、安全</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch31-trust-provenance-and-red-teaming.html">第 31 章 —— 信任、出处与红队演练</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch32-outlook-and-open-problems.html">第 32 章 —— 展望与尚未解决的问题</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Appendices</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="appendix-a-example-wiki.html">附录 A —— 端到端：从杂乱文件夹到可发布 Wiki</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appendix-b-example-code-kg.html">附录 B —— 示例：从一个 Go 仓库构建代码知识库</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appendix-c-deepwiki-checklist.html">附录 C —— 自己动手做 DeepWiki 检查清单</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appendix-d-glossary.html">附录 D —— 术语表</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">附录 E —— 发布一个双语知识库</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">参考文献</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../reference/index.html">参考文献：仓库级代码理解与软件知识库论文导读</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../reference/01-repoformer-selective-retrieval.html">Repoformer: Selective Retrieval for Repository-Level Code Completion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/02-codeplan-repository-level-planning.html">CodePlan: Repository-Level Coding using LLMs and Planning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/03-repograph-code-graph-navigation.html">RepoGraph: Enhancing AI Software Engineering with Repository-level Code Graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/04-repoagent-documentation-generation.html">RepoAgent: An LLM-Powered Open-Source Framework for Repository-level Code Documentation Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/05-repocoder-iterative-retrieval-generation.html">RepoCoder: Repository-Level Code Completion Through Iterative Retrieval and Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/06-llm-kg-synergy-repo-qa.html">Synergizing LLMs and Knowledge Graphs: A Novel Approach to Software Repository-Related Question Answering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/07-repo-level-prompt-generation.html">Repository-Level Prompt Generation for Large Language Models of Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/08-repobench-benchmarking.html">RepoBench: Benchmarking Repository-Level Code Auto-Completion Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/09-long-code-arena-benchmarks.html">Long Code Arena: A Set of Benchmarks for Long-Context Code Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/10-cgm-graph-integrated-llm.html">Code Graph Model (CGM): A Graph-Integrated Large Language Model for Repository-Level Software Engineering Tasks</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="下载此页面">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="下载源文件"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="列印成 PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="全屏模式"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>附录 E —— 发布一个双语知识库</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> 目录 </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">为什么要做双语发布</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">双语流水线长什么样</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">怎样把它做可靠</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gettext-uuid">1. 打开 <code class="docutils literal notranslate"><span class="pre">gettext_uuid</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#po">2. 把 <code class="docutils literal notranslate"><span class="pre">.po</span></code> 编辑保持为机械操作</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#hook-h1">3. 通过 hook 翻译 H1</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">4. 在关键页面未翻译时让构建失败</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">示例 —— 一页内容穿过整条流水线</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">运维失败模式与修复</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">保持简单</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">参考文献</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="e">
+<h1>附录 E —— 发布一个双语知识库<a class="headerlink" href="#e" title="Link to this heading">#</a></h1>
+<blockquote>
+<div><p>适用范围：这个附录刻意保持为<strong>纯文档、自包含</strong>。它描述的是作者在一个私有的
+project-knowledge-base 工具包里逐步打磨出来的双语发布纪律
+<span id="id1">[<a class="reference internal" href="../part7-governance-and-outlook/ch31-trust-provenance-and-red-teaming.html#id89" title="Walter (Yamin) Fan. Project knowledge base skill: an opinionated operational model for software documentation. Self-published; private toolkit, 2026. Methodology and operational patterns developed by the author in parallel with this book; not publicly released. Cited throughout for the three-level update strategy, the PKB-metadata footer schema, the hard/soft verification-gate catalog, and the opinionated ten-page documentation set. Chapter prose adapts these ideas in the book's voice; command names and employer-internal infrastructure from the toolkit are deliberately omitted.">Fan, 2026</a>]</span>，并把它适配到本书正在使用的 <code class="docutils literal notranslate"><span class="pre">sphinx</span> <span class="pre">+</span> <span class="pre">myst</span></code>
+工具链上。这里不会额外接入新的 <code class="docutils literal notranslate"><span class="pre">make</span></code> target；直接使用本书 Makefile
+里现有的 <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">book-i18n</span></code> / <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">book-build</span></code> 即可。</p>
+</div></blockquote>
+<section id="id2">
+<h2>为什么要做双语发布<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
+<p>一个只用作者第一语言写成的知识库，会把那些第二语言或第三语言很流利、但无法以
+专业深度阅读第一语言的读者挡在外面。一个只用英文写成的 KB，则会把大量更习惯用
+中文进行技术深读的华语工程团队成员排除在外（反之亦然）。真正的问题不是
+<em>选哪种语言</em>，而是<em>用什么样的纪律，在不把写作成本翻倍的前提下，让两种语言保持同步</em>。</p>
+<p>有三种失败模式，会让这件事比看上去难得多：</p>
+<ol class="arabic simple">
+<li><p><strong>翻译漂移（translation drift）。</strong> 英文页面更新了，中文翻译没更新。
+中文读者看到的是一页<strong>看起来还很新</strong>、其实已经过时的内容。</p></li>
+<li><p><strong>锚点漂移（anchor drift）。</strong> 英文 H2 标题改写了，中文翻译还保留旧锚点。
+跨文档链接会静悄悄地失效。</p></li>
+<li><p><strong>真理源漂移（source-of-truth drift）。</strong> 两份并行 prose 文件并存，
+各自独立编辑，最后两种语言在内容层面分叉，而不只是措辞不同。</p></li>
+</ol>
+<p>Sphinx 工具链再加上一点点纪律，就足以同时处理这三类问题。</p>
+</section>
+<section id="id3">
+<h2>双语流水线长什么样<a class="headerlink" href="#id3" title="Link to this heading">#</a></h2>
+<p>一种源语言，多个翻译目标，每种语言各构建一次：</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>book/                            &lt;- single source of truth (English)
+  ch08-prose-operational-model.md
+  ...
+  locale/
+    zh_CN/
+      LC_MESSAGES/
+        ch08-prose-operational-model.po  &lt;- Chinese translation
+        ...
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">.po</span></code> 文件是 gettext 的消息目录。每一条目录项都把一段英文字符串
+（<code class="docutils literal notranslate"><span class="pre">msgid</span></code>）与一段译文字符串（<code class="docutils literal notranslate"><span class="pre">msgstr</span></code>）配对起来。Sphinx 在构建时提取
+<code class="docutils literal notranslate"><span class="pre">msgid</span></code>；翻译者（人或机器）补上 <code class="docutils literal notranslate"><span class="pre">msgstr</span></code>；随后 Sphinx 再从<strong>同一份源文本</strong>
+为每种目标语言重新渲染 HTML。</p>
+<p>英文 prose 仍然是唯一的 source of truth。中文页面是被 <em>rendered</em> 出来的，
+而不是被独立维护的。这一步是关键：如果一个 KB 拥有两个同等地位的源头，
+那它实际上也就拥有了两个漂移源头。</p>
+</section>
+<section id="id4">
+<h2>怎样把它做可靠<a class="headerlink" href="#id4" title="Link to this heading">#</a></h2>
+<p>四条纪律，每一条都不贵：</p>
+<section id="gettext-uuid">
+<h3>1. 打开 <code class="docutils literal notranslate"><span class="pre">gettext_uuid</span></code><a class="headerlink" href="#gettext-uuid" title="Link to this heading">#</a></h3>
+<p>如果没有 UUID，每一条翻译项都是以英文字符串本身作为 key。
+把 “The retrieval layer consults the tuple” 改写成
+“The retriever reads the tuple”，译文就会立刻变成孤儿：旧条目指向已经不存在的
+英文，新条目又没有翻译。翻译者只能从头再来。</p>
+<p>在 <code class="docutils literal notranslate"><span class="pre">conf.py</span></code> 中设置 <code class="docutils literal notranslate"><span class="pre">gettext_uuid</span> <span class="pre">=</span> <span class="pre">True</span></code> 之后，每个条目在第一次出现时都会获得
+一个稳定 UUID。之后哪怕英文措辞改了，只要含义没变，UUID 就不变；中文翻译追随的
+是 UUID，而不是字面字符串。<code class="docutils literal notranslate"><span class="pre">conf.py</span></code> 里应当这样写：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">gettext_uuid</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">gettext_compact</span> <span class="o">=</span> <span class="kc">False</span>   <span class="c1"># one .pot per source file</span>
+<span class="n">gettext_additional_targets</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;literal-block&quot;</span><span class="p">,</span> <span class="s2">&quot;image&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>结果是：<strong>保留语义</strong>的英文修改，也会<strong>保留原有翻译</strong>。</p>
+</section>
+<section id="po">
+<h3>2. 把 <code class="docutils literal notranslate"><span class="pre">.po</span></code> 编辑保持为机械操作<a class="headerlink" href="#po" title="Link to this heading">#</a></h3>
+<p>手工编辑 <code class="docutils literal notranslate"><span class="pre">.po</span></code> 文件既枯燥又容易出错（一个 stray quote 就能把整个文件弄坏）。
+应当用 <code class="docutils literal notranslate"><span class="pre">polib</span></code> 来做程序化修改：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">polib</span>
+
+<span class="n">po</span> <span class="o">=</span> <span class="n">polib</span><span class="o">.</span><span class="n">pofile</span><span class="p">(</span><span class="s2">&quot;locale/zh_CN/LC_MESSAGES/ch08-prose-operational-model.po&quot;</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">po</span><span class="o">.</span><span class="n">untranslated_entries</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">should_auto_translate</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">msgid</span><span class="p">):</span>
+        <span class="n">entry</span><span class="o">.</span><span class="n">msgstr</span> <span class="o">=</span> <span class="n">call_llm_translator</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">msgid</span><span class="p">)</span>
+        <span class="n">entry</span><span class="o">.</span><span class="n">flags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;fuzzy&quot;</span><span class="p">)</span>  <span class="c1"># mark for review; never silently approve</span>
+
+<span class="n">po</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>要让这件事安全，有两条规则：</p>
+<ul class="simple">
+<li><p><strong>所有机器翻译一律以 <code class="docutils literal notranslate"><span class="pre">fuzzy</span></code> 落地。</strong> 这是 gettext 的惯例：
+fuzzy 条目在通过人工审阅并去掉该标记之前，要么以未翻译形式展示，
+要么回退到英文。它与第 5 章 frontmatter/footer 里
+“AI 永远只能写 pending” 的规则是同构的。</p></li>
+<li><p><strong>不要因为 <code class="docutils literal notranslate"><span class="pre">msgid</span></code> 变了就删除已有译文。</strong> 让 <code class="docutils literal notranslate"><span class="pre">sphinx-intl</span> <span class="pre">update</span></code>
+去处理。更新器在英文发生漂移时会把相关条目标成 <code class="docutils literal notranslate"><span class="pre">fuzzy</span></code>，
+既保住已有工作量，也把“需要复核”的信号明确打出来。</p></li>
+</ul>
+</section>
+<section id="hook-h1">
+<h3>3. 通过 hook 翻译 H1<a class="headerlink" href="#hook-h1" title="Link to this heading">#</a></h3>
+<p>Sphinx 的默认行为是从 frontmatter 的 <code class="docutils literal notranslate"><span class="pre">title:</span></code> 字段渲染文档标题，而这个字段通常是
+英文。对于中文输出，读者期待看到的是中文标题。一个很小的 <code class="docutils literal notranslate"><span class="pre">conf.py</span></code> hook
+就可以在不复制 prose 的前提下解决这个问题：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">translate_h1</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">docname</span><span class="p">,</span> <span class="n">source</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Replace the frontmatter title with the zh_CN translation when</span>
+<span class="sd">    building for zh_CN, so the navigation sidebar shows Chinese titles.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">language</span> <span class="o">!=</span> <span class="s2">&quot;zh_CN&quot;</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="n">translations</span> <span class="o">=</span> <span class="n">load_h1_map</span><span class="p">(</span><span class="n">docname</span><span class="p">)</span>   <span class="c1"># tiny YAML: path -&gt; zh_CN title</span>
+    <span class="k">if</span> <span class="n">docname</span> <span class="ow">in</span> <span class="n">translations</span><span class="p">:</span>
+        <span class="n">source</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span>
+            <span class="sa">r</span><span class="s2">&quot;^title:\s*.+$&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;title: &#39;</span><span class="si">{</span><span class="n">translations</span><span class="p">[</span><span class="n">docname</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">,</span>
+            <span class="n">source</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span><span class="p">,</span>
+        <span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="n">app</span><span class="p">):</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s2">&quot;source-read&quot;</span><span class="p">,</span> <span class="n">translate_h1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">h1_map.zh_CN.yml</span></code> 是作者与 prose 并排维护的一份很小的平面文件：</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">ch08-prose-operational-model</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">第 8 章 — 文稿层的运维模型</span>
+<span class="nt">ch21-incremental-sync</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">第 21 章 — 增量同步</span>
+<span class="nt">ch22-evaluation-and-benchmarks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">第 22 章 — 评估、基准与发布闸门</span>
+</pre></div>
+</div>
+<p>这比直接把标题塞进 <code class="docutils literal notranslate"><span class="pre">.po</span></code> 目录要多做一点工作，但它能产出一个在每种语言里都
+<strong>像母语界面一样自然</strong>的导航侧栏，而这恰恰是读者最先注意到的地方。</p>
+</section>
+<section id="id5">
+<h3>4. 在关键页面未翻译时让构建失败<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
+<p>并不是每一章都必须当天就有中文。Runbook 需要；概览章节晚一周也许可以。
+把这种策略编码进 frontmatter：</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nn">---</span>
+<span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Chapter</span><span class="nv"> </span><span class="s">23</span><span class="nv"> </span><span class="s">—</span><span class="nv"> </span><span class="s">Maintenance,</span><span class="nv"> </span><span class="s">Drift,</span><span class="nv"> </span><span class="s">and</span><span class="nv"> </span><span class="s">Link</span><span class="nv"> </span><span class="s">Rot&#39;</span>
+<span class="nt">zh_status</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">required</span><span class="w">   </span><span class="c1"># required | optional | none</span>
+<span class="nn">---</span>
+</pre></div>
+</div>
+<p>构建时加上一条检查，就能把这个策略真正执行起来：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># book/_tools/check_zh_status.py  (sketch)</span>
+<span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">all_docs</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">doc</span><span class="o">.</span><span class="n">frontmatter</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;zh_status&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;required&quot;</span><span class="p">:</span>
+        <span class="n">po_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;locale/zh_CN/LC_MESSAGES/</span><span class="si">{</span><span class="n">doc</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">.po&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">po_path</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">or</span> <span class="n">po_untranslated_fraction</span><span class="p">(</span><span class="n">po_path</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">0.05</span><span class="p">:</span>
+            <span class="n">fail</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">doc</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">: zh_CN translation required but missing or &lt;95% complete&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>三个值：<code class="docutils literal notranslate"><span class="pre">required</span></code>、<code class="docutils literal notranslate"><span class="pre">optional</span></code>、<code class="docutils literal notranslate"><span class="pre">none</span></code>，就给每一页定义了一份明确的翻译 SLA。
+从运维视角看，这和第 22 章的 hard/soft gate 分裂是对应的：
+<code class="docutils literal notranslate"><span class="pre">required</span></code> 是会阻塞发布的硬闸，<code class="docutils literal notranslate"><span class="pre">optional</span></code> 是软警告，<code class="docutils literal notranslate"><span class="pre">none</span></code> 则保持沉默。</p>
+</section>
+</section>
+<section id="id6">
+<h2>示例 —— 一页内容穿过整条流水线<a class="headerlink" href="#id6" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">ch08-prose-operational-model.md</span></code> 在一次编辑轮中的生命周期：</p>
+<ol class="arabic simple">
+<li><p>作者修改英文源文本，例如重写一个小节标题。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">book-i18n</span></code> 运行 <code class="docutils literal notranslate"><span class="pre">sphinx-build</span> <span class="pre">-b</span> <span class="pre">gettext</span></code> + <code class="docutils literal notranslate"><span class="pre">sphinx-intl</span> <span class="pre">update</span></code>。
+被改写标题的 UUID 被保留下来；它对应的中文翻译现在会被标记为 <code class="docutils literal notranslate"><span class="pre">fuzzy</span></code>。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">book-build</span></code> 构建英文版本。构建成功；因为该章节的 <code class="docutils literal notranslate"><span class="pre">zh_status</span></code>
+是 <code class="docutils literal notranslate"><span class="pre">optional</span></code>，所以 fuzzy 条目不会让构建失败。</p></li>
+<li><p>一次受控的 LLM 翻译 pass（与第 23 章的 L2 类似）为改写后的标题生成新的
+<code class="docutils literal notranslate"><span class="pre">msgstr</span></code>，并把结果写回去，同时保留 <code class="docutils literal notranslate"><span class="pre">fuzzy</span></code> 标记。</p></li>
+<li><p>人类审阅者在一个支持 PO 的编辑器中（Poedit、Lokalize）打开 <code class="docutils literal notranslate"><span class="pre">.po</span></code>
+文件，对照英文阅读新中文文本，然后移除 <code class="docutils literal notranslate"><span class="pre">fuzzy</span></code> 标记。</p></li>
+<li><p>下一次 <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">book-build</span> <span class="pre">-D</span> <span class="pre">language=zh_CN</span></code> 就会产出带有已审批译文的
+中文 HTML。</p></li>
+</ol>
+<p>六步里有三步是机械操作（<code class="docutils literal notranslate"><span class="pre">make</span></code> target），两步是受控的 LLM 工作
+（每个变更条目一次翻译调用），一步是人类在一份小 diff 上做审阅。
+所以，每次英文编辑带来的总成本，不过是几分钱的 LLM token 再加上
+每章大约一分钟的人类时间。</p>
+</section>
+<section id="id7">
+<h2>运维失败模式与修复<a class="headerlink" href="#id7" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>故障</p></th>
+<th class="head text-left"><p>症状</p></th>
+<th class="head text-left"><p>修复</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p>事后才打开 UUID</p></td>
+<td class="text-left"><p>一次随手改写之后触发大规模重翻</p></td>
+<td class="text-left"><p>在第一次翻译 pass <strong>之前</strong>就打开 <code class="docutils literal notranslate"><span class="pre">gettext_uuid</span></code>；一旦打开，就一直保持开启。</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>手改 <code class="docutils literal notranslate"><span class="pre">.po</span></code>，语法弄坏</p></td>
+<td class="text-left"><p>Sphinx 报 “malformed entry near line N”</p></td>
+<td class="text-left"><p>始终通过 <code class="docutils literal notranslate"><span class="pre">polib</span></code> 编辑；并在 pre-commit hook 里对每个 <code class="docutils literal notranslate"><span class="pre">.po</span></code> 跑 <code class="docutils literal notranslate"><span class="pre">msgfmt</span> <span class="pre">--check</span></code>。</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>翻译长期落后于英文</p></td>
+<td class="text-left"><p>中文读者看到过期 prose，却没有任何警告</p></td>
+<td class="text-left"><p>对关键页设置 <code class="docutils literal notranslate"><span class="pre">zh_status:</span> <span class="pre">required</span></code>；当覆盖率跌破阈值时，CI 必须 hard-fail。</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>翻译者翻了 prose 却没翻标题</p></td>
+<td class="text-left"><p>导航侧栏一半中文一半英文</p></td>
+<td class="text-left"><p>维护 <code class="docutils literal notranslate"><span class="pre">h1_map.zh_CN.yml</span></code>，并在任何 <code class="docutils literal notranslate"><span class="pre">zh_status:</span> <span class="pre">required</span></code> 的章节上把它也纳入 CI gate。</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>机器翻译被静默放行</p></td>
+<td class="text-left"><p>中文读者直接看到胡言乱语</p></td>
+<td class="text-left"><p>每一条机器翻译 <code class="docutils literal notranslate"><span class="pre">msgstr</span></code> 都必须带着 <code class="docutils literal notranslate"><span class="pre">fuzzy</span></code> 落地；清除 <code class="docutils literal notranslate"><span class="pre">fuzzy</span></code> 的动作必须由人完成。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>上面每一条都不过是一条一行规则；这个附录的核心主张是：如果你想让双语发布
+保持可信，它们就都不是可选项。</p>
+</section>
+<section id="id8">
+<h2>保持简单<a class="headerlink" href="#id8" title="Link to this heading">#</a></h2>
+<p>上面的整套纪律，完全可以舒适地装进几百行配置、每种语言一个小小的 <code class="docutils literal notranslate"><span class="pre">h1_map</span></code>
+文件、再加一条构建检查里。它不需要翻译管理系统、不需要单独的内容仓库、
+也不需要一棵并行 prose 树。它需要的，是从双语发布的第一天起，就把前述四条
+纪律全部摆上桌面并强制执行，因为这些失败模式一旦事后修复，代价都会很高。</p>
+<p>剩下的部分都只是常规的 Sphinx 工作流：用 <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">book-i18n</span></code> 刷新，
+用 <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">book-build</span> <span class="pre">-D</span> <span class="pre">language=zh_CN</span></code> 渲染，用 CI 执行 <code class="docutils literal notranslate"><span class="pre">zh_status</span></code>
+硬闸。这个附录不需要新工具；它需要的是把这些纪律<strong>命名出来，并真正执行</strong>。</p>
+</section>
+<section id="id9">
+<h2>参考文献<a class="headerlink" href="#id9" title="Link to this heading">#</a></h2>
+<div class="docutils container" id="id10">
+<div role="list" class="citation-list">
+<div class="citation" id="id91" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Walter (Yamin) Fan. Project knowledge base skill: an opinionated operational model for software documentation. Self-published; private toolkit, 2026. Methodology and operational patterns developed by the author in parallel with this book; not publicly released. Cited throughout for the three-level update strategy, the PKB-metadata footer schema, the hard/soft verification-gate catalog, and the opinionated ten-page documentation set. Chapter prose adapts these ideas in the book's voice; command names and employer-internal infrastructure from the toolkit are deliberately omitted.</p>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="appendix-d-glossary.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">附录 D —— 术语表</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../reference/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">参考文献：仓库级代码理解与软件知识库论文导读</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 目录
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">为什么要做双语发布</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">双语流水线长什么样</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">怎样把它做可靠</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gettext-uuid">1. 打开 <code class="docutils literal notranslate"><span class="pre">gettext_uuid</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#po">2. 把 <code class="docutils literal notranslate"><span class="pre">.po</span></code> 编辑保持为机械操作</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#hook-h1">3. 通过 hook 翻译 H1</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">4. 在关键页面未翻译时让构建失败</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">示例 —— 一页内容穿过整条流水线</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">运维失败模式与修复</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">保持简单</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">参考文献</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+作者： Walter Fan
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright AI 辅助创作 2026, Walter Fan.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    <p class="last-updated">
+  最后更新于 2026-11-10.
+  <br/>
+</p>
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

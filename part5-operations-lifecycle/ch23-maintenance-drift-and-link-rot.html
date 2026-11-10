@@ -1,0 +1,756 @@
+
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>第 23 章 —— 维护、漂移与链接腐化 &#8212; Use AI to build a knowledge base for a software project</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=591f613d" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=23f7fa08"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../_static/translations.js?v=beaddf03"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'part5-operations-lifecycle/ch23-maintenance-drift-and-link-rot';</script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="第六部分 —— 混合层" href="../part6-hybrid-layer/index.html" />
+    <link rel="prev" title="第 22 章 —— 评测、基准与发布门禁" href="ch22-evaluation-and-benchmarks.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+    <meta name="docbuild:last-update" content="2026-11-10"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Use AI to build a knowledge base for a software project</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">搜索</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Part I — Foundations</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part1-foundations/index.html">第一部分 —— 基础</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch01-why-kb-for-software.html">第 1 章 —— 为什么要给软件建一个知识库？</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch01a-quickstart-30min.html">第 1a 章 —— 30 分钟快速上手</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch02-ir-rag-primer.html">第 2 章 —— IR 与 RAG 入门</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch03-diataxis-and-software-docs.html">第 3 章 —— Diátaxis 与软件文档</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part II — The Prose Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part2-prose-layer/index.html">第二部分 —— 文稿层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch04-file-based-wiki.html">第 4 章 —— 一个基于文件的 wiki</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch05-frontmatter-provenance-trust.html">第 5 章 —— 把 frontmatter 当作一份来源记录</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch06-llm-classification-pipeline.html">第 6 章 —— 分类流水线</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch07-publish-and-search.html">第 7 章 —— 发布与搜索</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch08-prose-operational-model.html">第 8 章 —— 文稿层的运维模型</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch09-cold-start-migration.html">第 9 章 —— 冷启动与批量迁移</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part III — The Author Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part3-author-layer/index.html">第三部分 —— 作者层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch10-why-ai-as-author.html">第 10 章 —— 为什么让 AI 当作者</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch11-ai-drafting-and-rewriting.html">第 11 章 —— AI 起草、重写、翻译</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch12-ai-for-metadata.html">第 12 章 —— AI 处理元数据：分类、打标签、实体与关系抽取</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch13-ai-for-maintenance.html">第 13 章 —— AI 做维护：摘要、去重、过期与漂移检测</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch14-ai-as-judge.html">第 14 章 —— AI 作为评判者：评估生成质量与引用合规</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part IV — The Code Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part4-code-layer/index.html">第四部分 —— 代码层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch15-why-code-is-not-prose.html">第 15 章 —— 为什么代码不是文稿</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch16-parsing-and-entity-extraction.html">第 16 章 —— 解析与实体抽取</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch17-embeddings-and-vector-stores.html">第 17 章 —— 嵌入向量与向量存储</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch18-code-knowledge-graph.html">第 18 章 —— 代码知识图谱</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch19-hybrid-retrieval-and-rrf.html">第 19 章 —— 混合检索与 RRF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part4-code-layer/ch20-prompt-and-generation.html">第 20 章 —— 提示词与生成</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part V — Operations &amp; Lifecycle</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">第五部分 —— 运维与生命周期</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="ch21-incremental-sync.html">第 21 章 —— 增量同步</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ch22-evaluation-and-benchmarks.html">第 22 章 —— 评测、基准与发布门禁</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">第 23 章 —— 维护、漂移与链接腐化</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part VI — The Hybrid Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part6-hybrid-layer/index.html">第六部分 —— 混合层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch24-prose-meets-code.html">第 24 章 —— 文稿与代码相遇</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch25-document-layering-L0-L4.html">第 25 章 —— 文档分层 L0–L4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch26-graph-guided-context-assembly.html">第 26 章 —— 图引导的上下文组装</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch27-harnessing-ai-coding.html">第 27 章 —— 用知识库驾驭 AI 编码</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch28-team-sdlc-integration.html">第 28 章 —— 团队协作与 SDLC 集成</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch29-ai-agents-on-the-kb.html">第 29 章 —— 在知识库上跑的 AI Agent</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part VII — Governance &amp; Outlook</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part7-governance-and-outlook/index.html">第七部分 —— 治理与展望</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch30-cost-privacy-security.html">第 30 章 —— 成本、隐私、安全</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch31-trust-provenance-and-red-teaming.html">第 31 章 —— 信任、出处与红队演练</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch32-outlook-and-open-problems.html">第 32 章 —— 展望与尚未解决的问题</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Appendices</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-a-example-wiki.html">附录 A —— 端到端：从杂乱文件夹到可发布 Wiki</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-b-example-code-kg.html">附录 B —— 示例：从一个 Go 仓库构建代码知识库</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-c-deepwiki-checklist.html">附录 C —— 自己动手做 DeepWiki 检查清单</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-d-glossary.html">附录 D —— 术语表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-e-bilingual-publishing.html">附录 E —— 发布一个双语知识库</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">参考文献</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../reference/index.html">参考文献：仓库级代码理解与软件知识库论文导读</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../reference/01-repoformer-selective-retrieval.html">Repoformer: Selective Retrieval for Repository-Level Code Completion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/02-codeplan-repository-level-planning.html">CodePlan: Repository-Level Coding using LLMs and Planning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/03-repograph-code-graph-navigation.html">RepoGraph: Enhancing AI Software Engineering with Repository-level Code Graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/04-repoagent-documentation-generation.html">RepoAgent: An LLM-Powered Open-Source Framework for Repository-level Code Documentation Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/05-repocoder-iterative-retrieval-generation.html">RepoCoder: Repository-Level Code Completion Through Iterative Retrieval and Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/06-llm-kg-synergy-repo-qa.html">Synergizing LLMs and Knowledge Graphs: A Novel Approach to Software Repository-Related Question Answering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/07-repo-level-prompt-generation.html">Repository-Level Prompt Generation for Large Language Models of Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/08-repobench-benchmarking.html">RepoBench: Benchmarking Repository-Level Code Auto-Completion Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/09-long-code-arena-benchmarks.html">Long Code Arena: A Set of Benchmarks for Long-Context Code Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/10-cgm-graph-integrated-llm.html">Code Graph Model (CGM): A Graph-Integrated Large Language Model for Repository-Level Software Engineering Tasks</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="下载此页面">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="下载源文件"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="列印成 PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="全屏模式"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>第 23 章 —— 维护、漂移与链接腐化</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> 目录 </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why">Why —— 为什么</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what">What —— 是什么</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">三个级别</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">派发器规则</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">每一级到底做什么</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how">How —— 怎么做</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">以链接腐化为正宗范例</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#why-rule-first-beats-llm-first">Why “rule first” beats “LLM first”</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#l2">什么时候 L2 才是正确选择</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example —— 范例</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#conclusion">Conclusion —— 小结</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">参考文献</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="id1">
+<h1>第 23 章 —— 维护、漂移与链接腐化<a class="headerlink" href="#id1" title="Link to this heading">#</a></h1>
+<section id="why">
+<h2>Why —— 为什么<a class="headerlink" href="#why" title="Link to this heading">#</a></h2>
+<p>第 21 章告诉你哪些页面变了。第 22 章告诉你其中哪些按现状无法发布。本章讲的是：对其中每一个页面，你到底要 * 干什么 * 。用第 8 章的话说，这就是第 C3 角 —— 三级更新策略 —— 的运维版展开。</p>
+<p>LLM 时代改变了“维护”的经济学，但改的方向和很多人想的不一样。重新嵌入一个仓库几乎是免费的 <span id="id2">[<a class="reference internal" href="../part7-governance-and-outlook/ch30-cost-privacy-security.html#id72" title="OpenAI. OpenAI text embeddings v3 (text-embedding-3-small and text-embedding-3-large). 2024. The \texttt text-embedding-3-small launch announcement lists a 5× price reduction relative to \texttt text-embedding-ada-002 (from \$0.0001 to \$0.00002 per 1K tokens) at higher retrieval quality. URL: https://openai.com/index/new-embedding-models-and-api-updates/.">OpenAI, 2024</a>]</span>。用现代 LLM 把整页重新生成一遍也不过是几分钱。这些都不再是瓶颈。瓶颈是 * 一个人去理解“到底变了什么” * 。如果流水线一周重新生成 400 个页面，那评审者要么变成橡皮图章（违背评审的目的），要么干脆不评审了（违背知识库的目的）。</p>
+<p>三级策略就是作者对此给出的答案 —— 在一个私有的 project-knowledge-base 工具包 <span id="id3">[<a class="reference internal" href="../part7-governance-and-outlook/ch31-trust-provenance-and-red-teaming.html#id89" title="Walter (Yamin) Fan. Project knowledge base skill: an opinionated operational model for software documentation. Self-published; private toolkit, 2026. Methodology and operational patterns developed by the author in parallel with this book; not publicly released. Cited throughout for the three-level update strategy, the PKB-metadata footer schema, the hard/soft verification-gate catalog, and the opinionated ten-page documentation set. Chapter prose adapts these ideas in the book's voice; command names and employer-internal infrastructure from the toolkit are deliberately omitted.">Fan, 2026</a>]</span> 中反复打磨而来，在本书里被作为正式的纪律呈现出来。它有一条比各级本身更重要的规则： <strong>rule first, LLM second。</strong> 如果一条确定性规则能搞定，就不要调 LLM。每一次调用，都对应一个人可能必须要去读的 diff。</p>
+<p>链接腐化 <span id="id4">[<a class="reference internal" href="index.html#id79" title="Martin Klein, Herbert Van de Sompel, Robert Sanderson, Harihar Shankar, Lyudmila Balakireva, Ke Zhou, and Richard Tobin. Scholarly context not found: one in five articles suffers from reference rot. PLOS ONE, 2014. doi:10.1371/journal.pone.0115253.">Klein <em>et al.</em>, 2014</a>]</span> 是“维护债”最常见的症状，也是演示这三级最干净的例子。本章把它作为贯穿全章的范例。</p>
+</section>
+<section id="what">
+<h2>What —— 是什么<a class="headerlink" href="#what" title="Link to this heading">#</a></h2>
+<section id="id5">
+<h3>三个级别<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
+<p>第 21 章同步产出的每个候选页面，都会被一个规则确定性的派发器精确地路由到三个级别中的某一个。各级别的差异在于“谁来买单”以及“买的是什么”：</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>Level</p></th>
+<th class="head text-left"><p>Who acts</p></th>
+<th class="head text-left"><p>Token cost</p></th>
+<th class="head text-left"><p>When it applies</p></th>
+<th class="head text-left"><p>What the reviewer sees</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p><strong>L1 Mechanical</strong></p></td>
+<td class="text-left"><p>A script</p></td>
+<td class="text-left"><p><strong>0</strong></p></td>
+<td class="text-left"><p>Change is resolvable by rule: footer-only drift, broken link to a moved file, auto-generated page (<code class="docutils literal notranslate"><span class="pre">repo-map</span></code>), stamp refresh</p></td>
+<td class="text-left"><p>Nothing, usually; the pending marker on the footer</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><strong>L2 Bounded-LLM</strong></p></td>
+<td class="text-left"><p>An LLM + small context</p></td>
+<td class="text-left"><p>1–5 k tokens</p></td>
+<td class="text-left"><p>Body references something that genuinely changed; the fix is localised to a paragraph or two</p></td>
+<td class="text-left"><p>A small diff; a <code class="docutils literal notranslate"><span class="pre">pending</span></code> footer asking for approval</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p><strong>L3 Human-led</strong></p></td>
+<td class="text-left"><p>A human; LLM copy-edits</p></td>
+<td class="text-left"><p>Variable</p></td>
+<td class="text-left"><p>Architectural change, new ADR, security-sensitive content, or L2 repeatedly fails for the same page</p></td>
+<td class="text-left"><p>A real review; sometimes a new ADR</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>这三级不是一份可以点的菜单。页面是被 * 指派 * 到某一级的，不能自选。下面的规则决定指派。</p>
+</section>
+<section id="id6">
+<h3>派发器规则<a class="headerlink" href="#id6" title="Link to this heading">#</a></h3>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>function dispatch(candidate):
+    tags = candidate.layers_that_caught_it     # from Chapter 14
+    path = candidate.path
+
+    # Policy overrides go first.
+    if path is in {architecture/, adr/, security/, runbook/}:
+        return L3
+    if path is in {repo-map.md, api-reference.md}:
+        return L1_REGENERATE
+
+    # L1 cases — rules that mechanically finish the job.
+    if tags == {L-git} and only_footer_drift(candidate):
+        return L1_STAMP
+    if tags &amp; {L-link} and link_target_moved_but_still_exists(candidate):
+        return L1_FIX_LINK
+    if auto_generated_marker in candidate.frontmatter:
+        return L1_REGENERATE
+
+    # L2 cases — body actually changed semantics.
+    if tags &amp; {L-entity} or tags &amp; {L-link}:
+        return L2
+
+    # Fall-through — be conservative.
+    return L3
+</pre></div>
+</div>
+<p>有四点值得停下来说：</p>
+<ol class="arabic simple">
+<li><p><strong>策略覆盖优先。</strong> 架构页面永远不走自动改写，即使同步认为变更很小。自动生成的页面永远不过 LLM，即使变更很大（它<em>本来就该</em>是机械式的）。</p></li>
+<li><p><strong>L1 是第一个正向匹配。</strong> 派发器会主动尝试用规则解决候选，然后才考虑 LLM。这就是&quot;先走规则，后用 LLM&quot;变成真实代码的地方。</p></li>
+<li><p><strong>L2 只在有证据时才触发。</strong> 标签就是证据 —— 要么是一个被移动的实体（L-entity），要么是一个存活过 L1 规则的断链（L-link）。一个只有 L-git-only 标签且 body 没有漂移的候选，无法触及 L2。</p></li>
+<li><p><strong>Fall-through 是保守的。</strong> 当规则含糊时，路由给人类。错误的人工评审的代价是一次烦恼；错误的 LLM 改写的代价是一次无声的信任回退。</p></li>
+</ol>
+</section>
+<section id="id7">
+<h3>每一级到底做什么<a class="headerlink" href="#id7" title="Link to this heading">#</a></h3>
+<p><strong>L1 机械化</strong> 跑纯 Python 或 shell：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">L1_STAMP</span></code> 更新 footer 中的 <code class="docutils literal notranslate"><span class="pre">commit:</span></code> 和 <code class="docutils literal notranslate"><span class="pre">last_updated:</span></code>；其他一切原封不动。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">L1_FIX_LINK</span></code> 改写一个 markdown 链接或 <code class="docutils literal notranslate"><span class="pre">file:line</span></code> 锚点，指向目标的新位置。如果目标已完全不存在，升级到 L2。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">L1_REGENERATE</span></code> 重跑页面的生成器（例如 <code class="docutils literal notranslate"><span class="pre">repo-map.md</span></code> 从 <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">ls-files</span></code> 生成）并覆盖正文。Footer 按&quot;AI 永远设回 pending&quot;规则重置 —— 没错，即使没有调用 LLM；任何自动化的触碰都算。</p></li>
+</ul>
+<p>所有 L1 动作都会重置 footer：<code class="docutils literal notranslate"><span class="pre">review_status:</span> <span class="pre">pending</span></code>、<code class="docutils literal notranslate"><span class="pre">review_score:</span> <span class="pre">0</span></code>、<code class="docutils literal notranslate"><span class="pre">reviewed_by:</span></code>、<code class="docutils literal notranslate"><span class="pre">updated_by:</span> <span class="pre">ai</span></code>（如果是人类跑的脚本则是 <code class="docutils literal notranslate"><span class="pre">human</span></code>）。<code class="docutils literal notranslate"><span class="pre">ai</span></code> 这个名字是一个约定，并不主张“调了模型”。</p>
+<p><strong>L2 有界 LLM</strong> 用一个小心受限的上下文调一次 LLM：</p>
+<ul class="simple">
+<li><p>该候选页面 * 当前 * 的正文（约 2 kB）。</p></li>
+<li><p>触发本次变更的 * 那一份 diff * （约 300 B – 2 kB）。</p></li>
+<li><p>该页面的 footer，作为 C2 词汇表的提示。</p></li>
+<li><p>一个<em>系统提示词</em>，说明：你只能编辑引用了 diff 中内容的那些段落；你不可以编造引用；你必须留下一个显式的 <code class="docutils literal notranslate"><span class="pre">pending</span></code> footer。</p></li>
+</ul>
+<p>这把每次调用的 token 成本钉在大约 5 k —— 更重要的是，它钉住了变更的 * 作用域 * 。L2 不能重写整页，因为提示词和上下文里本来就没有“整页的意图”。它只能修它被指向的那几段。限制在一小片局部区域的漂移，正是 L2 存在的那个场景。</p>
+<p><strong>L3 人工主导</strong> 是人亲自来写或来改，LLM 至多被用来做“人类明确发起”的文字润色。每一次 L3 变更都是一次正常 git-and-PR 意义上的真正评审。这里没有什么特别的机制 —— 真正的纪律是：其他级别 * 不要踏进 * L3 的地盘。</p>
+</section>
+</section>
+<section id="how">
+<h2>How —— 怎么做<a class="headerlink" href="#how" title="Link to this heading">#</a></h2>
+<section id="id8">
+<h3>以链接腐化为正宗范例<a class="headerlink" href="#id8" title="Link to this heading">#</a></h3>
+<p>链接腐化 <span id="id9">[<a class="reference internal" href="index.html#id79" title="Martin Klein, Herbert Van de Sompel, Robert Sanderson, Harihar Shankar, Lyudmila Balakireva, Ke Zhou, and Richard Tobin. Scholarly context not found: one in five articles suffers from reference rot. PLOS ONE, 2014. doi:10.1371/journal.pone.0115253.">Klein <em>et al.</em>, 2014</a>]</span> 值得被单独走一遍，一是因为大多数读者都亲眼见过这种失败，二是因为它在一个场景里就能把三个级别全都练到。</p>
+<p><strong>背景设定。</strong> 一次仓库级重构把 <code class="docutils literal notranslate"><span class="pre">cmd/sync/main.go</span></code> 重命名为 <code class="docutils literal notranslate"><span class="pre">cmd/sync-tool/main.go</span></code>，同时把旧的 <code class="docutils literal notranslate"><span class="pre">runSync</span></code> 函数拆成 <code class="docutils literal notranslate"><span class="pre">runSync</span></code> 和 <code class="docutils literal notranslate"><span class="pre">runSyncBatch</span></code>。三个页面引用了旧路径：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">repo-map.md</span></code> —— 自动生成；只需要重新生成一次。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">runbook.md</span></code> —— 其中一段写了&quot;运行 <code class="docutils literal notranslate"><span class="pre">cmd/sync/main.go</span></code>&quot;；页面其余部分没问题。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">architecture.md</span></code> —— 有两段在解释 <code class="docutils literal notranslate"><span class="pre">runSync</span></code> <em>为什么</em>被设计成那个样子；这次拆分是结构性变更。</p></li>
+</ul>
+<p><strong>同步（第 21 章）。</strong> L-git 和 L-link 都把这三页全都标了出来。L-entity 标了 <code class="docutils literal notranslate"><span class="pre">runbook.md</span></code> 和 <code class="docutils literal notranslate"><span class="pre">architecture.md</span></code>（两者都引用了“因文件被移动和拆分而实体 ID 已变”的那个函数）。</p>
+<p><strong>派发器。</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">repo-map.md</span></code>：路径在 <code class="docutils literal notranslate"><span class="pre">{repo-map.md,</span> <span class="pre">api-reference.md}</span></code> 集合中 → <strong>L1_REGENERATE。</strong></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">runbook.md</span></code>：路径不在任何策略覆盖集合中。标签含 L-link；链接目标仍然是一个存在的文件吗？是 —— <code class="docutils literal notranslate"><span class="pre">cmd/sync-tool/main.go</span></code> 存在。<strong>L1_FIX_LINK。</strong></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">architecture.md</span></code>：路径在 <code class="docutils literal notranslate"><span class="pre">{architecture/}</span></code> 集合中 → 立即 <strong>L3</strong>。派发器甚至不检查标签。</p></li>
+</ul>
+<p><strong>执行。</strong></p>
+<ul class="simple">
+<li><p>L1 从 <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">ls-files</span></code> 重新生成 <code class="docutils literal notranslate"><span class="pre">repo-map.md</span></code>（零 token，确定性）。</p></li>
+<li><p>L1 把 <code class="docutils literal notranslate"><span class="pre">runbook.md</span></code> 中的那一个链接从 <code class="docutils literal notranslate"><span class="pre">cmd/sync/main.go</span></code> 改写为 <code class="docutils literal notranslate"><span class="pre">cmd/sync-tool/main.go</span></code>（零 token，局部编辑）。</p></li>
+<li><p>L3 打开一个人工可评审的任务：<em>“<code class="docutils literal notranslate"><span class="pre">architecture.md</span></code> 引用了 <code class="docutils literal notranslate"><span class="pre">runSync</span></code>，而 <code class="docutils literal notranslate"><span class="pre">runSync</span></code> 已被拆分。§3 中的架构解释需要重写，还是只需加一句关于新 <code class="docutils literal notranslate"><span class="pre">runSyncBatch</span></code> 的说明？请评审。”</em> 人类决定；可能随之写一份 ADR；LLM 只在人类主动要求时才介入。</p></li>
+</ul>
+<p><strong>门禁跑动（第 22 章）。</strong> L1 和 L3 做完之后，发布门禁会对这三页都跑一遍。H4（引用可解析）和 H5（链接可解析）现在都通过。H1/H2/H3（footer 形状）对 L1 的 footer 都通过，因为脚本本来就写对了；对 <code class="docutils literal notranslate"><span class="pre">architecture.md</span></code> 也通过，因为那位人类记得在改正文的同时把 footer 一起更新。</p>
+<p><strong>成本审计。</strong> LLM 调用次数：L1 为零；L3 为零，除非人类主动调了一次。人工评审范围：一个页面（<code class="docutils literal notranslate"><span class="pre">architecture.md</span></code>），而那确实是一次结构性变更， * 本来就该 * 交给人。与朴素基线（“对每一个提到 <code class="docutils literal notranslate"><span class="pre">runSync</span></code> 的页面都重新生成”）对比一下：那种做法会产出三份 LLM 生成的 diff 给评审者去蹚，其中两份本来就 * 不该被生成 * 。</p>
+</section>
+<section id="why-rule-first-beats-llm-first">
+<h3>Why “rule first” beats “LLM first”<a class="headerlink" href="#why-rule-first-beats-llm-first" title="Link to this heading">#</a></h3>
+<p>在 LLM 变便宜以后，很容易想完全跳过 L1、把每一个候选都扔给 L2。不要这么干。按重要性递减排三个理由：</p>
+<ol class="arabic simple">
+<li><p><strong>人工注意力。</strong> 每一次 LLM 调用都会产生一份人类要审的 diff。一周 10 次 L1 胜出就是省了 10 次评审。100 次就是 100 次。</p></li>
+<li><p><strong>确定性。</strong> L1 规则每次都给出同一答案。L2 不是 —— 同一 prompt、同一模型、temperature 0 的情况下，随着模型升级，在不同日期也会产出微妙不同的文稿。对于任何规则能处理的事情，让规则做 source of truth 更稳定。</p></li>
+<li><p><strong>隐私。</strong> L1 完全在本地文件系统和 git 上运行。L2 会把页面内容、diff 和 prompt 发给模型提供商。第 30 章会展开隐私影响；在这里只需要说：规则优先的纪律减少了发送给第三方的东西的暴露面，因为它在 LLM 被咨询之前就处理了更多的场景。</p></li>
+</ol>
+</section>
+<section id="l2">
+<h3>什么时候 L2 才是正确选择<a class="headerlink" href="#l2" title="Link to this heading">#</a></h3>
+<p>L2 对应那种确确实实落在 L1（太机械）和 L3（太结构性）之间的情形：一次局部的内容变更 —— LLM 用几千 token 就能做的事，人要花十分钟、而且每分钟成本更高。函数重命名、类型签名变更、加一个参数、为一个明显新增的 helper 函数补文档 —— 这些都能干净地落在 L2，因为人类评审者可以很快核对一份一段长度的 diff。</p>
+<p>L2 * 不 * 适合做跨页一致性（LLM 看不到别的页面），不适合做架构性重写（上下文不够），也不适合做“从零的新内容”（根本没有“被打补丁的页面”）。把这些情形塞进 L2，只会产出看起来像样、但评审者反正都得改一遍的输出，等于什么都没赚到。</p>
+</section>
+</section>
+<section id="example">
+<h2>Example —— 范例<a class="headerlink" href="#example" title="Link to this heading">#</a></h2>
+<p>真实运营一周之后，汇总为一份批量报告 —— 周五下午推送到团队频道的那种摘要：</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Incremental sync summary (week of 2026-04-13 → 2026-04-20)
+==========================================================
+
+Commits scanned:   47
+Candidate pages:   19
+Routed to L1:      12 pages   (0 LLM calls, 0 tokens)
+Routed to L2:       5 pages   (5 LLM calls, ~18k total tokens, ~$0.02)
+Routed to L3:       2 pages   (human review queued)
+
+Gate results (post-update):
+  Hard gates:   137/137 pass
+  Soft gates:   S1 (stale footers): 0; S3 (Diátaxis balance): pass
+
+Human review queue:
+  - architecture.md  — runSync split; needs explanation update
+  - adr/0024-rate-limiting.md  — NEW (proposed; reviewer: alice)
+</pre></div>
+</div>
+<p>有两点值得留意。其一，L1 以零成本处理掉了这一周 63% 的候选。其二，评审者的队列里只有两项 —— 两项都是真的需要人去想的 —— 而不是十九项。这个比例，而不是 token 成本，才是运维模型真正在优化的指标。</p>
+</section>
+<section id="conclusion">
+<h2>Conclusion —— 小结<a class="headerlink" href="#conclusion" title="Link to this heading">#</a></h2>
+<p>维护不是一个问题；它是三个“伪装成一个”的问题。L1 是一个文件系统与 git 的问题。L2 是一个上下文受限的 LLM 问题。L3 是一个“机器应当退开”的人类问题。在这三者之间做正确的路由 —— rule first、LLM second、人来管结构性变更 —— 就是让一个知识库在它脚下的代码加速时仍然可持续的关键。</p>
+<p>至此，第五部分的三章已经铺出了整条回路：检测候选（第 21 章）、用硬软门禁检验它们（第 22 章）、把它们经由三级派发出去（第 23 章）。接下来的两部分（VI 和 VII）会让这条回路真正运转起来：第 25 章会把 footer 的评审状态作为文档分层的第四根轴；第 29 章会问：当“消费输出”的不是人、而是一个 agent 时，会发生什么？</p>
+</section>
+<section id="id10">
+<h2>参考文献<a class="headerlink" href="#id10" title="Link to this heading">#</a></h2>
+<div class="docutils container" id="id11">
+<div role="list" class="citation-list">
+<div class="citation" id="id18" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>Emad Aghajani, Csaba Nagy, Olga Lucero Vega-Márquez, Mario Linares-Vásquez, Laura Moreno, Gabriele Bavota, and Michele Lanza. Software documentation issues unveiled. <em>Proc. IEEE/ACM ICSE</em>, 2019.</p>
+</div>
+<div class="citation" id="id102" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></span>
+<p>Egor Bogomolov, Aleksandra Eliseeva, Timur Galimzyanov, Evgeniy Glukhov, Anton Shapkin, Maria Shmelev, Yaroslav Smirnov, Sergei Golubev, Timofey Bryksin, and Alberto Bacchelli. Long code arena: a set of benchmarks for long-context code models. <em>arXiv preprint arXiv:2406.11612</em>, 2024. Covers six long-context code tasks: project-level completion, CI repair, bug localization, module summarization, repo QA, and commit-message generation. Key insight for Chapter 15 and Chapter 24: real-world KB evaluation must go beyond single-file metrics to cover these project-scale tasks. URL: <a class="reference external" href="https://arxiv.org/abs/2406.11612">https://arxiv.org/abs/2406.11612</a>, <a class="reference external" href="https://arxiv.org/abs/2406.11612">arXiv:2406.11612</a>.</p>
+</div>
+<div class="citation" id="id87" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></span>
+<p>Shahul Es, Jithin James, Luis Espinosa-Anke, and Steven Schockaert. RAGAS: automated evaluation of retrieval augmented generation. In <em>Proceedings of the 18th Conference of the European Chapter of the Association for Computational Linguistics: System Demonstrations</em>. 2024. URL: <a class="reference external" href="https://arxiv.org/abs/2309.15217">https://arxiv.org/abs/2309.15217</a>.</p>
+</div>
+<div class="citation" id="id92" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">4</a><span class="fn-bracket">]</span></span>
+<p>Walter (Yamin) Fan. Project knowledge base skill: an opinionated operational model for software documentation. Self-published; private toolkit, 2026. Methodology and operational patterns developed by the author in parallel with this book; not publicly released. Cited throughout for the three-level update strategy, the PKB-metadata footer schema, the hard/soft verification-gate catalog, and the opinionated ten-page documentation set. Chapter prose adapts these ideas in the book's voice; command names and employer-internal infrastructure from the toolkit are deliberately omitted.</p>
+</div>
+<div class="citation" id="id86" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id4">1</a>,<a role="doc-backlink" href="#id9">2</a>)</span>
+<p>Martin Klein, Herbert Van de Sompel, Robert Sanderson, Harihar Shankar, Lyudmila Balakireva, Ke Zhou, and Richard Tobin. Scholarly context not found: one in five articles suffers from reference rot. <em>PLOS ONE</em>, 2014. <a class="reference external" href="https://doi.org/10.1371/journal.pone.0115253">doi:10.1371/journal.pone.0115253</a>.</p>
+</div>
+<div class="citation" id="id101" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>6<span class="fn-bracket">]</span></span>
+<p>Tianyang Liu, Canwen Xu, and Julian McAuley. RepoBench: benchmarking repository-level code auto-completion systems. <em>arXiv preprint arXiv:2306.03091</em>, 2023. Decomposes evaluation into Retrieval (R), Completion (C), and Pipeline (P) layers, enabling precise diagnosis of whether the bottleneck is retrieval quality or generation quality. Key insight for Chapter 15: layered evaluation (retrieval health → generation health → end-to-end) is the right structure for KB benchmarking. URL: <a class="reference external" href="https://arxiv.org/abs/2306.03091">https://arxiv.org/abs/2306.03091</a>, <a class="reference external" href="https://arxiv.org/abs/2306.03091">arXiv:2306.03091</a>.</p>
+</div>
+<div class="citation" id="id38" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></span>
+<p>Qinyu Luo, Yining Ye, Shihao Liang, Zhong Zhang, Yujia Qin, Yaxi Lu, Yesai Wu, Xin Cong, Yankai Lin, Yingli Zhang, Xiaoyin Che, Zhiyuan Liu, and Maosong Sun. Repoagent: an LLM-powered open-source framework for repository-level code documentation generation. 2024. URL: <a class="reference external" href="https://arxiv.org/abs/2402.16667">https://arxiv.org/abs/2402.16667</a>, <a class="reference external" href="https://arxiv.org/abs/2402.16667">arXiv:2402.16667</a>.</p>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="ch22-evaluation-and-benchmarks.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">第 22 章 —— 评测、基准与发布门禁</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../part6-hybrid-layer/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">第六部分 —— 混合层</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 目录
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why">Why —— 为什么</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what">What —— 是什么</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">三个级别</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">派发器规则</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">每一级到底做什么</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how">How —— 怎么做</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">以链接腐化为正宗范例</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#why-rule-first-beats-llm-first">Why “rule first” beats “LLM first”</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#l2">什么时候 L2 才是正确选择</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example —— 范例</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#conclusion">Conclusion —— 小结</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">参考文献</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+作者： Walter Fan
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright AI 辅助创作 2026, Walter Fan.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    <p class="last-updated">
+  最后更新于 2026-11-10.
+  <br/>
+</p>
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

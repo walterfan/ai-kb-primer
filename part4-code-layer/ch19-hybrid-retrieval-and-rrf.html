@@ -1,0 +1,1404 @@
+
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>第 19 章 —— 混合检索与 RRF &#8212; Use AI to build a knowledge base for a software project</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=591f613d" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=23f7fa08"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../_static/translations.js?v=beaddf03"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.2.0/dist/mermaid-layout-elk.esm.min.mjs"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";import elkLayouts from "https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.2.0/dist/mermaid-layout-elk.esm.min.mjs";mermaid.registerLayoutLoaders(elkLayouts);mermaid.initialize({startOnLoad:false});</script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+const defaultStyle = document.createElement('style');
+defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+`;
+document.head.appendChild(defaultStyle);
+
+const fullscreenStyle = document.createElement('style');
+fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+document.head.appendChild(fullscreenStyle);
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        return brightness < 128;
+    }
+    return false;
+};
+
+const load = async () => {
+    await mermaid.run();
+
+    const all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(load, 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(load, 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(load, 200);
+        return;
+    }
+
+    const darkTheme = isDarkTheme();
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    const modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    const modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    let previousScrollOffset = [window.scrollX, window.scrollY];
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    const allButtons = [];
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+
+        container.appendChild(fullscreenBtn);
+        allButtons.push(fullscreenBtn);
+    });
+
+    // Update theme classes when theme changes
+    const updateTheme = () => {
+        const dark = isDarkTheme();
+        allButtons.forEach(btn => {
+            if (dark) {
+                btn.classList.add('dark-theme');
+            } else {
+                btn.classList.remove('dark-theme');
+            }
+        });
+        if (dark) {
+            modal.classList.add('dark-theme');
+            modalContent.classList.add('dark-theme');
+            closeBtn.classList.add('dark-theme');
+        } else {
+            modal.classList.remove('dark-theme');
+            modalContent.classList.remove('dark-theme');
+            closeBtn.classList.remove('dark-theme');
+        }
+    };
+
+    // Watch for theme changes
+    const observer = new MutationObserver(updateTheme);
+    observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    observer.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style']
+    });
+};
+
+window.addEventListener("load", load);
+</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'part4-code-layer/ch19-hybrid-retrieval-and-rrf';</script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="第 20 章 —— 提示词与生成" href="ch20-prompt-and-generation.html" />
+    <link rel="prev" title="第 18 章 —— 代码知识图谱" href="ch18-code-knowledge-graph.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+    <meta name="docbuild:last-update" content="2026-11-10"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Use AI to build a knowledge base for a software project</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">搜索</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Part I — Foundations</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part1-foundations/index.html">第一部分 —— 基础</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch01-why-kb-for-software.html">第 1 章 —— 为什么要给软件建一个知识库？</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch01a-quickstart-30min.html">第 1a 章 —— 30 分钟快速上手</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch02-ir-rag-primer.html">第 2 章 —— IR 与 RAG 入门</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch03-diataxis-and-software-docs.html">第 3 章 —— Diátaxis 与软件文档</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part II — The Prose Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part2-prose-layer/index.html">第二部分 —— 文稿层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch04-file-based-wiki.html">第 4 章 —— 一个基于文件的 wiki</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch05-frontmatter-provenance-trust.html">第 5 章 —— 把 frontmatter 当作一份来源记录</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch06-llm-classification-pipeline.html">第 6 章 —— 分类流水线</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch07-publish-and-search.html">第 7 章 —— 发布与搜索</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch08-prose-operational-model.html">第 8 章 —— 文稿层的运维模型</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch09-cold-start-migration.html">第 9 章 —— 冷启动与批量迁移</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part III — The Author Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part3-author-layer/index.html">第三部分 —— 作者层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch10-why-ai-as-author.html">第 10 章 —— 为什么让 AI 当作者</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch11-ai-drafting-and-rewriting.html">第 11 章 —— AI 起草、重写、翻译</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch12-ai-for-metadata.html">第 12 章 —— AI 处理元数据：分类、打标签、实体与关系抽取</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch13-ai-for-maintenance.html">第 13 章 —— AI 做维护：摘要、去重、过期与漂移检测</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch14-ai-as-judge.html">第 14 章 —— AI 作为评判者：评估生成质量与引用合规</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part IV — The Code Layer</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">第四部分 —— 代码层</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="ch15-why-code-is-not-prose.html">第 15 章 —— 为什么代码不是文稿</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ch16-parsing-and-entity-extraction.html">第 16 章 —— 解析与实体抽取</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ch17-embeddings-and-vector-stores.html">第 17 章 —— 嵌入向量与向量存储</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ch18-code-knowledge-graph.html">第 18 章 —— 代码知识图谱</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">第 19 章 —— 混合检索与 RRF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ch20-prompt-and-generation.html">第 20 章 —— 提示词与生成</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part V — Operations &amp; Lifecycle</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part5-operations-lifecycle/index.html">第五部分 —— 运维与生命周期</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part5-operations-lifecycle/ch21-incremental-sync.html">第 21 章 —— 增量同步</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part5-operations-lifecycle/ch22-evaluation-and-benchmarks.html">第 22 章 —— 评测、基准与发布门禁</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part5-operations-lifecycle/ch23-maintenance-drift-and-link-rot.html">第 23 章 —— 维护、漂移与链接腐化</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part VI — The Hybrid Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part6-hybrid-layer/index.html">第六部分 —— 混合层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch24-prose-meets-code.html">第 24 章 —— 文稿与代码相遇</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch25-document-layering-L0-L4.html">第 25 章 —— 文档分层 L0–L4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch26-graph-guided-context-assembly.html">第 26 章 —— 图引导的上下文组装</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch27-harnessing-ai-coding.html">第 27 章 —— 用知识库驾驭 AI 编码</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch28-team-sdlc-integration.html">第 28 章 —— 团队协作与 SDLC 集成</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch29-ai-agents-on-the-kb.html">第 29 章 —— 在知识库上跑的 AI Agent</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part VII — Governance &amp; Outlook</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part7-governance-and-outlook/index.html">第七部分 —— 治理与展望</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch30-cost-privacy-security.html">第 30 章 —— 成本、隐私、安全</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch31-trust-provenance-and-red-teaming.html">第 31 章 —— 信任、出处与红队演练</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch32-outlook-and-open-problems.html">第 32 章 —— 展望与尚未解决的问题</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Appendices</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-a-example-wiki.html">附录 A —— 端到端：从杂乱文件夹到可发布 Wiki</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-b-example-code-kg.html">附录 B —— 示例：从一个 Go 仓库构建代码知识库</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-c-deepwiki-checklist.html">附录 C —— 自己动手做 DeepWiki 检查清单</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-d-glossary.html">附录 D —— 术语表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-e-bilingual-publishing.html">附录 E —— 发布一个双语知识库</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">参考文献</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../reference/index.html">参考文献：仓库级代码理解与软件知识库论文导读</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../reference/01-repoformer-selective-retrieval.html">Repoformer: Selective Retrieval for Repository-Level Code Completion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/02-codeplan-repository-level-planning.html">CodePlan: Repository-Level Coding using LLMs and Planning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/03-repograph-code-graph-navigation.html">RepoGraph: Enhancing AI Software Engineering with Repository-level Code Graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/04-repoagent-documentation-generation.html">RepoAgent: An LLM-Powered Open-Source Framework for Repository-level Code Documentation Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/05-repocoder-iterative-retrieval-generation.html">RepoCoder: Repository-Level Code Completion Through Iterative Retrieval and Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/06-llm-kg-synergy-repo-qa.html">Synergizing LLMs and Knowledge Graphs: A Novel Approach to Software Repository-Related Question Answering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/07-repo-level-prompt-generation.html">Repository-Level Prompt Generation for Large Language Models of Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/08-repobench-benchmarking.html">RepoBench: Benchmarking Repository-Level Code Auto-Completion Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/09-long-code-arena-benchmarks.html">Long Code Arena: A Set of Benchmarks for Long-Context Code Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/10-cgm-graph-integrated-llm.html">Code Graph Model (CGM): A Graph-Integrated Large Language Model for Repository-Level Software Engineering Tasks</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="下载此页面">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="下载源文件"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="列印成 PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="全屏模式"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>第 19 章 —— 混合检索与 RRF</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> 目录 </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why">Why —— 为什么</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what">What —— 是什么</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id14">理论锚点：RRF 融合的是排名，不是分数</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how">How —— 怎么做</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id16">总体编排</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id17">图扩展（独立入口）</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id18">升级路径：RRF</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#graph-rag">Graph-RAG：通向仓库级任务的桥梁</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example —— 范例</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id25">常见错误</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#conclusion">Conclusion —— 小结</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id26">参考文献</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="rrf">
+<h1>第 19 章 —— 混合检索与 RRF<a class="headerlink" href="#rrf" title="Link to this heading">#</a></h1>
+<p>本章一图览 —— 三层结构、一条升级路径，以及四类会把整套设计一脚踢翻的典型错误：</p>
+<pre  class="mermaid">
+        mindmap
+  root((Hybrid Retrieval))
+    Three tiers
+      Vector primary
+      Keyword fallback
+      Graph expansion
+    Query routing
+      Semantic goes vector
+      Identifier goes keyword
+      Structural goes graph
+    Theory anchor
+      Ranks not scores
+      RRF formula
+      Upgrade path
+    Common mistakes
+      Score-level fusion
+      Run all three always
+      Graph as primary
+      Caching at wrong layer
+    </pre><p>三个工程师，三种抱怨。Alice 说搜索太“字面”了 —— 她输入了 * “how does the sync retry” * ，拿到一份 500 行、名叫 <code class="docutils literal notranslate"><span class="pre">retry_utils.go</span></code> 的文件，和 sync 半点关系都没有。Bob 说它又太“模糊”了 —— 他原样输入 <code class="docutils literal notranslate"><span class="pre">runSync</span></code>，真正同名的那个函数却排在 * 第四 * 。Carol 说它根本拒绝回答 * “谁调用了 <code class="docutils literal notranslate"><span class="pre">runSync</span></code>” * —— 而 Alice 和 Bob 都没说错，Carol 也没说错，因为他们三人问的是三个不同的问题，每个问题需要不同的检索器。<strong>本章讲的就是那套三层策略 —— 把每条查询路由到最适合的栈上 —— 以及 Reciprocal Rank Fusion 如何最终把这套 fallback 机制换成一份始终稳定好用的答案。</strong></p>
+<section id="why">
+<h2>Why —— 为什么<a class="headerlink" href="#why" title="Link to this heading">#</a></h2>
+<p>第 17 章给了我们一份向量索引 —— 它在模糊的自然语言查询上非常出色，在标识符查询上只能算勉强够用。第 18 章给了我们一张图 —— 它在结构化查询上非常出色，在自然语言查询上几乎毫无用处。第 19 章的检索器，就是那一薄层：把每条查询路由到最适合回答它的那个栈；当拿不准时，再把它们的答案组合起来。</p>
+<p>三个实证事实驱动着这份设计：</p>
+<ol class="arabic simple">
+<li><p><em>标识符查询胜过向量召回。</em> 当开发者输入 <code class="docutils literal notranslate"><span class="pre">entityID</span></code> 时，BM25 风格 <span id="id1">[<a class="reference internal" href="index.html#id87" title="Stephen Robertson and Hugo Zaragoza. The probabilistic relevance framework: BM25 and beyond. Foundations and Trends in Information Retrieval, 3(4):333–389, 2009. doi:10.1561/1500000019.">Robertson and Zaragoza, 2009</a>]</span> 的打分器以显著优势碾压稠密模型。CodeSearchNet <span id="id2">[<a class="reference internal" href="index.html#id76" title="Hamel Husain, Ho-Hsiang Wu, Tiferet Gazit, Miltiadis Allamanis, and Marc Brockschmidt. CodeSearchNet Challenge: evaluating the state of semantic code search. In arXiv preprint arXiv:1909.09436. 2019. URL: https://arxiv.org/abs/1909.09436.">Husain <em>et al.</em>, 2019</a>]</span> 记录了这一点；此后每篇代码 RAG 综述 <span id="id3">[<a class="reference internal" href="../part5-operations-lifecycle/ch22-evaluation-and-benchmarks.html#id37" title="Yunfan Gao, Yun Xiong, Xinyu Gao, Kangxiang Jia, Jinliu Pan, Yuxi Bi, Yi Dai, Jiawei Sun, Meng Wang, and Haofen Wang. Retrieval-augmented generation for large language models: a survey. arXiv preprint arXiv:2312.10997, 2023.">Gao <em>et al.</em>, 2023</a>]</span> 都在重复它。</p></li>
+<li><p><em>结构化查询胜过两者。</em> 任何形如 <em>“谁调用了 X”</em>、<em>“什么实现了 Y”</em>、<em>“Z 返回什么”</em> 的查询，从图（第 18 章）上直接取出，recall = 1。</p></li>
+<li><p><em>模糊查询受益于融合。</em> Reciprocal Rank Fusion <span id="id4">[<a class="reference internal" href="../part5-operations-lifecycle/ch22-evaluation-and-benchmarks.html#id38" title="Gordon V. Cormack, Charles L. A. Clarke, and Stefan Büttcher. Reciprocal rank fusion outperforms Condorcet and individual rank learning methods. In SIGIR. 2009.">Cormack <em>et al.</em>, 2009</a>]</span> 仅通过排名把异构检索器的有序列表组合起来 —— 不需要分数校准。在文稿上的混合搜索已被证明优于任何单一系统；GraphRAG <span id="id5">[<a class="reference internal" href="../part6-hybrid-layer/ch26-graph-guided-context-assembly.html#id33" title="Darren Edge, Ha Trinh, Newman Cheng, Joshua Bradley, Alex Chao, Apurva Mody, Steven Truitt, and Jonathan Larson. From local to global: a graph RAG approach to query-focused summarization. arXiv preprint arXiv:2404.16130, 2024.">Edge <em>et al.</em>, 2024</a>]</span> 把这一原则扩展到了以图遍历作为第三个检索器。</p></li>
+</ol>
+<p>最近的仓库级研究阐明了这对代码意味着什么。Zhu 等人关于 LLM 用于 KG 构建与推理的综述指出，前沿模型作为<strong>结构化证据上的推理器</strong>通常比作为从原始输入中 few-shot 提取证据的提取器更强 <span id="id6">[<a class="reference internal" href="../part7-governance-and-outlook/index.html#id29" title="Yuqi Zhu, Xiaohan Wang, Jing Chen, Shuofei Qiao, Yixin Ou, Yunzhi Yao, Shumin Deng, Huajun Chen, and Ningyu Zhang. LLMs for knowledge graph construction and reasoning: recent capabilities and future opportunities. 2024. URL: https://arxiv.org/abs/2305.13168, arXiv:2305.13168.">Zhu <em>et al.</em>, 2024</a>]</span>。用第 19 章的话说，检索器的工作因此不仅仅是&quot;找到相似的文本&quot;，而是&quot;组装一个小型的、有类型的证据集，让模型可以在上面推理而不用猜&quot;。CGM 在仓库级规模上锐化了同一主张：一旦代码图成为模型输入或 attention 的一部分，仓库级任务就会提升 <span id="id7">[<a class="reference internal" href="../part7-governance-and-outlook/index.html#id31" title="Hongyuan Tao, Ying Zhang, Zhenhao Tang, Hongen Peng, Xukun Zhu, Bingchang Liu, Yingguang Yang, Ziyin Zhang, Zhaogui Xu, Haipeng Zhang, Linchao Zhu, Rui Wang, Hang Yu, Jianguo Li, and Peng Di. Code graph model (CGM): a graph-integrated large language model for repository-level software engineering tasks. 2025. URL: https://arxiv.org/abs/2505.16901, arXiv:2505.16901.">Tao <em>et al.</em>, 2025</a>]</span>。我们的混合检索器是同一押注的外部化、运维友好版本。</p>
+<p>这一系列工作中，还有三条同样重要的线索。Shrivastava 等人（RLPG）是 repo-level RAG 的概念起点：即使不微调模型，仅靠从仓库中智能选择跨文件上下文（import、使用示例、类型定义），就能显著提升代码补全效果 <span id="id8">[<a class="reference internal" href="../part6-hybrid-layer/index.html#id92" title="Disha Shrivastava, Hugo Larochelle, and Daniel Tarlow. Repository-level prompt generation for large language models of code. In Proceedings of the 40th International Conference on Machine Learning (ICML 2023). 2023. The conceptual origin of repo-level RAG: even without fine-tuning, selecting the right cross-file context (imports, similar code, usage examples, type definitions) substantially improves code completion. Key insight for Chapter 12 and Chapter 19: context assembly is a first-class retrieval problem, not a prompt-engineering afterthought. URL: https://proceedings.mlr.press/v202/shrivastava23a.html.">Shrivastava <em>et al.</em>, 2023</a>]</span>。这个结论直接支撑了本章&quot;上下文组装是检索的一等问题&quot;的立场。RepoCoder 接着问：如果第一轮检索信号不够好怎么办？它的回答是&quot;检索-生成-再检索&quot;的迭代循环 —— LLM 的初步草稿变成了下一轮检索的更好锚点 <span id="id9">[<a class="reference internal" href="../part6-hybrid-layer/index.html#id90" title="Fengji Zhang, Bei Chen, Yue Zhang, Jacky Keung, Jin Liu, Daoguang Zan, Yi Mao, Jian-Guang Chen, and Wenqiang Chen. RepoCoder: repository-level code completion through iterative retrieval and generation. Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing (EMNLP 2023), 2023. Proposes a retrieve-generate-re-retrieve iterative loop: the LLM draft becomes a better retrieval query for the next round. Key insight for Chapter 12: multi-round retrieval converges on better context, especially for complex cross-file queries. URL: https://arxiv.org/abs/2303.12570, arXiv:2303.12570.">Zhang <em>et al.</em>, 2023</a>]</span>。迭代收敛通常在 2–3 轮就完成，但对跨文件复杂查询的命中率提升显著。Repoformer 则从另一个方向切入：不是每次查询都需要检索；它训练了一个轻量分类器来预测检索是否有益，无益时跳过 <span id="id10">[<a class="reference internal" href="../part6-hybrid-layer/index.html#id87" title="Di Li, Jingyi Wei, Yewen Peng, Hanbin Bai, Bei Chen, and Yong Li. Repoformer: selective retrieval for repository-level code completion. Proceedings of the 41st International Conference on Machine Learning (ICML 2024), 2024. Trains a lightweight classifier to predict whether retrieval will help a given code-completion task, skipping it when the local context suffices. Key insight for Chapter 12: not every query needs retrieval, and a retrieval-necessity signal can cut latency and noise. URL: https://arxiv.org/abs/2403.10059, arXiv:2403.10059.">Li <em>et al.</em>, 2024</a>]</span>。这条&quot;选择性检索&quot;的思路对应了本章检索路由层的设计 —— 当标识符查询在 BM25 上已经有高置信度命中时，跳过向量检索不仅省延迟，也降低噪声。</p>
+<p>DeepWiki 方法论 <span id="id11">[<a class="reference internal" href="../part5-operations-lifecycle/ch21-incremental-sync.html#id14" title="Walter (Yamin) Fan. 给代码仓库造一个 DeepWiki：Tree-sitter + embedding + 图谱 + LLM 的方法论. April 2026. v1.2, CC-BY-NC-ND 4.0. URL: https://www.fanyamin.com/gei-dai-ma-cang-ku-zao-yi-ge-deepwikitree-sitter-embedding-tu-pu-llm-de-fang-fa-lun.html.">Fan, 2026</a>]</span>（§7）规定了我们今天实现的这套策略： <strong>向量优先，关键词兜底，图扩展</strong> ；基于融合的混合检索被明确标注为“升级路径”。</p>
+</section>
+<section id="what">
+<h2>What —— 是什么<a class="headerlink" href="#what" title="Link to this heading">#</a></h2>
+<p>检索器有三层。</p>
+<p><strong>1 —— 向量优先。</strong> 如果配置了嵌入服务、且向量存储里已经有这个仓库的条目，我们就在“用户 query 的嵌入”上做 KNN（第 17 章）。按相似度顺序返回最多 <code class="docutils literal notranslate"><span class="pre">TopK</span></code> 个实体 ID。</p>
+<p><strong>2 —— 关键词兜底。</strong> 如果（a）enricher 不可用（没有嵌入 API key），（b）向量 KNN 调用失败，或（c）向量结果为空，我们就退回到进程内的关键词排序器。实体 * 名字 * 上的命中按正文命中的 3 倍加权。</p>
+<p><strong>3 —— 图扩展。</strong> 当向量/关键词那一层返回了种子集合后，可选地再从 KB 图上扩展 1–2 跳，这样生成器看到的不只是最匹配的实体，还包括它的调用方、它的被调方，以及（对 class 来说）它的方法。这是图在查询时的红利，不只是在构建时的红利。</p>
+<p>第三层就是第 19 章真正触及 <strong>graph-RAG</strong> 的地方。图不是向量搜索上面的一层装饰；它是把一个语义匹配的种子变成一个<em>查询形状的局部子图</em>的机制。文档 QA 中的 GraphRAG 使用实体和社区结构来组装上下文 <span id="id12">[<a class="reference internal" href="../part6-hybrid-layer/ch26-graph-guided-context-assembly.html#id33" title="Darren Edge, Ha Trinh, Newman Cheng, Joshua Bradley, Alex Chao, Apurva Mody, Steven Truitt, and Jonathan Larson. From local to global: a graph RAG approach to query-focused summarization. arXiv preprint arXiv:2404.16130, 2024.">Edge <em>et al.</em>, 2024</a>]</span>；在代码知识库里，同样的模式变得更严格、更局部：从一个实体出发，沿类型化的边（如 <code class="docutils literal notranslate"><span class="pre">CALLS</span></code>、<code class="docutils literal notranslate"><span class="pre">IMPLEMENTS</span></code>、<code class="docutils literal notranslate"><span class="pre">RETURNS</span></code>）扩展，然后把结果作为证据（而不仅仅是文稿）传给下游。</p>
+<p>升级路径在代码里已经明确标注：用 Reciprocal Rank Fusion <span id="id13">[<a class="reference internal" href="../part5-operations-lifecycle/ch22-evaluation-and-benchmarks.html#id38" title="Gordon V. Cormack, Charles L. A. Clarke, and Stefan Büttcher. Reciprocal rank fusion outperforms Condorcet and individual rank learning methods. In SIGIR. 2009.">Cormack <em>et al.</em>, 2009</a>]</span> 把向量列表和关键词列表合并起来 —— 让检索器同时拥有 BM25 的“对标识符敏感”和稠密检索的“能泛化”。我们今天还没上线；第 22 章会（用实测数据）解释：为什么在我们当前语料规模下，fallback 策略仍然是 Pareto 最优。</p>
+<section id="id14">
+<h3>理论锚点：RRF 融合的是排名，不是分数<a class="headerlink" href="#id14" title="Link to this heading">#</a></h3>
+<p>2009 年以来每一款正经的混合检索器背后，都压着同一个承重思想。</p>
+<p><strong>按分数加权融合的问题。</strong> 把一个余弦相似度（范围 <span class="math notranslate nohighlight">\([-1, 1]\)</span>）乘 <span class="math notranslate nohighlight">\(0.7\)</span>，再把一个 BM25 分数（范围 <span class="math notranslate nohighlight">\([0, \infty)\)</span>，并会随 IDF 和语料长度漂移）乘 <span class="math notranslate nohighlight">\(0.3\)</span>，相加，得到的这个数 * 在不同查询之间并不可比 * 。对同一次查询的同一份文档，它在一个检索器上的分数可能是 0.82，在另一个上是 14.7；加权和反映的是 * 检索器的分数分布 * ，不是文档的相关性。干过这事的人最后都会发现自己在偷偷按语料、按模型版本调权重，然后一升级，所有调优瞬间蒸发。</p>
+<p><strong>为什么排名就不一样。</strong> Cormack、Clarke、Büttcher <span id="id15">[<a class="reference internal" href="../part5-operations-lifecycle/ch22-evaluation-and-benchmarks.html#id38" title="Gordon V. Cormack, Charles L. A. Clarke, and Stefan Büttcher. Reciprocal rank fusion outperforms Condorcet and individual rank learning methods. In SIGIR. 2009.">Cormack <em>et al.</em>, 2009</a>]</span> 的观察是：一份文档在某个检索器输出里占的 * 位置 * —— 也就是它的 rank —— 是一个无量纲的、被 <span class="math notranslate nohighlight">\(k\)</span>（top-k 截断）界定的量。因此，排名在不同检索器之间 * 无需任何按检索器的校准 * 就可以比较。Reciprocal Rank Fusion 只是简单地把倒数加起来： <div class="math notranslate nohighlight">
+\[\text{RRF}(d) = \sum_{r \in R} \frac{1}{k_0 + \text{rank}_r(d)}\]</div>
+ 其中 <span class="math notranslate nohighlight">\(k_0 \approx 60\)</span> 是一个用来压低“非常靠后名次”权重的小常数。原论文已经证明 RRF 能匹敌甚至超过它那个时代的每一种基于学习的 rank-fusion 方法；之后十五年，学界也并没有产出一种稳定地胜过它的 * 简单 * 融合方式。</p>
+<p>第 19 章的实操立场是：一旦参考实现的语料规模超过“fallback 仍然胜出”的那个阈值（第 22 章会测出这个阈值），RRF 就是那一刀精准的升级。把 <code class="docutils literal notranslate"><span class="pre">vector_empty</span> <span class="pre">?</span> <span class="pre">keyword</span> <span class="pre">:</span> <span class="pre">vector</span></code> 换成 <code class="docutils literal notranslate"><span class="pre">RRF(vector.top(50),</span> <span class="pre">keyword.top(50)).top(TopK)</span></code>。实现只有十五行；那十五行之所以能跑赢一周的权重调优，恰恰来自上面那条理论保证。</p>
+</section>
+</section>
+<section id="how">
+<h2>How —— 怎么做<a class="headerlink" href="#how" title="Link to this heading">#</a></h2>
+<p>关键词排序器是整个知识库里最简单、最乏味的组件 —— 然而它熬过了每一次重构。完整代码来自 <code class="docutils literal notranslate"><span class="pre">reference-impl/code-kg/retriever/keyword.go</span></code>：</p>
+<div class="literal-block-wrapper docutils container" id="id120">
+<div class="code-block-caption"><span class="caption-text">RankByKeyword — name hits count 3× body hits, then bubble-sort to topK.</span><a class="headerlink" href="#id120" title="Link to this code">#</a></div>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="cm">/* </span>
+<span class="cm">// BOOK EXCERPT — vendored for citation, do not hand-edit</span>
+<span class="cm">// source_repo:     code-layer-reference-impl</span>
+<span class="cm">// source_path:     reference-impl/code-kg/retriever/keyword.go</span>
+<span class="cm">// commit_sha:      7afa52003fd6  (dirty — uncommitted changes)</span>
+<span class="cm">// captured_at:     2026-04-18T01:15:58Z</span>
+<span class="cm">// content_sha256:  61515af58d2236dc287200475d0c042168ae220a4c558aa04c7a02b497bbe212</span>
+<span class="cm">// regenerate with: make book-refresh-excerpts</span>
+<span class="cm"> */</span>
+
+<span class="kn">package</span><span class="w"> </span><span class="nx">retriever</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="s">&quot;strings&quot;</span>
+
+<span class="kd">type</span><span class="w"> </span><span class="nx">Document</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">ID</span><span class="w">   </span><span class="kt">string</span>
+<span class="w">	</span><span class="nx">Name</span><span class="w"> </span><span class="kt">string</span>
+<span class="w">	</span><span class="nx">Body</span><span class="w"> </span><span class="kt">string</span>
+<span class="p">}</span>
+
+<span class="kd">type</span><span class="w"> </span><span class="nx">ScoredDocument</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">ID</span><span class="w">    </span><span class="kt">string</span>
+<span class="w">	</span><span class="nx">Score</span><span class="w"> </span><span class="kt">int</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">RankByKeyword</span><span class="p">(</span><span class="nx">query</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">docs</span><span class="w"> </span><span class="p">[]</span><span class="nx">Document</span><span class="p">,</span><span class="w"> </span><span class="nx">topK</span><span class="w"> </span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="p">[]</span><span class="nx">ScoredDocument</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">queryLower</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">strings</span><span class="p">.</span><span class="nx">ToLower</span><span class="p">(</span><span class="nx">query</span><span class="p">)</span>
+<span class="w">	</span><span class="nx">words</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">strings</span><span class="p">.</span><span class="nx">Fields</span><span class="p">(</span><span class="nx">queryLower</span><span class="p">)</span>
+
+<span class="w">	</span><span class="kd">var</span><span class="w"> </span><span class="nx">results</span><span class="w"> </span><span class="p">[]</span><span class="nx">ScoredDocument</span>
+<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">doc</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">docs</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">score</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">		</span><span class="nx">nameLower</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">strings</span><span class="p">.</span><span class="nx">ToLower</span><span class="p">(</span><span class="nx">doc</span><span class="p">.</span><span class="nx">Name</span><span class="p">)</span>
+<span class="w">		</span><span class="nx">bodyLower</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">strings</span><span class="p">.</span><span class="nx">ToLower</span><span class="p">(</span><span class="nx">doc</span><span class="p">.</span><span class="nx">Body</span><span class="p">)</span>
+<span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">word</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">words</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="nx">strings</span><span class="p">.</span><span class="nx">Contains</span><span class="p">(</span><span class="nx">nameLower</span><span class="p">,</span><span class="w"> </span><span class="nx">word</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">				</span><span class="nx">score</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">3</span>
+<span class="w">			</span><span class="p">}</span>
+<span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="nx">strings</span><span class="p">.</span><span class="nx">Contains</span><span class="p">(</span><span class="nx">bodyLower</span><span class="p">,</span><span class="w"> </span><span class="nx">word</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">				</span><span class="nx">score</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">			</span><span class="p">}</span>
+<span class="w">		</span><span class="p">}</span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="nx">score</span><span class="w"> </span><span class="p">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="nx">results</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">append</span><span class="p">(</span><span class="nx">results</span><span class="p">,</span><span class="w"> </span><span class="nx">ScoredDocument</span><span class="p">{</span><span class="nx">ID</span><span class="p">:</span><span class="w"> </span><span class="nx">doc</span><span class="p">.</span><span class="nx">ID</span><span class="p">,</span><span class="w"> </span><span class="nx">Score</span><span class="p">:</span><span class="w"> </span><span class="nx">score</span><span class="p">})</span>
+<span class="w">		</span><span class="p">}</span>
+<span class="w">	</span><span class="p">}</span>
+
+<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="p">&lt;</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="nx">results</span><span class="p">);</span><span class="w"> </span><span class="nx">i</span><span class="o">++</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="nx">j</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="nx">j</span><span class="w"> </span><span class="p">&lt;</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="nx">results</span><span class="p">);</span><span class="w"> </span><span class="nx">j</span><span class="o">++</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="nx">results</span><span class="p">[</span><span class="nx">j</span><span class="p">].</span><span class="nx">Score</span><span class="w"> </span><span class="p">&gt;</span><span class="w"> </span><span class="nx">results</span><span class="p">[</span><span class="nx">i</span><span class="p">].</span><span class="nx">Score</span><span class="w"> </span><span class="p">{</span>
+</pre></div>
+</div>
+</div>
+<p>这段代码里有两件事变得具体：</p>
+<ul class="simple">
+<li><p>第 27 行（name 命中）加 <strong>3 分</strong>，第 30 行（body 命中）加 <strong>1 分</strong>。这个 3:1 比例 —— 而非某个 BM25 校准值 —— 就是在不增加实现负担的情况下模拟 IDF 风格标识符加权效果的方式。项目在第 7 章的文稿索引和第 19 章的代码兜底中都用同一比例；<em>一致性比逐层调参更有价值</em>。</p></li>
+<li><p>第 38–44 行是冒泡排序，因为 <code class="docutils literal notranslate"><span class="pre">topK</span></code> 很小（在所有实测代码路径中 ≤ 50）。我们故意保持 O(n²)；换成 <code class="docutils literal notranslate"><span class="pre">sort.Slice</span></code> 能在一个 50 元素的 slice 上省下几微秒，但要多一个 import。这是本书反复做出的那个典型的工程级取舍：当规模上限很低时，选最明显、最无聊的实现。</p></li>
+</ul>
+<section id="id16">
+<h3>总体编排<a class="headerlink" href="#id16" title="Link to this heading">#</a></h3>
+<p>参考实现中 <code class="docutils literal notranslate"><span class="pre">Service</span></code> 的 <code class="docutils literal notranslate"><span class="pre">Search</span></code> 方法，把三层缝合在一起：</p>
+<div class="literal-block-wrapper docutils container" id="id121">
+<div class="code-block-caption"><span class="caption-text">Search orchestration — vector primary, keyword fallback, answer generation.</span><a class="headerlink" href="#id121" title="Link to this code">#</a></div>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="nx">j</span><span class="p">,</span><span class="w"> </span><span class="nx">emb</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">embeddings</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="nx">eid</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">entities</span><span class="p">[</span><span class="nx">i</span><span class="o">+</span><span class="nx">j</span><span class="p">].</span><span class="nx">ID</span>
+<span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">vectorStore</span><span class="p">.</span><span class="nx">Upsert</span><span class="p">(</span><span class="nx">eid</span><span class="p">,</span><span class="w"> </span><span class="nx">emb</span><span class="p">);</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">				</span><span class="nx">ilog</span><span class="p">.</span><span class="nx">GetLogger</span><span class="p">().</span><span class="nx">Warnf</span><span class="p">(</span><span class="s">&quot;Failed to store embedding for %s: %v&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">eid</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
+<span class="w">			</span><span class="p">}</span>
+<span class="w">		</span><span class="p">}</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">s</span><span class="w"> </span><span class="o">*</span><span class="nx">Service</span><span class="p">)</span><span class="w"> </span><span class="nx">Search</span><span class="p">(</span><span class="nx">req</span><span class="w"> </span><span class="nx">SearchRequest</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="nx">SearchResult</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">req</span><span class="p">.</span><span class="nx">TopK</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">req</span><span class="p">.</span><span class="nx">TopK</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">config</span><span class="p">.</span><span class="nx">Retrieval</span><span class="p">.</span><span class="nx">DefaultTopK</span>
+<span class="w">	</span><span class="p">}</span>
+
+<span class="w">	</span><span class="kd">var</span><span class="w"> </span><span class="nx">entities</span><span class="w"> </span><span class="p">[]</span><span class="nx">Entity</span>
+
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">enricher</span><span class="p">.</span><span class="nx">Available</span><span class="p">()</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">vectorStore</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">ranked</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">searchByVec</span><span class="p">(</span><span class="nx">req</span><span class="p">)</span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="nx">ilog</span><span class="p">.</span><span class="nx">GetLogger</span><span class="p">().</span><span class="nx">Warnf</span><span class="p">(</span><span class="s">&quot;Vec search failed, falling back to keyword: %v&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
+<span class="w">			</span><span class="nx">entities</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">keywordFallback</span><span class="p">(</span><span class="nx">req</span><span class="p">)</span>
+<span class="w">		</span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="nx">entities</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">ranked</span>
+<span class="w">		</span><span class="p">}</span>
+<span class="w">	</span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">entities</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">keywordFallback</span><span class="p">(</span><span class="nx">req</span><span class="p">)</span>
+<span class="w">	</span><span class="p">}</span>
+
+<span class="w">	</span><span class="nx">answer</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">generateAnswer</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">Query</span><span class="p">,</span><span class="w"> </span><span class="nx">entities</span><span class="p">)</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">ilog</span><span class="p">.</span><span class="nx">GetLogger</span><span class="p">().</span><span class="nx">Warnf</span><span class="p">(</span><span class="s">&quot;Failed to generate answer: %v&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
+<span class="w">		</span><span class="nx">answer</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&quot;Failed to generate answer. See matched code entities below.&quot;</span>
+<span class="w">	</span><span class="p">}</span>
+
+<span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">SearchResult</span><span class="p">{</span>
+<span class="w">		</span><span class="nx">Entities</span><span class="p">:</span><span class="w"> </span><span class="nx">entities</span><span class="p">,</span>
+<span class="w">		</span><span class="nx">Answer</span><span class="p">:</span><span class="w">   </span><span class="nx">answer</span><span class="p">,</span>
+<span class="w">	</span><span class="p">},</span><span class="w"> </span><span class="kc">nil</span>
+<span class="p">}</span>
+
+<span class="c1">// searchByVec uses sqlite-vec KNN to find the closest entity embeddings.</span>
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">s</span><span class="w"> </span><span class="o">*</span><span class="nx">Service</span><span class="p">)</span><span class="w"> </span><span class="nx">searchByVec</span><span class="p">(</span><span class="nx">req</span><span class="w"> </span><span class="nx">SearchRequest</span><span class="p">)</span><span class="w"> </span><span class="p">([]</span><span class="nx">Entity</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">queryEmb</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">enricher</span><span class="p">.</span><span class="nx">GenerateEmbedding</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">Query</span><span class="p">)</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span><span class="p">,</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Errorf</span><span class="p">(</span><span class="s">&quot;embed query: %w&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
+<span class="w">	</span><span class="p">}</span>
+
+<span class="w">	</span><span class="nx">matches</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">vectorStore</span><span class="p">.</span><span class="nx">Search</span><span class="p">(</span><span class="nx">queryEmb</span><span class="p">,</span><span class="w"> </span><span class="nx">req</span><span class="p">.</span><span class="nx">TopK</span><span class="p">)</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span><span class="p">,</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Errorf</span><span class="p">(</span><span class="s">&quot;vec knn query: %w&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
+<span class="w">	</span><span class="p">}</span>
+
+<span class="w">	</span><span class="kd">var</span><span class="w"> </span><span class="nx">ids</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span>
+<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">match</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">matches</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">ids</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">append</span><span class="p">(</span><span class="nx">ids</span><span class="p">,</span><span class="w"> </span><span class="nx">match</span><span class="p">.</span><span class="nx">EntityID</span><span class="p">)</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="nx">ids</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span><span class="p">,</span><span class="w"> </span><span class="kc">nil</span>
+<span class="w">	</span><span class="p">}</span>
+
+<span class="w">	</span><span class="kd">var</span><span class="w"> </span><span class="nx">entities</span><span class="w"> </span><span class="p">[]</span><span class="nx">Entity</span>
+<span class="w">	</span><span class="nx">q</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">db</span><span class="p">.</span><span class="nx">Where</span><span class="p">(</span><span class="s">&quot;id IN ?&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">ids</span><span class="p">)</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">req</span><span class="p">.</span><span class="nx">RepoID</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">q</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">q</span><span class="p">.</span><span class="nx">Where</span><span class="p">(</span><span class="s">&quot;repo_id = ?&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">req</span><span class="p">.</span><span class="nx">RepoID</span><span class="p">)</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">req</span><span class="p">.</span><span class="nx">EntityType</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">q</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">q</span><span class="p">.</span><span class="nx">Where</span><span class="p">(</span><span class="s">&quot;entity_type = ?&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">req</span><span class="p">.</span><span class="nx">EntityType</span><span class="p">)</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="w">	</span><span class="nx">q</span><span class="p">.</span><span class="nx">Select</span><span class="p">(</span><span class="s">&quot;id, repo_id, entity_type, name, file_path, start_line, end_line, signature, doc_string, body, summary, language, created_at&quot;</span><span class="p">).</span>
+<span class="w">		</span><span class="nx">Find</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">entities</span><span class="p">)</span>
+
+<span class="w">	</span><span class="nx">idOrder</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nb">make</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="nx">ids</span><span class="p">))</span>
+<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="nx">i</span><span class="p">,</span><span class="w"> </span><span class="nx">id</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">ids</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">idOrder</span><span class="p">[</span><span class="nx">id</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">i</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="w">	</span><span class="nx">sortedEntities</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nb">make</span><span class="p">([]</span><span class="nx">Entity</span><span class="p">,</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="nx">entities</span><span class="p">))</span>
+<span class="w">	</span><span class="nb">copy</span><span class="p">(</span><span class="nx">sortedEntities</span><span class="p">,</span><span class="w"> </span><span class="nx">entities</span><span class="p">)</span>
+<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="p">&lt;</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="nx">sortedEntities</span><span class="p">);</span><span class="w"> </span><span class="nx">i</span><span class="o">++</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="nx">j</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="nx">j</span><span class="w"> </span><span class="p">&lt;</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="nx">sortedEntities</span><span class="p">);</span><span class="w"> </span><span class="nx">j</span><span class="o">++</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="nx">idOrder</span><span class="p">[</span><span class="nx">sortedEntities</span><span class="p">[</span><span class="nx">j</span><span class="p">].</span><span class="nx">ID</span><span class="p">]</span><span class="w"> </span><span class="p">&lt;</span><span class="w"> </span><span class="nx">idOrder</span><span class="p">[</span><span class="nx">sortedEntities</span><span class="p">[</span><span class="nx">i</span><span class="p">].</span><span class="nx">ID</span><span class="p">]</span><span class="w"> </span><span class="p">{</span>
+<span class="w">				</span><span class="nx">sortedEntities</span><span class="p">[</span><span class="nx">i</span><span class="p">],</span><span class="w"> </span><span class="nx">sortedEntities</span><span class="p">[</span><span class="nx">j</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">sortedEntities</span><span class="p">[</span><span class="nx">j</span><span class="p">],</span><span class="w"> </span><span class="nx">sortedEntities</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span>
+<span class="w">			</span><span class="p">}</span>
+<span class="w">		</span><span class="p">}</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nx">sortedEntities</span><span class="p">,</span><span class="w"> </span><span class="kc">nil</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">s</span><span class="w"> </span><span class="o">*</span><span class="nx">Service</span><span class="p">)</span><span class="w"> </span><span class="nx">keywordFallback</span><span class="p">(</span><span class="nx">req</span><span class="w"> </span><span class="nx">SearchRequest</span><span class="p">)</span><span class="w"> </span><span class="p">[]</span><span class="nx">Entity</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="kd">var</span><span class="w"> </span><span class="nx">entities</span><span class="w"> </span><span class="p">[]</span><span class="nx">Entity</span>
+<span class="w">	</span><span class="nx">query</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">db</span><span class="p">.</span><span class="nx">Where</span><span class="p">(</span><span class="s">&quot;1=1&quot;</span><span class="p">)</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">req</span><span class="p">.</span><span class="nx">RepoID</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">query</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">query</span><span class="p">.</span><span class="nx">Where</span><span class="p">(</span><span class="s">&quot;repo_id = ?&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">req</span><span class="p">.</span><span class="nx">RepoID</span><span class="p">)</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">req</span><span class="p">.</span><span class="nx">EntityType</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">query</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">query</span><span class="p">.</span><span class="nx">Where</span><span class="p">(</span><span class="s">&quot;entity_type = ?&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">req</span><span class="p">.</span><span class="nx">EntityType</span><span class="p">)</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="w">	</span><span class="nx">query</span><span class="p">.</span><span class="nx">Find</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">entities</span><span class="p">)</span>
+<span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">rankByKeyword</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">Query</span><span class="p">,</span><span class="w"> </span><span class="nx">entities</span><span class="p">,</span><span class="w"> </span><span class="nx">req</span><span class="p">.</span><span class="nx">TopK</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">s</span><span class="w"> </span><span class="o">*</span><span class="nx">Service</span><span class="p">)</span><span class="w"> </span><span class="nx">rankByKeyword</span><span class="p">(</span><span class="nx">query</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">entities</span><span class="w"> </span><span class="p">[]</span><span class="nx">Entity</span><span class="p">,</span><span class="w"> </span><span class="nx">topK</span><span class="w"> </span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="p">[]</span><span class="nx">Entity</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="kd">var</span><span class="w"> </span><span class="nx">docs</span><span class="w"> </span><span class="p">[]</span><span class="nx">retriever</span><span class="p">.</span><span class="nx">Document</span>
+<span class="w">	</span><span class="nx">entityByID</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nb">make</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="nx">Entity</span><span class="p">,</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="nx">entities</span><span class="p">))</span>
+<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="nx">i</span><span class="p">,</span><span class="w"> </span><span class="nx">e</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">entities</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">docID</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">ID</span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="nx">docID</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="nx">docID</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Sprintf</span><span class="p">(</span><span class="s">&quot;__rank_%d&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">i</span><span class="p">)</span>
+<span class="w">		</span><span class="p">}</span>
+<span class="w">		</span><span class="nx">entityByID</span><span class="p">[</span><span class="nx">docID</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">e</span>
+<span class="w">		</span><span class="nx">docs</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">append</span><span class="p">(</span><span class="nx">docs</span><span class="p">,</span><span class="w"> </span><span class="nx">retriever</span><span class="p">.</span><span class="nx">Document</span><span class="p">{</span><span class="nx">ID</span><span class="p">:</span><span class="w"> </span><span class="nx">docID</span><span class="p">,</span><span class="w"> </span><span class="nx">Name</span><span class="p">:</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">Name</span><span class="p">,</span><span class="w"> </span><span class="nx">Body</span><span class="p">:</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">Body</span><span class="p">})</span>
+</pre></div>
+</div>
+</div>
+<p>其中最关键的是四行：</p>
+<ul class="simple">
+<li><p><strong>第 494 行</strong> —— 层选择条件：enricher 和向量存储必须同时可用。任何一个为 nil，我们就根本不尝试向量路径；直接跳到兜底（第 505 行）。这就是让一个没有任何 API key 的本地运行知识库仍然可用的关键。</p></li>
+<li><p><strong>第 498 行</strong> —— 任何向量错误都降级到关键词兜底。降级以 Warn 级别记录日志，运维可以通过日志速率检测到慢性嵌入失败。</p></li>
+<li><p><strong>第 517–562 行</strong> —— 向量路径本身：嵌入 query，<code class="docutils literal notranslate"><span class="pre">vectorStore.Search(queryEmb,</span> <span class="pre">TopK)</span></code>（一次 KNN 调用），按 ID 拉取匹配的 <code class="docutils literal notranslate"><span class="pre">Entity</span></code> 行，保持相似度顺序（<code class="docutils literal notranslate"><span class="pre">idOrder</span></code> map）。数据库过滤在 KNN <em>之后</em>应用；我们用少量的 KNN recall 换取按 <code class="docutils literal notranslate"><span class="pre">repo_id</span></code> 或 <code class="docutils literal notranslate"><span class="pre">entity_type</span></code> 过滤的能力。</p></li>
+<li><p><strong>第 564–575 行</strong> —— 兜底：从数据库拉取所有候选（已过滤），跑上面的关键词排序器。这在大语料上不言而喻地慢；下面 §<em>升级路径</em> 一节解释我们计划如何改变。</p></li>
+</ul>
+<p>结果集流入 <code class="docutils literal notranslate"><span class="pre">generateAnswer</span></code> —— 这是第 20 章的主题 —— 它会用一个强制“每条结论都带 <code class="docutils literal notranslate"><span class="pre">file:line</span></code> 引用”的提示词去调用 LLM。</p>
+</section>
+<section id="id17">
+<h3>图扩展（独立入口）<a class="headerlink" href="#id17" title="Link to this heading">#</a></h3>
+<p>今天的图扩展并没有被折进默认的 <code class="docutils literal notranslate"><span class="pre">Search</span></code> 调用；它是通过服务方法 <code class="docutils literal notranslate"><span class="pre">AnalyzeEntity</span></code> / <code class="docutils literal notranslate"><span class="pre">GraphQuery</span></code> 显式发起的，这些方法需要一个种子实体 ID 和一个 <code class="docutils literal notranslate"><span class="pre">MaxHops</span></code>。分开的理由：图查询比向量 KNN * 贵得多 * （一次带 <code class="docutils literal notranslate"><span class="pre">shortestPath</span></code> 的 Cypher vs. 一次 HNSW 查找），所以我们把“什么时候付这笔成本”的决定权交给调用方。CLI 前端（<code class="docutils literal notranslate"><span class="pre">code-kg</span> <span class="pre">callers</span> <span class="pre">&lt;name&gt;</span></code>、<code class="docutils literal notranslate"><span class="pre">code-kg</span> <span class="pre">callees</span> <span class="pre">&lt;name&gt;</span></code>）只是围绕它的一层薄包装。</p>
+</section>
+<section id="id18">
+<h3>升级路径：RRF<a class="headerlink" href="#id18" title="Link to this heading">#</a></h3>
+<p>当语料规模超过（比如）5 万个实体后，兜底关键词排序器的全表扫描就不再可接受了。升级路径如下：</p>
+<ol class="arabic simple">
+<li><p>在同步阶段对 <code class="docutils literal notranslate"><span class="pre">(name,</span> <span class="pre">body)</span></code> 构建 token 级倒排索引（第 7 章 wiki 索引中已有的 <code class="docutils literal notranslate"><span class="pre">searchTerms</span></code> map 的自然延伸）。</p></li>
+<li><p>用一个查询倒排索引的 BM25 <span id="id19">[<a class="reference internal" href="index.html#id87" title="Stephen Robertson and Hugo Zaragoza. The probabilistic relevance framework: BM25 and beyond. Foundations and Trends in Information Retrieval, 3(4):333–389, 2009. doi:10.1561/1500000019.">Robertson and Zaragoza, 2009</a>]</span> 打分器替换 <code class="docutils literal notranslate"><span class="pre">rankByKeyword</span></code>。</p></li>
+<li><p>用 Reciprocal Rank Fusion <span id="id20">[<a class="reference internal" href="../part5-operations-lifecycle/ch22-evaluation-and-benchmarks.html#id38" title="Gordon V. Cormack, Charles L. A. Clarke, and Stefan Büttcher. Reciprocal rank fusion outperforms Condorcet and individual rank learning methods. In SIGIR. 2009.">Cormack <em>et al.</em>, 2009</a>]</span> 融合向量和关键词的排名：<code class="docutils literal notranslate"><span class="pre">score(d)</span> <span class="pre">=</span> <span class="pre">Σ_{retriever}</span> <span class="pre">1/(k</span> <span class="pre">+</span> <span class="pre">rank(d))</span></code>，<code class="docutils literal notranslate"><span class="pre">k</span> <span class="pre">=</span> <span class="pre">60</span></code> 作为标准起始值。</p></li>
+</ol>
+<p>Gao 等人 <span id="id21">[<a class="reference internal" href="../part5-operations-lifecycle/ch22-evaluation-and-benchmarks.html#id37" title="Yunfan Gao, Yun Xiong, Xinyu Gao, Kangxiang Jia, Jinliu Pan, Yuxi Bi, Yi Dai, Jiawei Sun, Meng Wang, and Haofen Wang. Retrieval-augmented generation for large language models: a survey. arXiv preprint arXiv:2312.10997, 2023.">Gao <em>et al.</em>, 2023</a>]</span> 综述了混合检索的全景；GraphRAG <span id="id22">[<a class="reference internal" href="../part6-hybrid-layer/ch26-graph-guided-context-assembly.html#id33" title="Darren Edge, Ha Trinh, Newman Cheng, Joshua Bradley, Alex Chao, Apurva Mody, Steven Truitt, and Jonathan Larson. From local to global: a graph RAG approach to query-focused summarization. arXiv preprint arXiv:2404.16130, 2024.">Edge <em>et al.</em>, 2024</a>]</span> 把图谱作为第三个有序列表也加进同一份融合里。HippoRAG <span id="id23">[<a class="reference internal" href="../part6-hybrid-layer/ch26-graph-guided-context-assembly.html#id34" title="Bernal Jiménez Gutiérrez, Yiheng Shu, Yu Gu, Michihiro Yasunaga, and Yu Su. HippoRAG: neurobiologically inspired long-term memory for large language models. arXiv preprint arXiv:2405.14831, 2024.">Gutiérrez <em>et al.</em>, 2024</a>]</span> 则展示同一模式可以通过联想记忆扩展到长程问答。retriever 包里的接口故意设计得很窄，让这些升级能直接替换进来，而不必触动 service 或 generator。</p>
+</section>
+<section id="graph-rag">
+<h3>Graph-RAG：通向仓库级任务的桥梁<a class="headerlink" href="#graph-rag" title="Link to this heading">#</a></h3>
+<p>把图扩展仅仅看作对 <em>“谁调用了 X？”</em> 的小众回答，是低估了它。一旦检索器能返回一个排过序的种子集加上一个有边标签的有界邻域，它就变成了一个通用的<strong>仓库任务底座</strong>：</p>
+<ul class="simple">
+<li><p>一个使用工具的 IDE agent 可以调用检索器，然后在返回的邻域上追问；</p></li>
+<li><p>一个无 agent 的批处理求解器可以在单次 prompt 或模型调用中消费同样的组装上下文；</p></li>
+<li><p>一个图集成的阅读器（如 CGM）可以把同一份邻域当作结构化先验来使用，而不是从原始文件中重建 <span id="id24">[<a class="reference internal" href="../part7-governance-and-outlook/index.html#id31" title="Hongyuan Tao, Ying Zhang, Zhenhao Tang, Hongen Peng, Xukun Zhu, Bingchang Liu, Yingguang Yang, Ziyin Zhang, Zhaogui Xu, Haipeng Zhang, Linchao Zhu, Rui Wang, Hang Yu, Jianguo Li, and Peng Di. Code graph model (CGM): a graph-integrated large language model for repository-level software engineering tasks. 2025. URL: https://arxiv.org/abs/2505.16901, arXiv:2505.16901.">Tao <em>et al.</em>, 2025</a>]</span>。</p></li>
+</ul>
+<p>这就是本章把图扩展放在生成器外面、检索器里面的原因。图不仅仅是为了生成更好回答的后处理；它是那个让仓库上下文从&quot;更多文本&quot;变成<em>有类型的证据</em>的控制点。</p>
+</section>
+</section>
+<section id="example">
+<h2>Example —— 范例<a class="headerlink" href="#example" title="Link to this heading">#</a></h2>
+<p>在同一份已同步知识库（第 17 章范例）上跑三条查询 —— 每条都被设计来命中一层：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Tier 1 — vector primary. Fuzzy, natural-language.</span>
+code-kg<span class="w"> </span>search<span class="w"> </span>--repo-id<span class="w"> </span>demo<span class="w"> </span><span class="s2">&quot;where do we retry embedding calls&quot;</span>
+<span class="c1"># → top hit: enricher.Service.GenerateEmbeddings</span>
+<span class="c1">#   reference-impl/code-kg/enricher/service.go:67</span>
+
+<span class="c1"># Tier 2 — keyword fallback. Identifier-heavy.</span>
+code-kg<span class="w"> </span>search<span class="w"> </span>--repo-id<span class="w"> </span>demo<span class="w"> </span><span class="s2">&quot;RankByKeyword bubble sort&quot;</span>
+<span class="c1"># → top hit: retriever.RankByKeyword</span>
+<span class="c1">#   reference-impl/code-kg/retriever/keyword.go:16</span>
+
+<span class="c1"># Tier 3 — graph expansion (separate command). Structural.</span>
+code-kg<span class="w"> </span>callers<span class="w"> </span>--repo-id<span class="w"> </span>demo<span class="w"> </span>--name<span class="w"> </span>runSync
+<span class="c1"># → [TriggerSync, runIncrementalSync (recursion guard)] as in ch18.</span>
+</pre></div>
+</div>
+<p>第 1 层即使在 query 与结果几乎没有共享 token 的情况下也命中成功 —— 这就是稠密检索的价值。在模糊查询上第 2 层会被第 1 层拉开明显差距，但在标识符查询上它反过来胜出。第 3 层是唯一能以完美召回率回答结构化问题的那一层。</p>
+</section>
+<section id="id25">
+<h2>常见错误<a class="headerlink" href="#id25" title="Link to this heading">#</a></h2>
+<p>以下四个检索层反模式，即使在前面几个阶段都做对了的团队身上也照样出现。</p>
+<p><strong>1 —— 跨栈的分数级融合。</strong> 症状是一个写成 <code class="docutils literal notranslate"><span class="pre">final_score</span> <span class="pre">=</span> <span class="pre">0.7*cosine</span> <span class="pre">+</span> <span class="pre">0.3*bm25</span></code> 的函数。它看起来很有章法，其实毫无意义。余弦相似度在 [−1, 1] 区间，BM25 分数上不封顶、且会随语料统计量漂移。* 同一份文档 * 的余弦可能是 0.82，而它的 BM25 可能是 14.7 也可能是 1.4，仅取决于它所在语料。修法是排名级融合（RRF）：<code class="docutils literal notranslate"><span class="pre">score</span> <span class="pre">=</span> <span class="pre">sum_r</span> <span class="pre">1/(k</span> <span class="pre">+</span> <span class="pre">rank_r(d))</span></code>。它融合的是 * 排名 * ，排名在不同栈之间是可比的；不是 * 分数 * ，分数不可比。</p>
+<p><strong>2 —— 把三层当同一类查询对待。</strong> 症状是：流水线对每条 query 都并行跑 vector + keyword + graph，然后从它们的并集里取 top-k。你花了 3 倍的延迟去给三种本该得到不同答案的问题排序。修法是第 19 章的两段式设计：一个分类器（* 这是不是结构化查询？ * ）把结构化查询路由到“图优先”；其他所有查询都走向量路径，* 只有当向量结果为空时 * 才落到关键词兜底。</p>
+<p><strong>3 —— 把图扩展当成首轮检索。</strong> 症状是： * “how does the sync retry work” * 这条查询返回了一段从人工挑选的种子节点出发的图游走 —— 然后因为种子本身就挑错了，所有合法命中全被漏掉。图是用来回答“已经拿到种子之后”的追问（* “还有谁也调用了它” * ），不是用来做首轮语义匹配的。把图扩展放在一个独立的端点上，并且把“种子实体 ID”作为 * 必填 * 参数。这一处设计选择就能挡住 80% 的误用。</p>
+<p><strong>4 —— 在错误的层缓存。</strong> 症状是一个 <code class="docutils literal notranslate"><span class="pre">query</span> <span class="pre">→</span> <span class="pre">top-k</span> <span class="pre">entityIDs</span></code> 的进程内 LRU 缓存，在一个 commit 落地的瞬间就失效，因为缓存没有挂钩到索引器。如果你一定要缓存，缓存 query 字符串的<em>嵌入</em>（稳定的）或者按 repo-ID + commit-SHA 粒度缓存图的<em>邻接关系</em>（也是稳定的）。永远不要缓存最终的排名列表，除非你能在每次写入时都做失效处理。</p>
+</section>
+<section id="conclusion">
+<h2>Conclusion —— 小结<a class="headerlink" href="#conclusion" title="Link to this heading">#</a></h2>
+<p>对于一个必须同时回答自然语言、标识符和结构化查询的知识库，三层检索器是最小可行设计。代码层参考实现能保持小巧，是因为每一层要么是一个单屏幕大小的组件（关键词），要么是对一种专用存储的薄薄包装（向量 / 图）。RRF 和 BM25 是写进文档的升级路径；两者我们今天都还没上线，第 22 章会测出那是否仍然是正确的决定。</p>
+<p>第 20 章将以最后一段来收束第四部分：把检索器给出的结构化上下文变成一份可被引用的答案。</p>
+</section>
+<section id="id26">
+<h2>参考文献<a class="headerlink" href="#id26" title="Link to this heading">#</a></h2>
+<div class="docutils container" id="id27">
+<div role="list" class="citation-list">
+<div class="citation" id="id83" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>Alfred V. Aho and Margaret J. Corasick. Efficient string matching: an aid to bibliographic search. <em>Communications of the ACM</em>, 18(6):333–340, 1975. <a class="reference external" href="https://doi.org/10.1145/360825.360855">doi:10.1145/360825.360855</a>.</p>
+</div>
+<div class="citation" id="id86" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></span>
+<p>Miltiadis Allamanis, Earl T. Barr, Premkumar Devanbu, and Charles Sutton. A survey of machine learning for big code and naturalness. <em>ACM Computing Surveys</em>, 51(4):1–37, 2018. <a class="reference external" href="https://doi.org/10.1145/3212695">doi:10.1145/3212695</a>.</p>
+</div>
+<div class="citation" id="id118" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></span>
+<p>Egor Bogomolov, Aleksandra Eliseeva, Timur Galimzyanov, Evgeniy Glukhov, Anton Shapkin, Maria Shmelev, Yaroslav Smirnov, Sergei Golubev, Timofey Bryksin, and Alberto Bacchelli. Long code arena: a set of benchmarks for long-context code models. <em>arXiv preprint arXiv:2406.11612</em>, 2024. Covers six long-context code tasks: project-level completion, CI repair, bug localization, module summarization, repo QA, and commit-message generation. Key insight for Chapter 15 and Chapter 24: real-world KB evaluation must go beyond single-file metrics to cover these project-scale tasks. URL: <a class="reference external" href="https://arxiv.org/abs/2406.11612">https://arxiv.org/abs/2406.11612</a>, <a class="reference external" href="https://arxiv.org/abs/2406.11612">arXiv:2406.11612</a>.</p>
+</div>
+<div class="citation" id="id84" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></span>
+<p>Max Brunsfeld and Tree-sitter contributors. Tree-sitter: an incremental parsing system for programming tools. 2018–present. Used by the code-layer reference implementation's RAG CodeParser for multi-language uniform parsing. URL: <a class="reference external" href="https://tree-sitter.github.io/tree-sitter/">https://tree-sitter.github.io/tree-sitter/</a>.</p>
+</div>
+<div class="citation" id="id97" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></span>
+<p>Shiqi Chen, Yiran Zhang, Yunze Zhao, Yifei Liu, Chengye Hu, and Yang Liu. Benchmarking large language models in retrieval-augmented generation. In <em>arXiv preprint arXiv:2309.01431</em>. 2023. URL: <a class="reference external" href="https://arxiv.org/abs/2309.01431">https://arxiv.org/abs/2309.01431</a>.</p>
+</div>
+<div class="citation" id="id47" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>6<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id4">1</a>,<a role="doc-backlink" href="#id13">2</a>,<a role="doc-backlink" href="#id15">3</a>,<a role="doc-backlink" href="#id20">4</a>)</span>
+<p>Gordon V. Cormack, Charles L. A. Clarke, and Stefan Büttcher. Reciprocal rank fusion outperforms Condorcet and individual rank learning methods. In <em>SIGIR</em>. 2009.</p>
+</div>
+<div class="citation" id="id30" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></span>
+<p>Walter (Yamin) Fan. RAG 进阶指南：别只盯着向量数据库，Elasticsearch 才是扫地僧. January 2026. v1.0, CC-BY-NC-ND 4.0. URL: <a class="reference external" href="https://www.fanyamin.com/2026-01-15-rag-elasticsearch-database.html">https://www.fanyamin.com/2026-01-15-rag-elasticsearch-database.html</a>.</p>
+</div>
+<div class="citation" id="id29" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>8<span class="fn-bracket">]</span></span>
+<p>Walter (Yamin) Fan. 如何打造个人与项目知识库：从全文搜索到 RAG，再到 Claude Skill. February 2026. v1.0, CC-BY-NC-ND 4.0. URL: <a class="reference external" href="https://www.fanyamin.com/2026-02-05-rag-claude-skill-knowledge-base.html">https://www.fanyamin.com/2026-02-05-rag-claude-skill-knowledge-base.html</a>.</p>
+</div>
+<div class="citation" id="id31" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>9<span class="fn-bracket">]</span></span>
+<p>Walter (Yamin) Fan. 用 pgvector 做 RAG：别急着上 Pinecone，你的 PostgreSQL 就够了. March 2026. v1.0, CC-BY-NC-ND 4.0. URL: <a class="reference external" href="https://www.fanyamin.com/2026-03-10-pgvector-rag.html">https://www.fanyamin.com/2026-03-10-pgvector-rag.html</a>.</p>
+</div>
+<div class="citation" id="id46" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>10<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id3">1</a>,<a role="doc-backlink" href="#id21">2</a>)</span>
+<p>Yunfan Gao, Yun Xiong, Xinyu Gao, Kangxiang Jia, Jinliu Pan, Yuxi Bi, Yi Dai, Jiawei Sun, Meng Wang, and Haofen Wang. Retrieval-augmented generation for large language models: a survey. <em>arXiv preprint arXiv:2312.10997</em>, 2023.</p>
+</div>
+<div class="citation" id="id91" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>11<span class="fn-bracket">]</span></span>
+<p>Alex Gleason. Sqlite-vec: a vector search SQLite extension that runs anywhere. 2024–present. URL: <a class="github reference external" href="https://github.com/asg017/sqlite-vec">asg017/sqlite-vec</a>.</p>
+</div>
+<div class="citation" id="id87" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>12<span class="fn-bracket">]</span></span>
+<p>Daya Guo, Shuo Ren, Shuai Lu, Zhangyin Feng, Duyu Tang, Shujie Liu, Long Zhou, Nan Duan, Alexey Svyatkovskiy, and Shengyu Fu. GraphCodeBERT: pre-training code representations with data flow. In <em>International Conference on Learning Representations (ICLR)</em>. 2021. URL: <a class="reference external" href="https://arxiv.org/abs/2009.08366">https://arxiv.org/abs/2009.08366</a>.</p>
+</div>
+<div class="citation" id="id85" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">13</a><span class="fn-bracket">]</span></span>
+<p>Hamel Husain, Ho-Hsiang Wu, Tiferet Gazit, Miltiadis Allamanis, and Marc Brockschmidt. CodeSearchNet Challenge: evaluating the state of semantic code search. In <em>arXiv preprint arXiv:1909.09436</em>. 2019. URL: <a class="reference external" href="https://arxiv.org/abs/1909.09436">https://arxiv.org/abs/1909.09436</a>.</p>
+</div>
+<div class="citation" id="id92" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>14<span class="fn-bracket">]</span></span>
+<p>Andrew Kane. Pgvector: open-source vector similarity search for PostgreSQL. 2021–present. URL: <a class="github reference external" href="https://github.com/pgvector/pgvector">pgvector/pgvector</a>.</p>
+</div>
+<div class="citation" id="id49" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>15<span class="fn-bracket">]</span></span>
+<p>Vladimir Karpukhin, Barlas Oğuz, Sewon Min, Patrick Lewis, Ledell Wu, Sergey Edunov, Danqi Chen, and Wen-tau Yih. Dense passage retrieval for open-domain question answering. <em>EMNLP</em>, 2020.</p>
+</div>
+<div class="citation" id="id45" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>16<span class="fn-bracket">]</span></span>
+<p>Patrick Lewis, Ethan Perez, Aleksandra Piktus, Fabio Petroni, Vladimir Karpukhin, Naman Goyal, Heinrich Küttler, Mike Lewis, Wen-tau Yih, Tim Rocktäschel, Sebastian Riedel, and Douwe Kiela. Retrieval-augmented generation for knowledge-intensive NLP tasks. In <em>NeurIPS</em>. 2020.</p>
+</div>
+<div class="citation" id="id111" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id10">17</a><span class="fn-bracket">]</span></span>
+<p>Di Li, Jingyi Wei, Yewen Peng, Hanbin Bai, Bei Chen, and Yong Li. Repoformer: selective retrieval for repository-level code completion. <em>Proceedings of the 41st International Conference on Machine Learning (ICML 2024)</em>, 2024. Trains a lightweight classifier to predict whether retrieval will help a given code-completion task, skipping it when the local context suffices. Key insight for Chapter 12: not every query needs retrieval, and a retrieval-necessity signal can cut latency and noise. URL: <a class="reference external" href="https://arxiv.org/abs/2403.10059">https://arxiv.org/abs/2403.10059</a>, <a class="reference external" href="https://arxiv.org/abs/2403.10059">arXiv:2403.10059</a>.</p>
+</div>
+<div class="citation" id="id117" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>18<span class="fn-bracket">]</span></span>
+<p>Tianyang Liu, Canwen Xu, and Julian McAuley. RepoBench: benchmarking repository-level code auto-completion systems. <em>arXiv preprint arXiv:2306.03091</em>, 2023. Decomposes evaluation into Retrieval (R), Completion (C), and Pipeline (P) layers, enabling precise diagnosis of whether the bottleneck is retrieval quality or generation quality. Key insight for Chapter 15: layered evaluation (retrieval health → generation health → end-to-end) is the right structure for KB benchmarking. URL: <a class="reference external" href="https://arxiv.org/abs/2306.03091">https://arxiv.org/abs/2306.03091</a>, <a class="reference external" href="https://arxiv.org/abs/2306.03091">arXiv:2306.03091</a>.</p>
+</div>
+<div class="citation" id="id54" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>19<span class="fn-bracket">]</span></span>
+<p>Qinyu Luo, Yining Ye, Shihao Liang, Zhong Zhang, Yujia Qin, Yaxi Lu, Yesai Wu, Xin Cong, Yankai Lin, Yingli Zhang, Xiaoyin Che, Zhiyuan Liu, and Maosong Sun. Repoagent: an LLM-powered open-source framework for repository-level code documentation generation. 2024. URL: <a class="reference external" href="https://arxiv.org/abs/2402.16667">https://arxiv.org/abs/2402.16667</a>, <a class="reference external" href="https://arxiv.org/abs/2402.16667">arXiv:2402.16667</a>.</p>
+</div>
+<div class="citation" id="id50" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>20<span class="fn-bracket">]</span></span>
+<p>Yury A. Malkov and Dmitry A. Yashunin. Efficient and robust approximate nearest neighbor search using hierarchical navigable small world graphs. <em>IEEE Transactions on Pattern Analysis and Machine Intelligence</em>, 42(4):824–836, 2020. <a class="reference external" href="https://doi.org/10.1109/TPAMI.2018.2889473">doi:10.1109/TPAMI.2018.2889473</a>.</p>
+</div>
+<div class="citation" id="id109" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>21<span class="fn-bracket">]</span></span>
+<p>Yury A. Malkov and Dmitry A. Yashunin. Efficient and robust approximate nearest neighbor search using hierarchical navigable small world graphs. <em>IEEE Transactions on Pattern Analysis and Machine Intelligence</em>, 42(4):824–836, 2020. The HNSW index underlying every modern vector store (sqlite-vec, pgvector's hnsw option, Milvus, Faiss). The small-world-graph construction is why an approximate nearest-neighbour query runs in log-time rather than linear-scan time; cited in Chapter 10 to anchor the &quot;vector DB is not magic&quot; argument. <a class="reference external" href="https://doi.org/10.1109/TPAMI.2018.2889473">doi:10.1109/TPAMI.2018.2889473</a>.</p>
+</div>
+<div class="citation" id="id43" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>22<span class="fn-bracket">]</span></span>
+<p>Christopher D. Manning, Prabhakar Raghavan, and Hinrich Schütze. <em>Introduction to Information Retrieval</em>. Cambridge University Press, 2008.</p>
+</div>
+<div class="citation" id="id119" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>23<span class="fn-bracket">]</span></span>
+<p>Niklas Muennighoff, Nouamane Tazi, Loïc Magne, and Nils Reimers. Mteb: massive text embedding benchmark. <em>arXiv preprint arXiv:2210.07316</em>, 2023. Defines the leaderboard used to compare embedding models across 8 tasks and 58 datasets. Key insight for Chapter 10: leaderboard ranking on general tasks does not predict performance on domain-specific code retrieval. URL: <a class="reference external" href="https://arxiv.org/abs/2210.07316">https://arxiv.org/abs/2210.07316</a>.</p>
+</div>
+<div class="citation" id="id106" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>24<span class="fn-bracket">]</span></span>
+<p>Rodrigo Nogueira and Kyunghyun Cho. Passage re-ranking with BERT. <em>arXiv preprint arXiv:1901.04085</em>, 2019. Canonical reference for cross-encoder re-ranking — a BERT model scores (query, document) pairs for the second stage of a retrieve-then-rerank pipeline. Widely known as &quot;monoBERT&quot;. URL: <a class="reference external" href="https://arxiv.org/abs/1901.04085">https://arxiv.org/abs/1901.04085</a>.</p>
+</div>
+<div class="citation" id="id113" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>25<span class="fn-bracket">]</span></span>
+<p>Siru Ouyang, Jingqing Yu, Daoguang Zan, Xiangyu Xu, Wei Liu, Shuai Shi, and Hao Peng. RepoGraph: enhancing AI software engineering with repository-level code graph. <em>ICLR 2025 Poster</em>, 2025. Builds a typed repository-level code graph (calls, imports, inherits, defines) and uses graph-enhanced retrieval to expand seed hits along structural edges. Key insight for Chapter 11: code graphs are not just for storage; they are retrieval primitives that produce structurally complete context, not just semantically similar chunks. URL: <a class="reference external" href="https://openreview.net/forum?id=dw9VUsSHGB">https://openreview.net/forum?id=dw9VUsSHGB</a>.</p>
+</div>
+<div class="citation" id="id77" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>26<span class="fn-bracket">]</span></span>
+<p>Martin F. Porter. An algorithm for suffix stripping. In <em>Program</em>, volume 14, 130–137. 1980. <a class="reference external" href="https://doi.org/10.1108/eb046814">doi:10.1108/eb046814</a>.</p>
+</div>
+<div class="citation" id="id107" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>27<span class="fn-bracket">]</span></span>
+<p>Nils Reimers and Iryna Gurevych. Sentence-BERT: sentence embeddings using siamese BERT-networks. In <em>Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing</em>. 2019. Introduces the bi-encoder framing that underlies every modern dense retriever: two independent encodings compared by cosine similarity, contrasted explicitly against cross-encoders that concatenate (query, document) before scoring. URL: <a class="reference external" href="https://arxiv.org/abs/1908.10084">https://arxiv.org/abs/1908.10084</a>.</p>
+</div>
+<div class="citation" id="id44" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>28<span class="fn-bracket">]</span></span>
+<p>Stephen Robertson and Hugo Zaragoza. The probabilistic relevance framework: BM25 and beyond. <em>Foundations and Trends in Information Retrieval</em>, 3(4):333–389, 2009.</p>
+</div>
+<div class="citation" id="id96" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>29<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id1">1</a>,<a role="doc-backlink" href="#id19">2</a>)</span>
+<p>Stephen Robertson and Hugo Zaragoza. The probabilistic relevance framework: BM25 and beyond. <em>Foundations and Trends in Information Retrieval</em>, 3(4):333–389, 2009. <a class="reference external" href="https://doi.org/10.1561/1500000019">doi:10.1561/1500000019</a>.</p>
+</div>
+<div class="citation" id="id94" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>30<span class="fn-bracket">]</span></span>
+<p>Ian Robinson, Jim Webber, and Emil Eifrem. <em>Graph Databases: New Opportunities for Connected Data</em>. O'Reilly Media, 2015. ISBN 978-1491930892.</p>
+</div>
+<div class="citation" id="id116" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id8">31</a><span class="fn-bracket">]</span></span>
+<p>Disha Shrivastava, Hugo Larochelle, and Daniel Tarlow. Repository-level prompt generation for large language models of code. In <em>Proceedings of the 40th International Conference on Machine Learning (ICML 2023)</em>. 2023. The conceptual origin of repo-level RAG: even without fine-tuning, selecting the right cross-file context (imports, similar code, usage examples, type definitions) substantially improves code completion. Key insight for Chapter 12 and Chapter 19: context assembly is a first-class retrieval problem, not a prompt-engineering afterthought. URL: <a class="reference external" href="https://proceedings.mlr.press/v202/shrivastava23a.html">https://proceedings.mlr.press/v202/shrivastava23a.html</a>.</p>
+</div>
+<div class="citation" id="id55" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>32<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id7">1</a>,<a role="doc-backlink" href="#id24">2</a>)</span>
+<p>Hongyuan Tao, Ying Zhang, Zhenhao Tang, Hongen Peng, Xukun Zhu, Bingchang Liu, Yingguang Yang, Ziyin Zhang, Zhaogui Xu, Haipeng Zhang, Linchao Zhu, Rui Wang, Hang Yu, Jianguo Li, and Peng Di. Code graph model (CGM): a graph-integrated large language model for repository-level software engineering tasks. 2025. URL: <a class="reference external" href="https://arxiv.org/abs/2505.16901">https://arxiv.org/abs/2505.16901</a>, <a class="reference external" href="https://arxiv.org/abs/2505.16901">arXiv:2505.16901</a>.</p>
+</div>
+<div class="citation" id="id48" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>33<span class="fn-bracket">]</span></span>
+<p>Nandan Thakur, Nils Reimers, Andreas Rücklé, Abhishek Srivastava, and Iryna Gurevych. BEIR: a heterogeneous benchmark for zero-shot evaluation of information retrieval models. In <em>NeurIPS Datasets and Benchmarks</em>. 2021.</p>
+</div>
+<div class="citation" id="id88" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>34<span class="fn-bracket">]</span></span>
+<p>Shitao Xiao, Zheng Liu, Peitian Zhang, Niklas Muennighoff, Defu Lian, and Jian-Yun Nie. C-Pack: packed resources for general Chinese embeddings. 2024. Includes the BGE family of open embedding models, which can be self-hosted on a single GPU at effectively zero per-token cost. URL: <a class="reference external" href="https://arxiv.org/abs/2309.07597">https://arxiv.org/abs/2309.07597</a>.</p>
+</div>
+<div class="citation" id="id115" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>35<span class="fn-bracket">]</span></span>
+<p>Chuxin Xu, Zhicheng Geng, Zhengtao Liao, and Yifan Wei. Synergizing LLMs and knowledge graphs: a novel approach to software repository-related question answering. <em>arXiv preprint arXiv:2412.03815</em>, 2024. Designs a software-specific KG ontology (Repository, Module, File, Class, Function, Dependency, Issue, Commit, Developer) and a synergistic LLM+KG QA framework that routes structural queries to KG and semantic queries to dense retrieval. Key insight for Chapter 6 and Chapter 11: a purpose-built software ontology plus hybrid query routing covers both structural and semantic questions better than either approach alone. URL: <a class="reference external" href="https://arxiv.org/abs/2412.03815">https://arxiv.org/abs/2412.03815</a>, <a class="reference external" href="https://arxiv.org/abs/2412.03815">arXiv:2412.03815</a>.</p>
+</div>
+<div class="citation" id="id114" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id9">36</a><span class="fn-bracket">]</span></span>
+<p>Fengji Zhang, Bei Chen, Yue Zhang, Jacky Keung, Jin Liu, Daoguang Zan, Yi Mao, Jian-Guang Chen, and Wenqiang Chen. RepoCoder: repository-level code completion through iterative retrieval and generation. <em>Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing (EMNLP 2023)</em>, 2023. Proposes a retrieve-generate-re-retrieve iterative loop: the LLM draft becomes a better retrieval query for the next round. Key insight for Chapter 12: multi-round retrieval converges on better context, especially for complex cross-file queries. URL: <a class="reference external" href="https://arxiv.org/abs/2303.12570">https://arxiv.org/abs/2303.12570</a>, <a class="reference external" href="https://arxiv.org/abs/2303.12570">arXiv:2303.12570</a>.</p>
+</div>
+<div class="citation" id="id53" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id6">37</a><span class="fn-bracket">]</span></span>
+<p>Yuqi Zhu, Xiaohan Wang, Jing Chen, Shuofei Qiao, Yixin Ou, Yunzhi Yao, Shumin Deng, Huajun Chen, and Ningyu Zhang. LLMs for knowledge graph construction and reasoning: recent capabilities and future opportunities. 2024. URL: <a class="reference external" href="https://arxiv.org/abs/2305.13168">https://arxiv.org/abs/2305.13168</a>, <a class="reference external" href="https://arxiv.org/abs/2305.13168">arXiv:2305.13168</a>.</p>
+</div>
+<div class="citation" id="id80" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>38<span class="fn-bracket">]</span></span>
+<p>Algolia. DocSearch: free search for your documentation. 2015–present. Hosted search crawler targeted specifically at static documentation sites. URL: <a class="reference external" href="https://docsearch.algolia.com/">https://docsearch.algolia.com/</a>.</p>
+</div>
+<div class="citation" id="id78" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>39<span class="fn-bracket">]</span></span>
+<p>Couchbase, Inc. and Bleve contributors. Bleve: a modern text indexing library for Go. 2014–present. Embedded full-text search engine for Go applications — a natural scale-up target from the in-memory token index in \texttt index.go. URL: <a class="reference external" href="https://blevesearch.com/">https://blevesearch.com/</a>.</p>
+</div>
+<div class="citation" id="id79" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>40<span class="fn-bracket">]</span></span>
+<p>Meili SAS and Meilisearch contributors. Meilisearch: an open-source, lightning-fast, and hyper relevant search engine. 2018–present. URL: <a class="reference external" href="https://www.meilisearch.com/">https://www.meilisearch.com/</a>.</p>
+</div>
+<div class="citation" id="id95" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>41<span class="fn-bracket">]</span></span>
+<p>Memgraph Ltd. Memgraph: an in-memory graph database compatible with the Bolt protocol. 2016–present. URL: <a class="reference external" href="https://memgraph.com/">https://memgraph.com/</a>.</p>
+</div>
+<div class="citation" id="id89" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>42<span class="fn-bracket">]</span></span>
+<p>OpenAI. OpenAI text embeddings v3 (text-embedding-3-small and text-embedding-3-large). 2024. The \texttt text-embedding-3-small launch announcement lists a 5× price reduction relative to \texttt text-embedding-ada-002 (from \$0.0001 to \$0.00002 per 1K tokens) at higher retrieval quality. URL: <a class="reference external" href="https://openai.com/index/new-embedding-models-and-api-updates/">https://openai.com/index/new-embedding-models-and-api-updates/</a>.</p>
+</div>
+<div class="citation" id="id90" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>43<span class="fn-bracket">]</span></span>
+<p>Voyage AI. Voyage-code-2: an embedding model optimised for code retrieval. 2024. URL: <a class="reference external" href="https://docs.voyageai.com/docs/embeddings">https://docs.voyageai.com/docs/embeddings</a>.</p>
+</div>
+<div class="citation" id="id93" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>44<span class="fn-bracket">]</span></span>
+<p>Zilliz, Inc. Milvus: an open-source vector database for scalable similarity search. 2019–present. URL: <a class="reference external" href="https://milvus.io/">https://milvus.io/</a>.</p>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="ch18-code-knowledge-graph.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">第 18 章 —— 代码知识图谱</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="ch20-prompt-and-generation.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">第 20 章 —— 提示词与生成</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 目录
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why">Why —— 为什么</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what">What —— 是什么</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id14">理论锚点：RRF 融合的是排名，不是分数</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how">How —— 怎么做</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id16">总体编排</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id17">图扩展（独立入口）</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id18">升级路径：RRF</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#graph-rag">Graph-RAG：通向仓库级任务的桥梁</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example —— 范例</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id25">常见错误</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#conclusion">Conclusion —— 小结</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id26">参考文献</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+作者： Walter Fan
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright AI 辅助创作 2026, Walter Fan.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    <p class="last-updated">
+  最后更新于 2026-11-10.
+  <br/>
+</p>
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,42 @@
+/* Custom styling for the book's Sphinx HTML output. */
+
+/* ---------------------------------------------------------------------------
+ * Language switcher — yellow/amber highlight so it's easy to spot in the
+ * Read the Docs sidebar. Rendered by _templates/layout.html.
+ * -------------------------------------------------------------------------*/
+
+.language-switcher {
+    margin: 10px 14px 4px 14px;
+    padding: 8px 10px;
+    border-top: 1px solid #ccc;
+    background-color: #fff8e1;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.language-switcher .lang-label {
+    font-size: 0.85em;
+    color: #7a6200;
+    font-weight: bold;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.language-switcher .lang-current {
+    font-size: 0.9em;
+    font-weight: bold;
+    color: #f57f17;
+    margin-left: 4px;
+}
+
+.language-switcher .lang-link {
+    font-size: 0.9em;
+    margin-left: 6px;
+    color: #e65100;
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+.language-switcher .lang-link:hover {
+    color: #bf360c;
+}

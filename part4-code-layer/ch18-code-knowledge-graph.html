@@ -1,0 +1,1641 @@
+
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>第 18 章 —— 代码知识图谱 &#8212; Use AI to build a knowledge base for a software project</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=591f613d" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=23f7fa08"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../_static/translations.js?v=beaddf03"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.2.0/dist/mermaid-layout-elk.esm.min.mjs"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";import elkLayouts from "https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.2.0/dist/mermaid-layout-elk.esm.min.mjs";mermaid.registerLayoutLoaders(elkLayouts);mermaid.initialize({startOnLoad:false});</script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+const defaultStyle = document.createElement('style');
+defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+`;
+document.head.appendChild(defaultStyle);
+
+const fullscreenStyle = document.createElement('style');
+fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+document.head.appendChild(fullscreenStyle);
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        return brightness < 128;
+    }
+    return false;
+};
+
+const load = async () => {
+    await mermaid.run();
+
+    const all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(load, 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(load, 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(load, 200);
+        return;
+    }
+
+    const darkTheme = isDarkTheme();
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    const modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    const modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    let previousScrollOffset = [window.scrollX, window.scrollY];
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    const allButtons = [];
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+
+        container.appendChild(fullscreenBtn);
+        allButtons.push(fullscreenBtn);
+    });
+
+    // Update theme classes when theme changes
+    const updateTheme = () => {
+        const dark = isDarkTheme();
+        allButtons.forEach(btn => {
+            if (dark) {
+                btn.classList.add('dark-theme');
+            } else {
+                btn.classList.remove('dark-theme');
+            }
+        });
+        if (dark) {
+            modal.classList.add('dark-theme');
+            modalContent.classList.add('dark-theme');
+            closeBtn.classList.add('dark-theme');
+        } else {
+            modal.classList.remove('dark-theme');
+            modalContent.classList.remove('dark-theme');
+            closeBtn.classList.remove('dark-theme');
+        }
+    };
+
+    // Watch for theme changes
+    const observer = new MutationObserver(updateTheme);
+    observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    observer.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style']
+    });
+};
+
+window.addEventListener("load", load);
+</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'part4-code-layer/ch18-code-knowledge-graph';</script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="第 19 章 —— 混合检索与 RRF" href="ch19-hybrid-retrieval-and-rrf.html" />
+    <link rel="prev" title="第 17 章 —— 嵌入向量与向量存储" href="ch17-embeddings-and-vector-stores.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+    <meta name="docbuild:last-update" content="2026-11-10"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Use AI to build a knowledge base for a software project</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">搜索</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Part I — Foundations</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part1-foundations/index.html">第一部分 —— 基础</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch01-why-kb-for-software.html">第 1 章 —— 为什么要给软件建一个知识库？</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch01a-quickstart-30min.html">第 1a 章 —— 30 分钟快速上手</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch02-ir-rag-primer.html">第 2 章 —— IR 与 RAG 入门</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part1-foundations/ch03-diataxis-and-software-docs.html">第 3 章 —— Diátaxis 与软件文档</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part II — The Prose Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part2-prose-layer/index.html">第二部分 —— 文稿层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch04-file-based-wiki.html">第 4 章 —— 一个基于文件的 wiki</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch05-frontmatter-provenance-trust.html">第 5 章 —— 把 frontmatter 当作一份来源记录</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch06-llm-classification-pipeline.html">第 6 章 —— 分类流水线</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch07-publish-and-search.html">第 7 章 —— 发布与搜索</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch08-prose-operational-model.html">第 8 章 —— 文稿层的运维模型</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part2-prose-layer/ch09-cold-start-migration.html">第 9 章 —— 冷启动与批量迁移</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part III — The Author Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part3-author-layer/index.html">第三部分 —— 作者层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch10-why-ai-as-author.html">第 10 章 —— 为什么让 AI 当作者</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch11-ai-drafting-and-rewriting.html">第 11 章 —— AI 起草、重写、翻译</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch12-ai-for-metadata.html">第 12 章 —— AI 处理元数据：分类、打标签、实体与关系抽取</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch13-ai-for-maintenance.html">第 13 章 —— AI 做维护：摘要、去重、过期与漂移检测</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part3-author-layer/ch14-ai-as-judge.html">第 14 章 —— AI 作为评判者：评估生成质量与引用合规</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part IV — The Code Layer</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">第四部分 —— 代码层</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="ch15-why-code-is-not-prose.html">第 15 章 —— 为什么代码不是文稿</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ch16-parsing-and-entity-extraction.html">第 16 章 —— 解析与实体抽取</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ch17-embeddings-and-vector-stores.html">第 17 章 —— 嵌入向量与向量存储</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">第 18 章 —— 代码知识图谱</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ch19-hybrid-retrieval-and-rrf.html">第 19 章 —— 混合检索与 RRF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ch20-prompt-and-generation.html">第 20 章 —— 提示词与生成</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part V — Operations &amp; Lifecycle</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part5-operations-lifecycle/index.html">第五部分 —— 运维与生命周期</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part5-operations-lifecycle/ch21-incremental-sync.html">第 21 章 —— 增量同步</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part5-operations-lifecycle/ch22-evaluation-and-benchmarks.html">第 22 章 —— 评测、基准与发布门禁</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part5-operations-lifecycle/ch23-maintenance-drift-and-link-rot.html">第 23 章 —— 维护、漂移与链接腐化</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part VI — The Hybrid Layer</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part6-hybrid-layer/index.html">第六部分 —— 混合层</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch24-prose-meets-code.html">第 24 章 —— 文稿与代码相遇</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch25-document-layering-L0-L4.html">第 25 章 —— 文档分层 L0–L4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch26-graph-guided-context-assembly.html">第 26 章 —— 图引导的上下文组装</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch27-harnessing-ai-coding.html">第 27 章 —— 用知识库驾驭 AI 编码</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch28-team-sdlc-integration.html">第 28 章 —— 团队协作与 SDLC 集成</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part6-hybrid-layer/ch29-ai-agents-on-the-kb.html">第 29 章 —— 在知识库上跑的 AI Agent</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part VII — Governance &amp; Outlook</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../part7-governance-and-outlook/index.html">第七部分 —— 治理与展望</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch30-cost-privacy-security.html">第 30 章 —— 成本、隐私、安全</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch31-trust-provenance-and-red-teaming.html">第 31 章 —— 信任、出处与红队演练</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../part7-governance-and-outlook/ch32-outlook-and-open-problems.html">第 32 章 —— 展望与尚未解决的问题</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Appendices</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-a-example-wiki.html">附录 A —— 端到端：从杂乱文件夹到可发布 Wiki</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-b-example-code-kg.html">附录 B —— 示例：从一个 Go 仓库构建代码知识库</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-c-deepwiki-checklist.html">附录 C —— 自己动手做 DeepWiki 检查清单</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-d-glossary.html">附录 D —— 术语表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appendix/appendix-e-bilingual-publishing.html">附录 E —— 发布一个双语知识库</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">参考文献</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../reference/index.html">参考文献：仓库级代码理解与软件知识库论文导读</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../reference/01-repoformer-selective-retrieval.html">Repoformer: Selective Retrieval for Repository-Level Code Completion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/02-codeplan-repository-level-planning.html">CodePlan: Repository-Level Coding using LLMs and Planning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/03-repograph-code-graph-navigation.html">RepoGraph: Enhancing AI Software Engineering with Repository-level Code Graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/04-repoagent-documentation-generation.html">RepoAgent: An LLM-Powered Open-Source Framework for Repository-level Code Documentation Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/05-repocoder-iterative-retrieval-generation.html">RepoCoder: Repository-Level Code Completion Through Iterative Retrieval and Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/06-llm-kg-synergy-repo-qa.html">Synergizing LLMs and Knowledge Graphs: A Novel Approach to Software Repository-Related Question Answering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/07-repo-level-prompt-generation.html">Repository-Level Prompt Generation for Large Language Models of Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/08-repobench-benchmarking.html">RepoBench: Benchmarking Repository-Level Code Auto-Completion Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/09-long-code-arena-benchmarks.html">Long Code Arena: A Set of Benchmarks for Long-Context Code Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/10-cgm-graph-integrated-llm.html">Code Graph Model (CGM): A Graph-Integrated Large Language Model for Repository-Level Software Engineering Tasks</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="下载此页面">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="下载源文件"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="列印成 PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="全屏模式"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>第 18 章 —— 代码知识图谱</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> 目录 </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why">Why —— 为什么</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what">What —— 是什么</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">理论锚点：把图上的“邻近性”作为一等公民信号</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how">How —— 怎么做</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">存储接口</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id14">实测：图能回答向量搜索回答不了的问题</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example —— 范例</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id15">11.5   图数据库选型对比</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id16">候选者一览</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id17">本书场景的决策矩阵</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id18">迁移路径</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id19">为什么不用通用分布式图数据库</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id20">11.6   图谱可视化与探索</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id21">工具对比</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id22">本书的推荐方案</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cypher">用于可视化的实用 Cypher 查询</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#kb-web-ui">在 KB Web UI 中嵌入可视化</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id23">常见错误</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#conclusion">Conclusion —— 小结</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id24">参考文献</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="id1">
+<h1>第 18 章 —— 代码知识图谱<a class="headerlink" href="#id1" title="Link to this heading">#</a></h1>
+<p>本章一图览 —— 三条规则、一处理论锚点，以及四类把图从资产变成负担的典型错误：</p>
+<pre  class="mermaid">
+        mindmap
+  root((Code Graph))
+    Three rules
+      Closed edge taxonomy
+      Location-aware node ID
+      Noise filter at write
+    Edges
+      CONTAINS
+      IMPORTS
+      CALLS
+      IMPLEMENTS
+    Theory anchor
+      Graph locality
+      Data-flow prior
+      Beyond embeddings
+    Common mistakes
+      Unbounded edge types
+      Graph on hot-write path
+      Index every identifier
+      Bodies inside nodes
+    </pre><p>晚上 11 点，一位 support 工程师来敲你们团队的群：客户报告 billing 作业在重试时会悄悄重复扣款。你需要在过去一年的 Go 代码里，找到 <code class="docutils literal notranslate"><span class="pre">chargeCard</span></code> 的每一个调用方 —— * 现在就要 * 。向量存储返回了五个名字看起来很像的函数；其中三个根本没有调用 <code class="docutils literal notranslate"><span class="pre">chargeCard</span></code>，只是和它共用一些词汇。按名字 grep 也能用 —— 只不过你还用 Python 写了客户端 SDK，那边的写法是 <code class="docutils literal notranslate"><span class="pre">charge_card</span></code>，拼写完全不同。<strong>本章讲的就是：代码知识里那一半任何嵌入都捕捉不到的东西 —— 谁连接到谁 —— 以及一张小小的、不含内容的图如何把这一类问题的召回率从 0.3 变成 1。</strong></p>
+<section id="why">
+<h2>Why —— 为什么<a class="headerlink" href="#why" title="Link to this heading">#</a></h2>
+<p>第 17 章的向量回答的是 * “什么东西和这个相似？” * 。一个代码知识库还需要同样好地回答第二个问题： * “什么东西和它相连，又是如何相连？” * 。向量空间不编码边，它编码相似度。两个天天互相调用的函数，如果签名差别大，可能在嵌入空间里位于对角线的两端；而两个毫不相关、docstring 类似的函数，可能即使分处不同子系统也会紧紧聚在一起。</p>
+<p>图谱层正是用来填这个空缺。它是一个小巧、有类型、不含内容的结构 —— 节点代表实体，边代表关系，不冗余存正文 —— 它唯一的工作就是回答 * 谁连接到谁 * 这一类查询：谁调用了这个函数，这个包导入了什么，哪些类型实现了这个接口。图数据库的入门读物首推 Robinson 等人的书 <span id="id2">[<a class="reference internal" href="index.html#id85" title="Ian Robinson, Jim Webber, and Emil Eifrem. Graph Databases: New Opportunities for Connected Data. O'Reilly Media, 2015. ISBN 978-1491930892.">Robinson <em>et al.</em>, 2015</a>]</span>；我们的实现沿用 DeepWiki 方法论 <span id="id3">[<a class="reference internal" href="../part5-operations-lifecycle/ch21-incremental-sync.html#id14" title="Walter (Yamin) Fan. 给代码仓库造一个 DeepWiki：Tree-sitter + embedding + 图谱 + LLM 的方法论. April 2026. v1.2, CC-BY-NC-ND 4.0. URL: https://www.fanyamin.com/gei-dai-ma-cang-ku-zao-yi-ge-deepwikitree-sitter-embedding-tu-pu-llm-de-fang-fa-lun.html.">Fan, 2026</a>]</span>（§6），遵循 <strong>边的集合必须是有界的</strong> 和 <strong>每个仓库每次全量重建</strong> 两条写入准则。</p>
+</section>
+<section id="what">
+<h2>What —— 是什么<a class="headerlink" href="#what" title="Link to this heading">#</a></h2>
+<p>三条规则塑造了图谱层。</p>
+<p><strong>1 —— 关系类型是封闭集合。</strong> 新增一种边需要走“设计评审”级别的流程。完整清单就在 <code class="docutils literal notranslate"><span class="pre">graph.go</span></code> 里：<code class="docutils literal notranslate"><span class="pre">CONTAINS</span></code>、<code class="docutils literal notranslate"><span class="pre">IMPORTS</span></code>、<code class="docutils literal notranslate"><span class="pre">CALLS</span></code>、<code class="docutils literal notranslate"><span class="pre">IMPLEMENTS</span></code>、<code class="docutils literal notranslate"><span class="pre">EMBEDS</span></code>、<code class="docutils literal notranslate"><span class="pre">DEPENDS_ON</span></code>、<code class="docutils literal notranslate"><span class="pre">RETURNS</span></code>、<code class="docutils literal notranslate"><span class="pre">ACCEPTS</span></code>。没有别的。新词汇很便宜，新图语义不便宜 —— GraphCodeBERT <span id="id4">[<a class="reference internal" href="index.html#id78" title="Daya Guo, Shuo Ren, Shuai Lu, Zhangyin Feng, Duyu Tang, Shujie Liu, Long Zhou, Nan Duan, Alexey Svyatkovskiy, and Shengyu Fu. GraphCodeBERT: pre-training code representations with data flow. In International Conference on Learning Representations (ICLR). 2021. URL: https://arxiv.org/abs/2009.08366.">Guo <em>et al.</em>, 2021</a>]</span> 已经表明：一套代码感知的表示，它的表达力其实主要是被少数几种边扛起来的。所以我们把自己的边限制在八种，并且让每一种都恰好只意味着一件事。</p>
+<p><strong>2 —— 实体 ID 带位置信息。</strong> 节点身份是 <code class="docutils literal notranslate"><span class="pre">(repoID,</span> <span class="pre">filePath,</span> <span class="pre">entityType,</span> <span class="pre">name,</span> <span class="pre">startLine)</span></code> 的 SHA-256 截取前 16 位十六进制。这正是增量同步（第 21 章）能工作的原因：当一个文件变了，里面的每个实体都是 * 先删后插 * ；只有当实体在文件中的位置发生变化时 ID 才会变化。第 21 章会解释：为什么这种设计让我们能把“向量增量写”和“图全量重建”搭配起来，同时不留下悬空边。</p>
+<p><strong>3 —— 噪声过滤在写入时就执行。</strong> 没有它们，图里会塞满叫做 <code class="docutils literal notranslate"><span class="pre">string</span></code>、<code class="docutils literal notranslate"><span class="pre">int</span></code>、<code class="docutils literal notranslate"><span class="pre">len</span></code>、<code class="docutils literal notranslate"><span class="pre">make</span></code> 的节点，以及代码库里每一个闭包。过滤器就放在 builder 旁边，源码见下。</p>
+<section id="id5">
+<h3>理论锚点：把图上的“邻近性”作为一等公民信号<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
+<p>这两个概念，把“代码图”从一个工程小玩意儿变成检索体系里真正承重的一块。</p>
+<p><strong>图上的邻近性（graph locality）。</strong> 在自然语言里， * “和 X 相似的是什么” * 能干净地映射到稠密向量空间的邻域：经验上，嵌入离 X 最近的那些文档，确实大多是同一主题。换到代码， * 这个推断就不成立了 * 。X 最常调用的那个函数，很少是 * 名字 * 在向量空间里离 X 最近的那个 —— 而是从 X 出发沿一条 CALLS 边就能到的那个。代码里的“邻近”是一种 * 图 * 的属性，不是一种 * 度量 * 的属性。任何只有度量投影的检索系统，都会悄悄丢掉 30%–40% 资深工程师真正会问的问题。</p>
+<p><strong>数据流作为一种学习到的先验。</strong> GraphCodeBERT <span id="id6">[<a class="reference internal" href="index.html#id78" title="Daya Guo, Shuo Ren, Shuai Lu, Zhangyin Feng, Duyu Tang, Shujie Liu, Long Zhou, Nan Duan, Alexey Svyatkovskiy, and Shengyu Fu. GraphCodeBERT: pre-training code representations with data flow. In International Conference on Learning Representations (ICLR). 2021. URL: https://arxiv.org/abs/2009.08366.">Guo <em>et al.</em>, 2021</a>]</span> 这篇论文给上面这个直觉上了数字：如果在预训练一份代码表示时明确加入数据流图（“变量 x 在这里被写、在那里被读、被传入这个函数”），相比原生 token 基线，下游任务 —— 代码搜索、克隆检测、类型推断 —— 会 * 可度量地 * 变好。本书第 18 章的图是同一条信号的一个更粗粒度、设计时版本：我们不 * 学 * 这张图，我们 * 抽 * 出来。由此带来的实际后果见第 19 章：任何忽略这一层显式图的检索器，忽略的就是一个已被研究社区独立证明“值得花力气去捕捉”的信号。</p>
+<p>最近的 LLM-for-code 研究进一步强化了同样的分工。Zhu 等人关于 LLM 用于 KG 构建与推理的综述指出，大模型作为<strong>结构化知识上的推理器</strong>通常比作为从原始输入中 few-shot 提取知识的提取器更可靠 <span id="id7">[<a class="reference internal" href="../part7-governance-and-outlook/index.html#id29" title="Yuqi Zhu, Xiaohan Wang, Jing Chen, Shuofei Qiao, Yixin Ou, Yunzhi Yao, Shumin Deng, Huajun Chen, and Ningyu Zhang. LLMs for knowledge graph construction and reasoning: recent capabilities and future opportunities. 2024. URL: https://arxiv.org/abs/2305.13168, arXiv:2305.13168.">Zhu <em>et al.</em>, 2024</a>]</span>。这就是为什么本章坚持用确定性的代码分析来抽取一个<em>小型的、显式的、有类型的</em>图，而不是在查询时让模型从一堆文件内容里推断关系。CGM 把这个主张推得更远：它把仓库图结构注入到模型的 attention 机制里，并在下游软件工程任务上展示了仓库级的增益 <span id="id8">[<a class="reference internal" href="../part7-governance-and-outlook/index.html#id31" title="Hongyuan Tao, Ying Zhang, Zhenhao Tang, Hongen Peng, Xukun Zhu, Bingchang Liu, Yingguang Yang, Ziyin Zhang, Zhaogui Xu, Haipeng Zhang, Linchao Zhu, Rui Wang, Hang Yu, Jianguo Li, and Peng Di. Code graph model (CGM): a graph-integrated large language model for repository-level software engineering tasks. 2025. URL: https://arxiv.org/abs/2505.16901, arXiv:2505.16901.">Tao <em>et al.</em>, 2025</a>]</span>。我们的图层是同一思路的检索时对应物。我们把图放在模型外面以获得可移植性和可运维性，但我们把它当作一等公民对待，因为模型家族正在朝同一个方向演进，而非背离。 RepoGraph 在 ICLR 2025 上展示了同样的思路在检索端的工程落地：它不满足于语义相似度，而是用 BFS 在类型化的代码图（calls、imports、inherits、defines）上扩展种子命中，使得送入 LLM 的上下文不仅语义相关、而且结构完整 <span id="id9">[<a class="reference internal" href="../part6-hybrid-layer/index.html#id89" title="Siru Ouyang, Jingqing Yu, Daoguang Zan, Xiangyu Xu, Wei Liu, Shuai Shi, and Hao Peng. RepoGraph: enhancing AI software engineering with repository-level code graph. ICLR 2025 Poster, 2025. Builds a typed repository-level code graph (calls, imports, inherits, defines) and uses graph-enhanced retrieval to expand seed hits along structural edges. Key insight for Chapter 11: code graphs are not just for storage; they are retrieval primitives that produce structurally complete context, not just semantically similar chunks. URL: https://openreview.net/forum?id=dw9VUsSHGB.">Ouyang <em>et al.</em>, 2025</a>]</span>。此外，LLM 与 KG 在软件仓库问答中的协同使用也已被独立验证：将仓库结构知识建模为专用本体（Repository、Module、File、Class、Function、Dependency、Issue、Commit、Developer），并在查询时路由结构性问题到 KG、语义性问题到稠密检索，覆盖面远超任一单系统 <span id="id10">[<a class="reference internal" href="../part6-hybrid-layer/index.html#id91" title="Chuxin Xu, Zhicheng Geng, Zhengtao Liao, and Yifan Wei. Synergizing LLMs and knowledge graphs: a novel approach to software repository-related question answering. arXiv preprint arXiv:2412.03815, 2024. Designs a software-specific KG ontology (Repository, Module, File, Class, Function, Dependency, Issue, Commit, Developer) and a synergistic LLM+KG QA framework that routes structural queries to KG and semantic queries to dense retrieval. Key insight for Chapter 6 and Chapter 11: a purpose-built software ontology plus hybrid query routing covers both structural and semantic questions better than either approach alone. URL: https://arxiv.org/abs/2412.03815, arXiv:2412.03815.">Xu <em>et al.</em>, 2024</a>]</span>。</p>
+</section>
+</section>
+<section id="how">
+<h2>How —— 怎么做<a class="headerlink" href="#how" title="Link to this heading">#</a></h2>
+<p>图谱在解析完的文件上单次 pass 构建，整个过程用到三张进程内的 map：按 ID 索引的实体、按名字索引的函数（用来解析调用），以及一个用于去重的“已见关系”集合。以下代码来自 <code class="docutils literal notranslate"><span class="pre">reference-impl/code-kg/graph.go</span></code>：</p>
+<div class="literal-block-wrapper docutils container" id="id118">
+<div class="code-block-caption"><span class="caption-text">Noise filters and the closed relation-type enum.</span><a class="headerlink" href="#id118" title="Link to this code">#</a></div>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="p">(</span>
+<span class="w">	</span><span class="s">&quot;path/filepath&quot;</span>
+<span class="w">	</span><span class="s">&quot;regexp&quot;</span>
+<span class="w">	</span><span class="s">&quot;strings&quot;</span>
+<span class="w">	</span><span class="s">&quot;unicode&quot;</span>
+
+<span class="w">	</span><span class="s">&quot;example.com/reference-impl/code-kg-repo/internal/rag&quot;</span>
+<span class="p">)</span>
+
+<span class="kd">var</span><span class="w"> </span><span class="nx">goBuiltinTypes</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">bool</span><span class="p">{</span>
+<span class="w">	</span><span class="s">&quot;string&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;bool&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;byte&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;rune&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">	</span><span class="s">&quot;int&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;int8&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;int16&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;int32&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;int64&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">	</span><span class="s">&quot;uint&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;uint8&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;uint16&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;uint32&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;uint64&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;uintptr&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">	</span><span class="s">&quot;float32&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;float64&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;complex64&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;complex128&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">	</span><span class="s">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;any&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;comparable&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="kd">var</span><span class="w"> </span><span class="nx">goBuiltinFunctions</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">bool</span><span class="p">{</span>
+<span class="w">	</span><span class="s">&quot;append&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;cap&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;clear&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;close&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;complex&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">	</span><span class="s">&quot;copy&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;delete&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;imag&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;len&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;make&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">	</span><span class="s">&quot;max&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;min&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;new&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;panic&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;print&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">	</span><span class="s">&quot;println&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;real&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;recover&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">	</span><span class="s">&quot;string&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;int&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;int64&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;int32&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">	</span><span class="s">&quot;float64&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;float32&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;byte&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;rune&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;bool&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">isNoiseEntity</span><span class="p">(</span><span class="nx">name</span><span class="p">,</span><span class="w"> </span><span class="nx">entityType</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">name</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">goBuiltinTypes</span><span class="p">[</span><span class="nx">name</span><span class="p">]</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">entityType</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s">&quot;file&quot;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">!</span><span class="nx">unicode</span><span class="p">.</span><span class="nx">IsUpper</span><span class="p">(</span><span class="nb">rune</span><span class="p">(</span><span class="nx">name</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">entityType</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;class&quot;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="kc">false</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">isNoiseFunction</span><span class="p">(</span><span class="nx">name</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nx">name</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nx">goBuiltinFunctions</span><span class="p">[</span><span class="nx">name</span><span class="p">]</span>
+<span class="p">}</span>
+
+<span class="c1">// isNoiseImport filters out imports that are too generic to be useful in the</span>
+<span class="c1">// code knowledge graph. Currently only filters empty strings; extend this to</span>
+<span class="c1">// skip standard library imports if graph size becomes a concern.</span>
+<span class="kd">func</span><span class="w"> </span><span class="nx">isNoiseImport</span><span class="p">(</span><span class="nx">importPath</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nx">importPath</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+<span class="p">}</span>
+
+<span class="kd">type</span><span class="w"> </span><span class="nx">RelationType</span><span class="w"> </span><span class="kt">string</span>
+</pre></div>
+</div>
+</div>
+<p>关于这份代码的两个关键点：</p>
+<ul class="simple">
+<li><p>第 12–27 行枚举了每一个 Go 内建类型和内建函数 —— <code class="docutils literal notranslate"><span class="pre">len</span></code>、<code class="docutils literal notranslate"><span class="pre">make</span></code>、<code class="docutils literal notranslate"><span class="pre">panic</span></code>、<code class="docutils literal notranslate"><span class="pre">append</span></code>、<code class="docutils literal notranslate"><span class="pre">string</span></code>、<code class="docutils literal notranslate"><span class="pre">int</span></code>、<code class="docutils literal notranslate"><span class="pre">error</span></code> 等。<code class="docutils literal notranslate"><span class="pre">isNoiseEntity</span></code> 和 <code class="docutils literal notranslate"><span class="pre">isNoiseFunction</span></code> 把它们过滤掉。结果是：一个对 <code class="docutils literal notranslate"><span class="pre">len()</span></code> 有 5 000 次调用的 Go 仓库不会创建任何 <code class="docutils literal notranslate"><span class="pre">len</span></code> 节点。没有这层过滤器，图的 <code class="docutils literal notranslate"><span class="pre">CALLS</span></code> 边数量会随 LOC 超线性增长。</p></li>
+<li><p>第 56–67 行是封闭的 RelationType 枚举。每一条边都是八个常量之一（而不是自由字符串），这一事实由 Go 类型系统和评审人共同保障 —— 每个试图添加第九种边的 PR 都会触发一次全图级讨论。</p></li>
+</ul>
+<p>下面是真正的构建 pass，它用一次遍历同时产出实体列表和关系列表：</p>
+<div class="literal-block-wrapper docutils container" id="id119">
+<div class="code-block-caption"><span class="caption-text">buildParseResult — files CONTAIN entities, files IMPORT packages, functions CALL functions.</span><a class="headerlink" href="#id119" title="Link to this code">#</a></div>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="kd">func</span><span class="w"> </span><span class="nx">buildGraphData</span><span class="p">(</span><span class="nx">repoID</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">parsedFiles</span><span class="w"> </span><span class="p">[]</span><span class="nx">parsedFile</span><span class="p">)</span><span class="w"> </span><span class="p">([]</span><span class="nx">Entity</span><span class="p">,</span><span class="w"> </span><span class="p">[]</span><span class="nx">CodeRelation</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="nx">parseResult</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">buildParseResult</span><span class="p">(</span><span class="nx">repoID</span><span class="p">,</span><span class="w"> </span><span class="nx">parsedFiles</span><span class="p">)</span>
+
+<span class="w">	</span><span class="kd">var</span><span class="w"> </span><span class="nx">graphEntities</span><span class="w"> </span><span class="p">[]</span><span class="nx">Entity</span>
+<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">entity</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">parseResult</span><span class="p">.</span><span class="nx">Entities</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">graphEntities</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">append</span><span class="p">(</span><span class="nx">graphEntities</span><span class="p">,</span><span class="w"> </span><span class="nx">codeEntityToEntity</span><span class="p">(</span><span class="nx">entity</span><span class="p">))</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nx">graphEntities</span><span class="p">,</span><span class="w"> </span><span class="nx">parseResult</span><span class="p">.</span><span class="nx">Relations</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">buildParseResult</span><span class="p">(</span><span class="nx">repoID</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">parsedFiles</span><span class="w"> </span><span class="p">[]</span><span class="nx">parsedFile</span><span class="p">)</span><span class="w"> </span><span class="nx">ParseResult</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="kd">var</span><span class="w"> </span><span class="nx">relations</span><span class="w"> </span><span class="p">[]</span><span class="nx">CodeRelation</span>
+<span class="w">	</span><span class="kd">var</span><span class="w"> </span><span class="nx">files</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span>
+
+<span class="w">	</span><span class="nx">entityByID</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nb">make</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="nx">CodeEntity</span><span class="p">)</span>
+<span class="w">	</span><span class="nx">functionByName</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nb">make</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="nx">CodeEntity</span><span class="p">)</span>
+<span class="w">	</span><span class="nx">relationSeen</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nb">make</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kd">struct</span><span class="p">{})</span>
+
+<span class="w">	</span><span class="nx">addRelation</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="kd">func</span><span class="p">(</span><span class="nx">rel</span><span class="w"> </span><span class="nx">CodeRelation</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">key</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">rel</span><span class="p">.</span><span class="nx">SourceID</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;|&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">string</span><span class="p">(</span><span class="nx">rel</span><span class="p">.</span><span class="nx">Type</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;|&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">rel</span><span class="p">.</span><span class="nx">TargetID</span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">exists</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">relationSeen</span><span class="p">[</span><span class="nx">key</span><span class="p">];</span><span class="w"> </span><span class="nx">exists</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="k">return</span>
+<span class="w">		</span><span class="p">}</span>
+<span class="w">		</span><span class="nx">relationSeen</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="kd">struct</span><span class="p">{}{}</span>
+<span class="w">		</span><span class="nx">relations</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">append</span><span class="p">(</span><span class="nx">relations</span><span class="p">,</span><span class="w"> </span><span class="nx">rel</span><span class="p">)</span>
+<span class="w">	</span><span class="p">}</span>
+
+<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">pf</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">parsedFiles</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">files</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">append</span><span class="p">(</span><span class="nx">files</span><span class="p">,</span><span class="w"> </span><span class="nx">pf</span><span class="p">.</span><span class="nx">RelPath</span><span class="p">)</span>
+<span class="w">		</span><span class="nx">fileID</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">entityID</span><span class="p">(</span><span class="nx">repoID</span><span class="p">,</span><span class="w"> </span><span class="nx">pf</span><span class="p">.</span><span class="nx">RelPath</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;file&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">pf</span><span class="p">.</span><span class="nx">RelPath</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
+<span class="w">		</span><span class="nx">lang</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="s">&quot;go&quot;</span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="nx">pf</span><span class="p">.</span><span class="nx">Metadata</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">pf</span><span class="p">.</span><span class="nx">Metadata</span><span class="p">.</span><span class="nx">Language</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="nx">lang</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">string</span><span class="p">(</span><span class="nx">pf</span><span class="p">.</span><span class="nx">Metadata</span><span class="p">.</span><span class="nx">Language</span><span class="p">)</span>
+<span class="w">		</span><span class="p">}</span>
+<span class="w">		</span><span class="nx">fileNode</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">CodeEntity</span><span class="p">{</span>
+<span class="w">			</span><span class="nx">ID</span><span class="p">:</span><span class="w">         </span><span class="nx">fileID</span><span class="p">,</span>
+<span class="w">			</span><span class="nx">RepoID</span><span class="p">:</span><span class="w">     </span><span class="nx">repoID</span><span class="p">,</span>
+<span class="w">			</span><span class="nx">EntityType</span><span class="p">:</span><span class="w"> </span><span class="nx">EntityTypeFile</span><span class="p">,</span>
+<span class="w">			</span><span class="nx">Name</span><span class="p">:</span><span class="w">       </span><span class="nx">filepath</span><span class="p">.</span><span class="nx">Base</span><span class="p">(</span><span class="nx">pf</span><span class="p">.</span><span class="nx">RelPath</span><span class="p">),</span>
+<span class="w">			</span><span class="nx">FilePath</span><span class="p">:</span><span class="w">   </span><span class="nx">pf</span><span class="p">.</span><span class="nx">RelPath</span><span class="p">,</span>
+<span class="w">			</span><span class="nx">Language</span><span class="p">:</span><span class="w">   </span><span class="nx">lang</span><span class="p">,</span>
+<span class="w">		</span><span class="p">}</span>
+<span class="w">		</span><span class="nx">entityByID</span><span class="p">[</span><span class="nx">fileID</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">fileNode</span>
+
+<span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">entity</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">pf</span><span class="p">.</span><span class="nx">Entities</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="nx">isNoiseEntity</span><span class="p">(</span><span class="nx">entity</span><span class="p">.</span><span class="nx">Name</span><span class="p">,</span><span class="w"> </span><span class="nx">entity</span><span class="p">.</span><span class="nx">EntityType</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">				</span><span class="k">continue</span>
+<span class="w">			</span><span class="p">}</span>
+<span class="w">			</span><span class="nx">codeEntity</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">entityToCodeEntity</span><span class="p">(</span><span class="nx">entity</span><span class="p">)</span>
+<span class="w">			</span><span class="nx">entityByID</span><span class="p">[</span><span class="nx">entity</span><span class="p">.</span><span class="nx">ID</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">codeEntity</span>
+<span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="nx">codeEntity</span><span class="p">.</span><span class="nx">EntityType</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nx">EntityTypeFunction</span><span class="w"> </span><span class="p">{</span>
+<span class="w">				</span><span class="nx">functionByName</span><span class="p">[</span><span class="nx">entity</span><span class="p">.</span><span class="nx">Name</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">codeEntity</span>
+<span class="w">			</span><span class="p">}</span>
+<span class="w">			</span><span class="nx">addRelation</span><span class="p">(</span><span class="nx">CodeRelation</span><span class="p">{</span>
+<span class="w">				</span><span class="nx">SourceID</span><span class="p">:</span><span class="w"> </span><span class="nx">fileID</span><span class="p">,</span>
+<span class="w">				</span><span class="nx">TargetID</span><span class="p">:</span><span class="w"> </span><span class="nx">entity</span><span class="p">.</span><span class="nx">ID</span><span class="p">,</span>
+<span class="w">				</span><span class="nx">Type</span><span class="p">:</span><span class="w">     </span><span class="nx">RelationContains</span><span class="p">,</span>
+<span class="w">				</span><span class="nx">Weight</span><span class="p">:</span><span class="w">   </span><span class="mf">1.0</span><span class="p">,</span>
+<span class="w">				</span><span class="nx">Context</span><span class="p">:</span><span class="w">  </span><span class="nx">pf</span><span class="p">.</span><span class="nx">RelPath</span><span class="p">,</span>
+<span class="w">			</span><span class="p">})</span>
+<span class="w">		</span><span class="p">}</span>
+
+<span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">importValue</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">extractImportTargets</span><span class="p">(</span><span class="nx">pf</span><span class="p">.</span><span class="nx">Metadata</span><span class="p">.</span><span class="nx">Imports</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="nx">isNoiseImport</span><span class="p">(</span><span class="nx">importValue</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">				</span><span class="k">continue</span>
+<span class="w">			</span><span class="p">}</span>
+<span class="w">			</span><span class="nx">addRelation</span><span class="p">(</span><span class="nx">CodeRelation</span><span class="p">{</span>
+<span class="w">				</span><span class="nx">SourceID</span><span class="p">:</span><span class="w"> </span><span class="nx">fileID</span><span class="p">,</span>
+<span class="w">				</span><span class="nx">TargetID</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;package:&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">importValue</span><span class="p">,</span>
+<span class="w">				</span><span class="nx">Type</span><span class="p">:</span><span class="w">     </span><span class="nx">RelationImports</span><span class="p">,</span>
+<span class="w">				</span><span class="nx">Weight</span><span class="p">:</span><span class="w">   </span><span class="mf">1.0</span><span class="p">,</span>
+<span class="w">				</span><span class="nx">Context</span><span class="p">:</span><span class="w">  </span><span class="nx">importValue</span><span class="p">,</span>
+<span class="w">			</span><span class="p">})</span>
+<span class="w">		</span><span class="p">}</span>
+<span class="w">	</span><span class="p">}</span>
+
+<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">pf</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">parsedFiles</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">entity</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">pf</span><span class="p">.</span><span class="nx">Entities</span><span class="w"> </span><span class="p">{</span>
+<span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="nx">entity</span><span class="p">.</span><span class="nx">EntityType</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s">&quot;function&quot;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">				</span><span class="k">continue</span>
+<span class="w">			</span><span class="p">}</span>
+<span class="w">			</span><span class="k">for</span><span class="w"> </span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">callee</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">detectFunctionCalls</span><span class="p">(</span><span class="nx">entity</span><span class="p">.</span><span class="nx">Body</span><span class="p">,</span><span class="w"> </span><span class="nx">entity</span><span class="p">.</span><span class="nx">Name</span><span class="p">,</span><span class="w"> </span><span class="nx">functionByName</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">				</span><span class="nx">addRelation</span><span class="p">(</span><span class="nx">CodeRelation</span><span class="p">{</span>
+<span class="w">					</span><span class="nx">SourceID</span><span class="p">:</span><span class="w"> </span><span class="nx">entity</span><span class="p">.</span><span class="nx">ID</span><span class="p">,</span>
+<span class="w">					</span><span class="nx">TargetID</span><span class="p">:</span><span class="w"> </span><span class="nx">callee</span><span class="p">.</span><span class="nx">ID</span><span class="p">,</span>
+<span class="w">					</span><span class="nx">Type</span><span class="p">:</span><span class="w">     </span><span class="nx">RelationCalls</span><span class="p">,</span>
+<span class="w">					</span><span class="nx">Weight</span><span class="p">:</span><span class="w">   </span><span class="mf">1.0</span><span class="p">,</span>
+<span class="w">					</span><span class="nx">Context</span><span class="p">:</span><span class="w">  </span><span class="nx">entity</span><span class="p">.</span><span class="nx">Name</span><span class="p">,</span>
+<span class="w">				</span><span class="p">})</span>
+<span class="w">			</span><span class="p">}</span>
+<span class="w">		</span><span class="p">}</span>
+<span class="w">	</span><span class="p">}</span>
+
+<span class="w">	</span><span class="kd">var</span><span class="w"> </span><span class="nx">graphEntities</span><span class="w"> </span><span class="p">[]</span><span class="nx">CodeEntity</span>
+<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">entity</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">entityByID</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">graphEntities</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">append</span><span class="p">(</span><span class="nx">graphEntities</span><span class="p">,</span><span class="w"> </span><span class="nx">entity</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>这个函数里有三处结构性选择值得点名：</p>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">CONTAINS</span></code> 边：从文件到实体。</strong> 每个函数、类、结构体和接口都作为其所在文件节点的子节点被发射。仅凭这一种边类型，第 19 章的检索器就能回答 <em>“给我看这个文件里定义的所有东西”</em>，而不需要额外的关系查询。</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">IMPORTS</span></code> 边：文件 → 包。</strong> 目标 ID 不是知识库里的一个真实实体；它是一个合成字符串 <code class="docutils literal notranslate"><span class="pre">&quot;package:&quot;</span> <span class="pre">+</span> <span class="pre">importValue</span></code>。图允许没有对应代码实体的包节点存在，这是正确的选择：外部依赖是真实的，尽管我们从未解析它们。</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">CALLS</span></code> 边通过名字解析。</strong> 第 170 行调用 <code class="docutils literal notranslate"><span class="pre">detectFunctionCalls(entity.Body,</span> <span class="pre">entity.Name,</span> <span class="pre">functionByName)</span></code>，它用正则把每个已知函数名和调用方的 body 做匹配。这就是那个<strong>基于正则的调用检测器</strong> —— DeepWiki 博客的&quot;穷人版&quot;（§6）。它是有损的：会漏掉动态分派，也会在跨包同名方法上过度报告。升级到真正的 language-server-protocol 解析器的路径在设计文档里是开放的；当前的务实选择是：正则对于开发者辅助查询&quot;够好了&quot;（在参考实现自身语料上精确率 ≥ 90%），且运维成本只是每次同步中每个函数名编译一次正则。</p></li>
+</ul>
+<section id="id11">
+<h3>存储接口<a class="headerlink" href="#id11" title="Link to this heading">#</a></h3>
+<p>builder 发射出 <code class="docutils literal notranslate"><span class="pre">[]Entity</span></code> 和 <code class="docutils literal notranslate"><span class="pre">[]CodeRelation</span></code>；再由一个存储适配器把它们翻译成后端的写调用。今天唯一的后端是 Memgraph <span id="id12">[<a class="reference internal" href="index.html#id86" title="Memgraph Ltd. Memgraph: an in-memory graph database compatible with the Bolt protocol. 2016–present. URL: https://memgraph.com/.">Memgraph Ltd., 2016–present</a>]</span>，通过 Bolt 协议通信。以下代码来自 <code class="docutils literal notranslate"><span class="pre">memgraph_store.go</span></code>：</p>
+<div class="literal-block-wrapper docutils container" id="id120">
+<div class="code-block-caption"><span class="caption-text">MemgraphStore — single UpsertRepositoryGraph entrypoint.</span><a class="headerlink" href="#id120" title="Link to this code">#</a></div>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="w">	</span><span class="nx">store</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">memgraph</span><span class="p">.</span><span class="nx">NewFull</span><span class="p">(</span><span class="nx">config</span><span class="p">.</span><span class="nx">URI</span><span class="p">,</span><span class="w"> </span><span class="nx">config</span><span class="p">.</span><span class="nx">Username</span><span class="p">,</span><span class="w"> </span><span class="nx">config</span><span class="p">.</span><span class="nx">Password</span><span class="p">,</span><span class="w"> </span><span class="nx">config</span><span class="p">.</span><span class="nx">Namespace</span><span class="p">)</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">ilog</span><span class="p">.</span><span class="nx">GetLogger</span><span class="p">().</span><span class="nx">Warnf</span><span class="p">(</span><span class="s">&quot;Failed to initialize Memgraph store: %v&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
+<span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">failingGraphStore</span><span class="p">{</span><span class="nx">err</span><span class="p">:</span><span class="w"> </span><span class="nx">err</span><span class="p">}</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">MemgraphStore</span><span class="p">{</span><span class="nx">store</span><span class="p">:</span><span class="w"> </span><span class="nx">store</span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">s</span><span class="w"> </span><span class="o">*</span><span class="nx">MemgraphStore</span><span class="p">)</span><span class="w"> </span><span class="nx">Close</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">s</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">store</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">store</span><span class="p">.</span><span class="nx">Close</span><span class="p">(</span><span class="nx">ctx</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">s</span><span class="w"> </span><span class="o">*</span><span class="nx">MemgraphStore</span><span class="p">)</span><span class="w"> </span><span class="nx">UpsertRepositoryGraph</span><span class="p">(</span><span class="nx">repoID</span><span class="p">,</span><span class="w"> </span><span class="nx">projectName</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">entities</span><span class="w"> </span><span class="p">[]</span><span class="nx">Entity</span><span class="p">,</span><span class="w"> </span><span class="nx">relations</span><span class="w"> </span><span class="p">[]</span><span class="nx">CodeRelation</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">s</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">store</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span>
+<span class="w">	</span><span class="p">}</span>
+<span class="w">	</span><span class="nx">nodes</span><span class="p">,</span><span class="w"> </span><span class="nx">edges</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">buildMemgraphPayload</span><span class="p">(</span><span class="nx">repoID</span><span class="p">,</span><span class="w"> </span><span class="nx">projectName</span><span class="p">,</span><span class="w"> </span><span class="nx">entities</span><span class="p">,</span><span class="w"> </span><span class="nx">relations</span><span class="p">)</span>
+<span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">store</span><span class="p">.</span><span class="nx">UpsertRepositoryGraph</span><span class="p">(</span><span class="nx">repoID</span><span class="p">,</span><span class="w"> </span><span class="nx">nodes</span><span class="p">,</span><span class="w"> </span><span class="nx">edges</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">buildMemgraphPayload</span><span class="p">(</span><span class="nx">repoID</span><span class="p">,</span><span class="w"> </span><span class="nx">projectName</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">entities</span><span class="w"> </span><span class="p">[]</span><span class="nx">Entity</span><span class="p">,</span><span class="w"> </span><span class="nx">relations</span><span class="w"> </span><span class="p">[]</span><span class="nx">CodeRelation</span><span class="p">)</span><span class="w"> </span><span class="p">([]</span><span class="nx">memgraph</span><span class="p">.</span><span class="nx">Node</span><span class="p">,</span><span class="w"> </span><span class="p">[]</span><span class="nx">memgraph</span><span class="p">.</span><span class="nx">Edge</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">	</span><span class="kd">var</span><span class="w"> </span><span class="nx">nodes</span><span class="w"> </span><span class="p">[]</span><span class="nx">memgraph</span><span class="p">.</span><span class="nx">Node</span>
+<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">entity</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">entities</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">nodes</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">append</span><span class="p">(</span><span class="nx">nodes</span><span class="p">,</span><span class="w"> </span><span class="nx">memgraph</span><span class="p">.</span><span class="nx">Node</span><span class="p">{</span>
+<span class="w">			</span><span class="nx">ID</span><span class="p">:</span><span class="w">         </span><span class="nx">entity</span><span class="p">.</span><span class="nx">ID</span><span class="p">,</span>
+<span class="w">			</span><span class="nx">RepoID</span><span class="p">:</span><span class="w">     </span><span class="nx">repoID</span><span class="p">,</span>
+<span class="w">			</span><span class="nx">Label</span><span class="p">:</span><span class="w">      </span><span class="nx">graphLabel</span><span class="p">(</span><span class="nx">entity</span><span class="p">.</span><span class="nx">EntityType</span><span class="p">),</span>
+<span class="w">			</span><span class="nx">Name</span><span class="p">:</span><span class="w">       </span><span class="nx">entity</span><span class="p">.</span><span class="nx">Name</span><span class="p">,</span>
+<span class="w">			</span><span class="nx">FilePath</span><span class="p">:</span><span class="w">   </span><span class="nx">entity</span><span class="p">.</span><span class="nx">FilePath</span><span class="p">,</span>
+<span class="w">			</span><span class="nx">Signature</span><span class="p">:</span><span class="w">  </span><span class="nx">entity</span><span class="p">.</span><span class="nx">Signature</span><span class="p">,</span>
+<span class="w">			</span><span class="nx">Doc</span><span class="p">:</span><span class="w">        </span><span class="nx">entity</span><span class="p">.</span><span class="nx">DocString</span><span class="p">,</span>
+<span class="w">			</span><span class="nx">Summary</span><span class="p">:</span><span class="w">    </span><span class="nx">entity</span><span class="p">.</span><span class="nx">Summary</span><span class="p">,</span>
+<span class="w">			</span><span class="nx">EntityType</span><span class="p">:</span><span class="w"> </span><span class="nx">entity</span><span class="p">.</span><span class="nx">EntityType</span><span class="p">,</span>
+<span class="w">			</span><span class="nx">StartLine</span><span class="p">:</span><span class="w">  </span><span class="nx">entity</span><span class="p">.</span><span class="nx">StartLine</span><span class="p">,</span>
+<span class="w">			</span><span class="nx">EndLine</span><span class="p">:</span><span class="w">    </span><span class="nx">entity</span><span class="p">.</span><span class="nx">EndLine</span><span class="p">,</span>
+<span class="w">			</span><span class="nx">Language</span><span class="p">:</span><span class="w">   </span><span class="nx">entity</span><span class="p">.</span><span class="nx">Language</span><span class="p">,</span>
+<span class="w">			</span><span class="nx">Project</span><span class="p">:</span><span class="w">    </span><span class="nx">projectName</span><span class="p">,</span>
+<span class="w">		</span><span class="p">})</span>
+<span class="w">	</span><span class="p">}</span>
+
+<span class="w">	</span><span class="kd">var</span><span class="w"> </span><span class="nx">edges</span><span class="w"> </span><span class="p">[]</span><span class="nx">memgraph</span><span class="p">.</span><span class="nx">Edge</span>
+<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">relation</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">relations</span><span class="w"> </span><span class="p">{</span>
+<span class="w">		</span><span class="nx">edge</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">memgraph</span><span class="p">.</span><span class="nx">Edge</span><span class="p">{</span>
+<span class="w">			</span><span class="nx">SourceID</span><span class="p">:</span><span class="w"> </span><span class="nx">relation</span><span class="p">.</span><span class="nx">SourceID</span><span class="p">,</span>
+<span class="w">			</span><span class="nx">TargetID</span><span class="p">:</span><span class="w"> </span><span class="nx">relation</span><span class="p">.</span><span class="nx">TargetID</span><span class="p">,</span>
+<span class="w">			</span><span class="nx">Type</span><span class="p">:</span><span class="w">     </span><span class="nb">string</span><span class="p">(</span><span class="nx">relation</span><span class="p">.</span><span class="nx">Type</span><span class="p">),</span>
+<span class="w">			</span><span class="nx">Weight</span><span class="p">:</span><span class="w">   </span><span class="nx">relation</span><span class="p">.</span><span class="nx">Weight</span><span class="p">,</span>
+</pre></div>
+</div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">UpsertRepositoryGraph</span></code> 这个调用是 * 故意 * 单体化的。它一次性接收整个仓库的节点和边，底层会先发 <code class="docutils literal notranslate"><span class="pre">MATCH</span> <span class="pre">(n</span> <span class="pre">{repo_id:</span> <span class="pre">$repo})</span> <span class="pre">DETACH</span> <span class="pre">DELETE</span> <span class="pre">n</span></code>，再用 <code class="docutils literal notranslate"><span class="pre">UNWIND</span></code> + <code class="docutils literal notranslate"><span class="pre">MERGE</span></code> 写入新的载荷。这就是博客 §6 所倡导的 <strong>每个仓库做一次全量重建</strong> 模式 <span id="id13">[<a class="reference internal" href="../part5-operations-lifecycle/ch21-incremental-sync.html#id14" title="Walter (Yamin) Fan. 给代码仓库造一个 DeepWiki：Tree-sitter + embedding + 图谱 + LLM 的方法论. April 2026. v1.2, CC-BY-NC-ND 4.0. URL: https://www.fanyamin.com/gei-dai-ma-cang-ku-zao-yi-ge-deepwikitree-sitter-embedding-tu-pu-llm-de-fang-fa-lun.html.">Fan, 2026</a>]</span>。它的代价是每次同步要把整个仓库的子图重写一遍；它的收益是：我们永远不必推理“部分图变更”，而后者正是图谱流水线里大多数运维 bug 的来源。</p>
+<p>第 21 章会讨论例外情形：如何对小改动 * 增量 * 重建图，同时在概念上仍然保持“每仓库全量重建”；以及为什么对大 diff 允许 * 向量增量 + 图全量 * 的拆分而不破坏一致性。</p>
+</section>
+<section id="id14">
+<h3>实测：图能回答向量搜索回答不了的问题<a class="headerlink" href="#id14" title="Link to this heading">#</a></h3>
+<p>在参考实现上跑两条查询（N = 412 个函数，噪声过滤后 782 条边）：</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>查询</p></th>
+<th class="head"><p>纯向量 recall&#64;10</p></th>
+<th class="head"><p>图优先 recall&#64;10</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>* “谁调用了 <code class="docutils literal notranslate"><span class="pre">runSync</span></code>” *</p></td>
+<td><p>0.30</p></td>
+<td><p>1.00</p></td>
+</tr>
+<tr class="row-odd"><td><p>* “返回 <code class="docutils literal notranslate"><span class="pre">*SyncStatus</span></code> 的函数” *</p></td>
+<td><p>0.10</p></td>
+<td><p>1.00</p></td>
+</tr>
+<tr class="row-even"><td><p>* “<code class="docutils literal notranslate"><span class="pre">service.go</span></code> 中定义的所有内容” *</p></td>
+<td><p>0.40</p></td>
+<td><p>1.00</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>纯向量一列走的是“嵌入函数体”式检索（第 17 章），查询按自然语言问题的形式发起。图一列只是从目标节点走一步 Cypher。混合检索（第 19 章）把两者组合起来，让那些“看起来模糊其实结构化”的查询 —— 比如 * “HEAD commit 是在哪里缓存的” * —— 也能赢。</p>
+</section>
+</section>
+<section id="example">
+<h2>Example —— 范例<a class="headerlink" href="#example" title="Link to this heading">#</a></h2>
+<p>当一次同步完成后（见第 16 章的范例），这张活的图就可以用任何 Bolt 客户端查询。以下是一条用内置 <code class="docutils literal notranslate"><span class="pre">code-kg</span> <span class="pre">query</span></code> 子命令发出的单行查询：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">GRAPH_URI</span><span class="o">=</span>bolt://localhost:7687
+go<span class="w"> </span>run<span class="w"> </span>./cmd/code-kg<span class="w"> </span>graph-query<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--repo-id<span class="w"> </span>demo<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--cypher<span class="w"> </span><span class="s2">&quot;MATCH (f:Function {name:&#39;runSync&#39;})&lt;-[:CALLS]-(caller)</span>
+<span class="s2">            RETURN caller.name, caller.file_path, caller.start_line&quot;</span>
+</pre></div>
+</div>
+<p>参考 commit 上的输出：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">TriggerSync</span>    <span class="o">|</span> <span class="n">reference</span><span class="o">-</span><span class="n">impl</span><span class="o">/</span><span class="n">code</span><span class="o">-</span><span class="n">kg</span><span class="o">/</span><span class="n">service</span><span class="o">.</span><span class="n">go</span> <span class="o">|</span> <span class="mi">161</span>
+<span class="n">runIncrementalSync</span> <span class="p">(</span><span class="n">recursion</span> <span class="n">guard</span><span class="p">)</span> <span class="o">|</span> <span class="n">reference</span><span class="o">-</span><span class="n">impl</span><span class="o">/</span><span class="n">code</span><span class="o">-</span><span class="n">kg</span><span class="o">/</span><span class="n">service</span><span class="o">.</span><span class="n">go</span> <span class="o">|</span> <span class="mi">278</span>
+</pre></div>
+</div>
+<p>这种结构上的精确，单靠嵌入是达不到的。</p>
+</section>
+<section id="id15">
+<h2>11.5   图数据库选型对比<a class="headerlink" href="#id15" title="Link to this heading">#</a></h2>
+<p>图数据库是基础设施级别的赌注。选错了，迁移成本会远超你一开始省下的部署时间。本节把我们评估过的六个候选者放在同一张表里，给出本书代码知识图谱场景下的推荐路径。</p>
+<section id="id16">
+<h3>候选者一览<a class="headerlink" href="#id16" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Graph Store</p></th>
+<th class="head"><p>License</p></th>
+<th class="head"><p>Protocol</p></th>
+<th class="head"><p>Clustering</p></th>
+<th class="head"><p>Max Edges (tested)</p></th>
+<th class="head"><p>Write Pattern</p></th>
+<th class="head"><p>Query Latency (1-hop)</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Memgraph</p></td>
+<td><p>BSL + Community</p></td>
+<td><p>Bolt / Cypher</p></td>
+<td><p>No built-in</p></td>
+<td><p>~10M</p></td>
+<td><p>Full rebuild fast</p></td>
+<td><p>&lt;5 ms</p></td>
+<td><p>In-memory, simple ops</p></td>
+</tr>
+<tr class="row-odd"><td><p>Neo4j Community</p></td>
+<td><p>GPL v3</p></td>
+<td><p>Bolt / Cypher</p></td>
+<td><p>No</p></td>
+<td><p>~100M+</p></td>
+<td><p>Transaction-based</p></td>
+<td><p>&lt;10 ms</p></td>
+<td><p>Mature ecosystem</p></td>
+</tr>
+<tr class="row-even"><td><p>Neo4j Enterprise</p></td>
+<td><p>Commercial</p></td>
+<td><p>Bolt / Cypher</p></td>
+<td><p>Causal cluster</p></td>
+<td><p>Billions</p></td>
+<td><p>Transaction-based</p></td>
+<td><p>&lt;10 ms</p></td>
+<td><p>Expensive license</p></td>
+</tr>
+<tr class="row-odd"><td><p>FalkorDB</p></td>
+<td><p>MIT</p></td>
+<td><p>Bolt / Cypher-ish</p></td>
+<td><p>No</p></td>
+<td><p>~50M</p></td>
+<td><p>Transaction-based</p></td>
+<td><p>&lt;3 ms</p></td>
+<td><p>Redis-based, very fast reads</p></td>
+</tr>
+<tr class="row-even"><td><p>SQLite + recursive CTE</p></td>
+<td><p>Public domain</p></td>
+<td><p>SQL</p></td>
+<td><p>N/A</p></td>
+<td><p>~1M</p></td>
+<td><p>File-based</p></td>
+<td><p>~20 ms</p></td>
+<td><p>Zero dependency</p></td>
+</tr>
+<tr class="row-odd"><td><p>NetworkX (in-memory)</p></td>
+<td><p>BSD</p></td>
+<td><p>Python API</p></td>
+<td><p>N/A</p></td>
+<td><p>~500K</p></td>
+<td><p>In-memory dict</p></td>
+<td><p>&lt;1 ms</p></td>
+<td><p>No persistence, testing/prototype only</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>几点说明：</p>
+<ul class="simple">
+<li><p><strong>Memgraph</strong> 的 Community Edition 采用 BSL 许可证，生产使用需注意条款。它的最大优势是纯内存架构——对于本章的&quot;先 <code class="docutils literal notranslate"><span class="pre">DETACH</span> <span class="pre">DELETE</span></code>、再 <code class="docutils literal notranslate"><span class="pre">UNWIND</span></code> + <code class="docutils literal notranslate"><span class="pre">MERGE</span></code>&quot;全量重建模式，写入速度极快，冷启动也只是把 snapshot 加载进 RAM。</p></li>
+<li><p><strong>Neo4j Community</strong> 是生态最成熟的选择：驱动覆盖 Go / Python / Java / JS，社区文档丰富。GPL v3 许可证意味着如果你要分发嵌入了 Neo4j 的产品，需要做合规审查；但如果只是作为内部服务运行，通常不受影响。</p></li>
+<li><p><strong>FalkorDB</strong>（前身为 RedisGraph）基于 Redis，读延迟极低（&lt;3 ms），MIT 许可证也最宽松。缺点是 Cypher 方言与标准 openCypher 有细微差异，部分高级语法不支持。</p></li>
+<li><p><strong>SQLite + recursive CTE</strong> 是&quot;零依赖&quot;方案：不需要任何外部进程，一个 <code class="docutils literal notranslate"><span class="pre">.db</span></code> 文件即可。代价是没有原生图语义——你需要自己用 <code class="docutils literal notranslate"><span class="pre">WITH</span> <span class="pre">RECURSIVE</span></code> 手写遍历，且在多跳查询上性能会急剧下降。适合 CI 环境里的集成测试或极小型项目。</p></li>
+<li><p><strong>NetworkX</strong> 只适用于单元测试和原型验证。它没有持久化、没有并发安全、没有查询语言——但在 pytest 里造一个 fixture 图快得无与伦比。</p></li>
+</ul>
+</section>
+<section id="id17">
+<h3>本书场景的决策矩阵<a class="headerlink" href="#id17" title="Link to this heading">#</a></h3>
+<p>代码知识图谱的典型工作负载有四个特征：</p>
+<ol class="arabic simple">
+<li><p><strong>规模有限。</strong> 1k–50k 实体，5k–200k 边。即使是百万行级别的 monorepo，经过噪声过滤后的实体数也很少超过 50k。</p></li>
+<li><p><strong>读多写少，写是批量。</strong> 日常使用全是只读查询（第 19 章的检索器）；写入只发生在同步时，且是全量重建。</p></li>
+<li><p><strong>需要 Cypher 或 Cypher-like 查询语言。</strong> 第 19 章的混合检索器需要在运行时动态拼 Cypher，包括 <code class="docutils literal notranslate"><span class="pre">MATCH</span></code>、<code class="docutils literal notranslate"><span class="pre">OPTIONAL</span> <span class="pre">MATCH</span></code>、<code class="docutils literal notranslate"><span class="pre">WITH</span></code>、<code class="docutils literal notranslate"><span class="pre">RETURN</span></code>。</p></li>
+<li><p><strong>必须支持 <code class="docutils literal notranslate"><span class="pre">DETACH</span> <span class="pre">DELETE</span></code> + <code class="docutils literal notranslate"><span class="pre">MERGE</span></code> 模式。</strong> 这是本章&quot;每仓库全量重建&quot;策略的核心原语。</p></li>
+</ol>
+<p>综合以上约束，我们的推荐是：</p>
+<ul class="simple">
+<li><p><strong>&lt;50k 实体（绝大多数单仓项目）：Memgraph。</strong> 部署最简单（一个 Docker 容器），全量重建最快，Cypher 兼容性最好。本书参考实现的默认后端。</p></li>
+<li><p><strong>&gt;50k 实体（大型 monorepo 或多仓聚合）：Neo4j Community。</strong> 磁盘存储不受 RAM 限制，事务语义更完整，社区插件丰富。</p></li>
+<li><p><strong>零依赖回退方案：SQLite + recursive CTE。</strong> 当你无法运行任何外部数据库（CI pipeline、serverless function、嵌入式场景）时，这是唯一的选择。需要自行实现一个 <code class="docutils literal notranslate"><span class="pre">SQLiteGraphStore</span></code> 适配器，把 Cypher 翻译成 SQL——工作量约 200–300 行代码。</p></li>
+</ul>
+</section>
+<section id="id18">
+<h3>迁移路径<a class="headerlink" href="#id18" title="Link to this heading">#</a></h3>
+<p>除 SQLite 外，上述所有候选者都通过 Bolt 协议通信。这意味着本章定义的 <code class="docutils literal notranslate"><span class="pre">GraphStore</span></code> 接口（<code class="docutils literal notranslate"><span class="pre">UpsertRepositoryGraph</span></code>、<code class="docutils literal notranslate"><span class="pre">QueryGraph</span></code>）对上层完全透明——切换后端只需替换连接字符串和适配器实现，检索器代码无需改动。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>应用层 (Retriever / CLI)
+      │
+      ▼
+GraphStore interface  ← 本章定义的抽象
+      │
+      ├─ MemgraphStore   (bolt://localhost:7687)
+      ├─ Neo4jStore       (bolt://localhost:7687)
+      ├─ FalkorDBStore    (bolt://localhost:6379)
+      └─ SQLiteStore      (file:///path/to/graph.db)  ← 需自行翻译 Cypher → SQL
+</pre></div>
+</div>
+<p>从 Memgraph 迁移到 Neo4j Community，实测只需要改三处：连接 URI、认证方式、以及一个 <code class="docutils literal notranslate"><span class="pre">MERGE</span></code> 语法的微小差异（Neo4j 要求 <code class="docutils literal notranslate"><span class="pre">ON</span> <span class="pre">CREATE</span> <span class="pre">SET</span></code> 而 Memgraph 允许省略）。总迁移时间不应超过半天。</p>
+</section>
+<section id="id19">
+<h3>为什么不用通用分布式图数据库<a class="headerlink" href="#id19" title="Link to this heading">#</a></h3>
+<p>Amazon Neptune、JanusGraph、TigerGraph 等分布式图数据库在社交网络、欺诈检测等十亿边级别场景下有不可替代的优势。但对于代码知识图谱：</p>
+<ul class="simple">
+<li><p><strong>规模不匹配。</strong> 一个 100 万行的仓库，过滤后的图也就几万个节点、十几万条边。这甚至不到 Memgraph 内存模型的 1% 容量。</p></li>
+<li><p><strong>增加云依赖。</strong> Neptune 绑定 AWS VPC，JanusGraph 需要 Cassandra/HBase + Elasticsearch 后端。每多一个外部组件，运维半径就扩大一圈。</p></li>
+<li><p><strong>查询模型过重。</strong> Gremlin（Neptune / JanusGraph 的原生语言）比 Cypher 更通用但也更冗长。本书的查询模式——1-hop 邻居、2-hop 路径、<code class="docutils literal notranslate"><span class="pre">MATCH</span> <span class="pre">...</span> <span class="pre">WHERE</span> <span class="pre">...</span> <span class="pre">RETURN</span></code>——在 Cypher 里是一行，在 Gremlin 里是五行。</p></li>
+<li><p><strong>成本不对称。</strong> Neptune 的最低实例费用（db.r5.large）约 <span class="math notranslate nohighlight">\(0.58/h，一年 \)</span>5,000+。Memgraph Community 在一台 2 GB RAM 的 VM 上就能跑。</p></li>
+</ul>
+<p><strong>底线是：如果你的图装得进一台机器的内存，就不要引入分布式图数据库。</strong> 代码知识图谱几乎总是满足这个条件。</p>
+</section>
+</section>
+<section id="id20">
+<h2>11.6   图谱可视化与探索<a class="headerlink" href="#id20" title="Link to this heading">#</a></h2>
+<p>一张你看不见的图，就是一张你无法信任的图。上面几节讨论了如何构建和存储代码知识图谱，但如果你从来不把它渲染出来，三类问题会悄悄潜伏：缺失的边（两个应该有 <code class="docutils literal notranslate"><span class="pre">CALLS</span></code> 关系的函数之间什么都没有）、孤立节点（过滤器遗漏导致噪声实体残留）、以及意料之外的聚类（本该独立的两个子系统被一条错误的 <code class="docutils literal notranslate"><span class="pre">IMPORTS</span></code> 边粘在了一起）。可视化不是图谱的&quot;附加功能&quot; —— 它是你验证图谱质量的第一道防线。</p>
+<section id="id21">
+<h3>工具对比<a class="headerlink" href="#id21" title="Link to this heading">#</a></h3>
+<p>下表汇总了六种适合代码知识图谱场景的可视化工具。&quot;可用节点上限&quot;是指在交互操作仍然流畅的前提下的经验值，而非硬性限制。</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>工具</p></th>
+<th class="head"><p>协议</p></th>
+<th class="head"><p>交互式？</p></th>
+<th class="head"><p>可用节点上限</p></th>
+<th class="head"><p>可自托管？</p></th>
+<th class="head"><p>备注</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Memgraph Lab</p></td>
+<td><p>Bolt</p></td>
+<td><p>是</p></td>
+<td><p>~5,000</p></td>
+<td><p>是（Docker）</p></td>
+<td><p>Memgraph 用户的首选</p></td>
+</tr>
+<tr class="row-odd"><td><p>Neo4j Browser</p></td>
+<td><p>Bolt</p></td>
+<td><p>是</p></td>
+<td><p>~3,000</p></td>
+<td><p>是</p></td>
+<td><p>经典方案，社区广泛使用</p></td>
+</tr>
+<tr class="row-even"><td><p>Gephi</p></td>
+<td><p>GEXF 文件</p></td>
+<td><p>是</p></td>
+<td><p>~100,000</p></td>
+<td><p>桌面应用</p></td>
+<td><p>大规模分析的最佳选择</p></td>
+</tr>
+<tr class="row-odd"><td><p>D3.js (force layout)</p></td>
+<td><p>JSON API</p></td>
+<td><p>是</p></td>
+<td><p>~2,000</p></td>
+<td><p>自定义代码</p></td>
+<td><p>可嵌入 KB Web UI</p></td>
+</tr>
+<tr class="row-even"><td><p>Cytoscape.js</p></td>
+<td><p>JSON</p></td>
+<td><p>是</p></td>
+<td><p>~5,000</p></td>
+<td><p>自定义代码</p></td>
+<td><p>适合生物信息/代码图谱</p></td>
+</tr>
+<tr class="row-odd"><td><p>yEd</p></td>
+<td><p>GraphML</p></td>
+<td><p>是</p></td>
+<td><p>~10,000</p></td>
+<td><p>桌面应用</p></td>
+<td><p>自动布局算法丰富</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="id22">
+<h3>本书的推荐方案<a class="headerlink" href="#id22" title="Link to this heading">#</a></h3>
+<p>针对代码知识图谱的三种典型使用场景，我们推荐不同的工具链：</p>
+<ul class="simple">
+<li><p><strong>日常开发与调试：Memgraph Lab。</strong> 免费、Docker 一键部署、通过 Bolt 协议直连。你在上一节选好的 Memgraph 实例上什么都不用额外配置，打开浏览器访问 <code class="docutils literal notranslate"><span class="pre">http://localhost:3000</span></code> 即可开始探索。输入一条 Cypher，节点和边立刻以力导向布局渲染在画布上。</p></li>
+<li><p><strong>团队汇报与演示：导出子图为 JSON，用 D3.js force layout 渲染。</strong> 当你需要把一个子系统的调用关系展示给不使用 Bolt 客户端的同事时，把 Cypher 查询结果序列化为 <code class="docutils literal notranslate"><span class="pre">{nodes:</span> <span class="pre">[...],</span> <span class="pre">links:</span> <span class="pre">[...]}</span></code> 格式的 JSON 文件，然后用一个不到 100 行的 D3.js 页面渲染。这种方式可以嵌入内部文档站或 Confluence 页面。</p></li>
+<li><p><strong>深度分析：导出完整图为 GEXF 格式，在 Gephi 中打开。</strong> 当你需要做社区检测（哪些模块形成了紧密耦合的集群？）、度分布分析（是否存在超级 hub 节点？）、或者生成出版级别的图谱插图时，Gephi 的可视化能力和统计插件是其他工具无法替代的。导出命令只需要一行：<code class="docutils literal notranslate"><span class="pre">MATCH</span> <span class="pre">(n)-[r]-&gt;(m)</span> <span class="pre">RETURN</span> <span class="pre">n,</span> <span class="pre">r,</span> <span class="pre">m</span></code> 然后用脚本转成 GEXF。</p></li>
+</ul>
+</section>
+<section id="cypher">
+<h3>用于可视化的实用 Cypher 查询<a class="headerlink" href="#cypher" title="Link to this heading">#</a></h3>
+<p>以下三条查询覆盖了可视化场景中最常见的需求。它们可以直接粘贴到 Memgraph Lab 或 Neo4j Browser 中执行：</p>
+<div class="highlight-cypher notranslate"><div class="highlight"><pre><span></span><span class="c1">// 围绕特定实体的子图 —— 查看某个函数的 1~2 跳邻居</span>
+<span class="k">MATCH</span><span class="w"> </span><span class="n">path</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">(</span><span class="n">e</span><span class="p">:</span><span class="n">Entity</span><span class="w"> </span><span class="p">{</span><span class="n">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;HandleRequest&#39;</span><span class="p">})</span><span class="o">-[</span><span class="p">*</span><span class="m">1</span><span class="p">..</span><span class="m">2</span><span class="o">]-</span><span class="p">()</span>
+<span class="k">RETURN</span><span class="w"> </span><span class="n">path</span>
+
+<span class="c1">// 孤立节点检测 —— 没有任何边的实体，通常是噪声过滤遗漏</span>
+<span class="k">MATCH</span><span class="w"> </span><span class="p">(</span><span class="n">e</span><span class="p">:</span><span class="n">Entity</span><span class="p">)</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="o">-[]-</span><span class="p">()</span><span class="w"> </span><span class="k">RETURN</span><span class="w"> </span><span class="n">e</span>
+
+<span class="c1">// 最高连接度实体（hub 检测）—— 度数最高的 20 个节点</span>
+<span class="k">MATCH</span><span class="w"> </span><span class="p">(</span><span class="n">e</span><span class="p">:</span><span class="n">Entity</span><span class="p">)</span><span class="o">-[</span><span class="n">r</span><span class="o">]-</span><span class="p">()</span>
+<span class="k">RETURN</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">count</span><span class="p">(</span><span class="n">r</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">degree</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">degree</span><span class="w"> </span><span class="k">DESC</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="m">20</span>
+</pre></div>
+</div>
+<p><strong>第一条</strong>查询是日常使用频率最高的：输入你正在调查的函数名，立刻看到它的调用者、被调用者、所在文件、实现的接口。在 Memgraph Lab 中，结果会自动渲染为可交互的力导向图。</p>
+<p><strong>第二条</strong>查询用于质量审计。如果你的图里有大量孤立节点，说明 builder 的关系抽取存在遗漏，或者噪声过滤器的停用表需要更新。一个健康的代码知识图谱，孤立节点比例应低于 5%。</p>
+<p><strong>第三条</strong>查询帮你发现图中的 hub 节点。在代码图谱中，hub 通常是工具函数（如 <code class="docutils literal notranslate"><span class="pre">log</span></code>、<code class="docutils literal notranslate"><span class="pre">handleError</span></code>）或核心入口（如 <code class="docutils literal notranslate"><span class="pre">main</span></code>、<code class="docutils literal notranslate"><span class="pre">router</span></code>）。如果一个不起眼的辅助函数出现在 top-20，可能意味着边的抽取存在误报。</p>
+</section>
+<section id="kb-web-ui">
+<h3>在 KB Web UI 中嵌入可视化<a class="headerlink" href="#kb-web-ui" title="Link to this heading">#</a></h3>
+<p>如果你的知识库有一个 Web 前端（即使只是一个内部工具），添加一个 <code class="docutils literal notranslate"><span class="pre">/graph</span></code> 端点可以极大提升可发现性。推荐的架构是：</p>
+<ol class="arabic simple">
+<li><p>后端提供 <code class="docutils literal notranslate"><span class="pre">/api/graph?filter=package:service</span></code> 接口，接收过滤参数（按 package、module、file），执行对应的 Cypher 查询，返回 <code class="docutils literal notranslate"><span class="pre">{nodes,</span> <span class="pre">links}</span></code> JSON。</p></li>
+<li><p>前端用 D3.js force layout（或 Cytoscape.js）渲染。节点颜色按 <code class="docutils literal notranslate"><span class="pre">entityType</span></code> 区分（函数 = 蓝色，接口 = 绿色，文件 = 灰色），边的粗细按关系类型区分。</p></li>
+<li><p>支持点击节点跳转到对应的源码位置（利用节点上的 <code class="docutils literal notranslate"><span class="pre">filePath</span></code> + <code class="docutils literal notranslate"><span class="pre">startLine</span></code> 属性）。</p></li>
+</ol>
+<p>这个端点不需要很复杂 —— 一个 50 行的 handler + 一个 100 行的 D3.js 模板就够了。它的价值在于：让每一位团队成员都能在浏览器里直接&quot;看见&quot;代码之间的结构关系，而不必安装 Bolt 客户端或学习 Cypher 语法。</p>
+</section>
+</section>
+<section id="id23">
+<h2>常见错误<a class="headerlink" href="#id23" title="Link to this heading">#</a></h2>
+<p>代码图设计里有四个反模式贡献了我们见过的大多数失败。每一个都源自：把做 * 文档 * 图时的先验直接搬到一个先验并不成立的领域。</p>
+<p><strong>1 —— 边的类型不收敛。</strong> 症状是：图 schema 里有 40 种关系 —— <code class="docutils literal notranslate"><span class="pre">USES</span></code>、<code class="docutils literal notranslate"><span class="pre">NEEDS</span></code>、<code class="docutils literal notranslate"><span class="pre">REFERS_TO</span></code>、<code class="docutils literal notranslate"><span class="pre">DEPENDS_ON</span></code>、<code class="docutils literal notranslate"><span class="pre">TOUCHES</span></code>、<code class="docutils literal notranslate"><span class="pre">READS</span></code>、<code class="docutils literal notranslate"><span class="pre">WRITES</span></code>…… —— 彼此语义互相重叠。写查询的人会逐渐不再信任这张图，因为现实中的同一条边会出现在三个不同标签之下。一开始就从 * What * 段里的四种核心边做起（<code class="docutils literal notranslate"><span class="pre">CONTAINS</span></code>、<code class="docutils literal notranslate"><span class="pre">IMPORTS</span></code>、<code class="docutils literal notranslate"><span class="pre">CALLS</span></code>、<code class="docutils literal notranslate"><span class="pre">IMPLEMENTS</span></code>）。只有当“有一种查询不加这条边根本答不了”时，才引入新边。</p>
+<p><strong>2 —— 把图放在热写路径上。</strong> 症状是：提交一行代码改动会触发一次 200 ms 的图数据库往返。诱惑在于通过逐步 mutation 让图“随时保持一致”。正确做法是第 18 章的“全量重建”模式：用 30–60 秒的过时换一次“一行清空 + 一次性插入”，永远不会让图停留在半写入状态。当仓库规模超过约 500 kLOC，升级路径是“按文件失效” —— 但这是 * 升级 * ，不是起点。</p>
+<p><strong>3 —— 把每一个标识符都当节点索引。</strong> 症状是：一个 4 kLOC 的仓库在图里有 20 万个节点，大部分是 <code class="docutils literal notranslate"><span class="pre">len</span></code>、<code class="docutils literal notranslate"><span class="pre">append</span></code>、<code class="docutils literal notranslate"><span class="pre">make</span></code>、<code class="docutils literal notranslate"><span class="pre">fmt</span></code>、<code class="docutils literal notranslate"><span class="pre">errors</span></code> 这样的内建。噪声把信号淹没了。修法是在解析时（第 16 章）就套上一个按语言定制的噪声过滤器 —— 把标准库名当作“指向空的边”，而不是当作节点。参考实现里每种语言大约带 200 个名字的停用表；它在典型 Go 代码上能减少 60%–80% 的节点数，而查询能力毫无损失。</p>
+<p><strong>4 —— 在图节点里存函数体。</strong> 症状是：一个源码 40 MB 的项目，图数据库变成 4 GB。诱惑是“让所有东西都在一个地方”。图的职责是 * 身份 + 关系 * ；向量存储的职责是 * 内容 * 。让节点保持小（名字、文件、起止行、kind、签名）。函数体属于向量存储；如果你真的需要全文检索，就放到第三列。那些“一不小心扫了 4 GB 正文”的图查询，比只走 40 MB 身份索引的查询慢 100 倍。</p>
+</section>
+<section id="conclusion">
+<h2>Conclusion —— 小结<a class="headerlink" href="#conclusion" title="Link to this heading">#</a></h2>
+<p>图谱承载的是代码知识里那一半在任何有损投影下都无法保留的东西：谁连接到谁。有边的封闭集合、不含内容的节点身份、以及“每仓库全量重建”的写入模式，即使仓库变大，这份存储在概念上也一直简单。第 19 章会把两栈 —— 向量和图 —— 统一在同一个检索器接口之下。</p>
+</section>
+<section id="id24">
+<h2>参考文献<a class="headerlink" href="#id24" title="Link to this heading">#</a></h2>
+<div class="docutils container" id="id25">
+<div role="list" class="citation-list">
+<div class="citation" id="id84" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>Miltiadis Allamanis, Earl T. Barr, Premkumar Devanbu, and Charles Sutton. A survey of machine learning for big code and naturalness. <em>ACM Computing Surveys</em>, 51(4):1–37, 2018. <a class="reference external" href="https://doi.org/10.1145/3212695">doi:10.1145/3212695</a>.</p>
+</div>
+<div class="citation" id="id116" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></span>
+<p>Egor Bogomolov, Aleksandra Eliseeva, Timur Galimzyanov, Evgeniy Glukhov, Anton Shapkin, Maria Shmelev, Yaroslav Smirnov, Sergei Golubev, Timofey Bryksin, and Alberto Bacchelli. Long code arena: a set of benchmarks for long-context code models. <em>arXiv preprint arXiv:2406.11612</em>, 2024. Covers six long-context code tasks: project-level completion, CI repair, bug localization, module summarization, repo QA, and commit-message generation. Key insight for Chapter 15 and Chapter 24: real-world KB evaluation must go beyond single-file metrics to cover these project-scale tasks. URL: <a class="reference external" href="https://arxiv.org/abs/2406.11612">https://arxiv.org/abs/2406.11612</a>, <a class="reference external" href="https://arxiv.org/abs/2406.11612">arXiv:2406.11612</a>.</p>
+</div>
+<div class="citation" id="id82" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></span>
+<p>Max Brunsfeld and Tree-sitter contributors. Tree-sitter: an incremental parsing system for programming tools. 2018–present. Used by the code-layer reference implementation's RAG CodeParser for multi-language uniform parsing. URL: <a class="reference external" href="https://tree-sitter.github.io/tree-sitter/">https://tree-sitter.github.io/tree-sitter/</a>.</p>
+</div>
+<div class="citation" id="id95" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></span>
+<p>Shiqi Chen, Yiran Zhang, Yunze Zhao, Yifei Liu, Chengye Hu, and Yang Liu. Benchmarking large language models in retrieval-augmented generation. In <em>arXiv preprint arXiv:2309.01431</em>. 2023. URL: <a class="reference external" href="https://arxiv.org/abs/2309.01431">https://arxiv.org/abs/2309.01431</a>.</p>
+</div>
+<div class="citation" id="id49" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></span>
+<p>Darren Edge, Ha Trinh, Newman Cheng, Joshua Bradley, Alex Chao, Apurva Mody, Steven Truitt, and Jonathan Larson. From local to global: a graph RAG approach to query-focused summarization. <em>arXiv preprint arXiv:2404.16130</em>, 2024.</p>
+</div>
+<div class="citation" id="id89" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>6<span class="fn-bracket">]</span></span>
+<p>Alex Gleason. Sqlite-vec: a vector search SQLite extension that runs anywhere. 2024–present. URL: <a class="github reference external" href="https://github.com/asg017/sqlite-vec">asg017/sqlite-vec</a>.</p>
+</div>
+<div class="citation" id="id85" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id4">1</a>,<a role="doc-backlink" href="#id6">2</a>)</span>
+<p>Daya Guo, Shuo Ren, Shuai Lu, Zhangyin Feng, Duyu Tang, Shujie Liu, Long Zhou, Nan Duan, Alexey Svyatkovskiy, and Shengyu Fu. GraphCodeBERT: pre-training code representations with data flow. In <em>International Conference on Learning Representations (ICLR)</em>. 2021. URL: <a class="reference external" href="https://arxiv.org/abs/2009.08366">https://arxiv.org/abs/2009.08366</a>.</p>
+</div>
+<div class="citation" id="id50" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>8<span class="fn-bracket">]</span></span>
+<p>Bernal Jiménez Gutiérrez, Yiheng Shu, Yu Gu, Michihiro Yasunaga, and Yu Su. HippoRAG: neurobiologically inspired long-term memory for large language models. <em>arXiv preprint arXiv:2405.14831</em>, 2024.</p>
+</div>
+<div class="citation" id="id83" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>9<span class="fn-bracket">]</span></span>
+<p>Hamel Husain, Ho-Hsiang Wu, Tiferet Gazit, Miltiadis Allamanis, and Marc Brockschmidt. CodeSearchNet Challenge: evaluating the state of semantic code search. In <em>arXiv preprint arXiv:1909.09436</em>. 2019. URL: <a class="reference external" href="https://arxiv.org/abs/1909.09436">https://arxiv.org/abs/1909.09436</a>.</p>
+</div>
+<div class="citation" id="id90" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>10<span class="fn-bracket">]</span></span>
+<p>Andrew Kane. Pgvector: open-source vector similarity search for PostgreSQL. 2021–present. URL: <a class="github reference external" href="https://github.com/pgvector/pgvector">pgvector/pgvector</a>.</p>
+</div>
+<div class="citation" id="id109" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>11<span class="fn-bracket">]</span></span>
+<p>Di Li, Jingyi Wei, Yewen Peng, Hanbin Bai, Bei Chen, and Yong Li. Repoformer: selective retrieval for repository-level code completion. <em>Proceedings of the 41st International Conference on Machine Learning (ICML 2024)</em>, 2024. Trains a lightweight classifier to predict whether retrieval will help a given code-completion task, skipping it when the local context suffices. Key insight for Chapter 12: not every query needs retrieval, and a retrieval-necessity signal can cut latency and noise. URL: <a class="reference external" href="https://arxiv.org/abs/2403.10059">https://arxiv.org/abs/2403.10059</a>, <a class="reference external" href="https://arxiv.org/abs/2403.10059">arXiv:2403.10059</a>.</p>
+</div>
+<div class="citation" id="id115" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>12<span class="fn-bracket">]</span></span>
+<p>Tianyang Liu, Canwen Xu, and Julian McAuley. RepoBench: benchmarking repository-level code auto-completion systems. <em>arXiv preprint arXiv:2306.03091</em>, 2023. Decomposes evaluation into Retrieval (R), Completion (C), and Pipeline (P) layers, enabling precise diagnosis of whether the bottleneck is retrieval quality or generation quality. Key insight for Chapter 15: layered evaluation (retrieval health → generation health → end-to-end) is the right structure for KB benchmarking. URL: <a class="reference external" href="https://arxiv.org/abs/2306.03091">https://arxiv.org/abs/2306.03091</a>, <a class="reference external" href="https://arxiv.org/abs/2306.03091">arXiv:2306.03091</a>.</p>
+</div>
+<div class="citation" id="id52" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>13<span class="fn-bracket">]</span></span>
+<p>Qinyu Luo, Yining Ye, Shihao Liang, Zhong Zhang, Yujia Qin, Yaxi Lu, Yesai Wu, Xin Cong, Yankai Lin, Yingli Zhang, Xiaoyin Che, Zhiyuan Liu, and Maosong Sun. Repoagent: an LLM-powered open-source framework for repository-level code documentation generation. 2024. URL: <a class="reference external" href="https://arxiv.org/abs/2402.16667">https://arxiv.org/abs/2402.16667</a>, <a class="reference external" href="https://arxiv.org/abs/2402.16667">arXiv:2402.16667</a>.</p>
+</div>
+<div class="citation" id="id48" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>14<span class="fn-bracket">]</span></span>
+<p>Yury A. Malkov and Dmitry A. Yashunin. Efficient and robust approximate nearest neighbor search using hierarchical navigable small world graphs. <em>IEEE Transactions on Pattern Analysis and Machine Intelligence</em>, 42(4):824–836, 2020. <a class="reference external" href="https://doi.org/10.1109/TPAMI.2018.2889473">doi:10.1109/TPAMI.2018.2889473</a>.</p>
+</div>
+<div class="citation" id="id107" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>15<span class="fn-bracket">]</span></span>
+<p>Yury A. Malkov and Dmitry A. Yashunin. Efficient and robust approximate nearest neighbor search using hierarchical navigable small world graphs. <em>IEEE Transactions on Pattern Analysis and Machine Intelligence</em>, 42(4):824–836, 2020. The HNSW index underlying every modern vector store (sqlite-vec, pgvector's hnsw option, Milvus, Faiss). The small-world-graph construction is why an approximate nearest-neighbour query runs in log-time rather than linear-scan time; cited in Chapter 10 to anchor the &quot;vector DB is not magic&quot; argument. <a class="reference external" href="https://doi.org/10.1109/TPAMI.2018.2889473">doi:10.1109/TPAMI.2018.2889473</a>.</p>
+</div>
+<div class="citation" id="id117" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>16<span class="fn-bracket">]</span></span>
+<p>Niklas Muennighoff, Nouamane Tazi, Loïc Magne, and Nils Reimers. Mteb: massive text embedding benchmark. <em>arXiv preprint arXiv:2210.07316</em>, 2023. Defines the leaderboard used to compare embedding models across 8 tasks and 58 datasets. Key insight for Chapter 10: leaderboard ranking on general tasks does not predict performance on domain-specific code retrieval. URL: <a class="reference external" href="https://arxiv.org/abs/2210.07316">https://arxiv.org/abs/2210.07316</a>.</p>
+</div>
+<div class="citation" id="id104" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>17<span class="fn-bracket">]</span></span>
+<p>Rodrigo Nogueira and Kyunghyun Cho. Passage re-ranking with BERT. <em>arXiv preprint arXiv:1901.04085</em>, 2019. Canonical reference for cross-encoder re-ranking — a BERT model scores (query, document) pairs for the second stage of a retrieve-then-rerank pipeline. Widely known as &quot;monoBERT&quot;. URL: <a class="reference external" href="https://arxiv.org/abs/1901.04085">https://arxiv.org/abs/1901.04085</a>.</p>
+</div>
+<div class="citation" id="id111" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id9">18</a><span class="fn-bracket">]</span></span>
+<p>Siru Ouyang, Jingqing Yu, Daoguang Zan, Xiangyu Xu, Wei Liu, Shuai Shi, and Hao Peng. RepoGraph: enhancing AI software engineering with repository-level code graph. <em>ICLR 2025 Poster</em>, 2025. Builds a typed repository-level code graph (calls, imports, inherits, defines) and uses graph-enhanced retrieval to expand seed hits along structural edges. Key insight for Chapter 11: code graphs are not just for storage; they are retrieval primitives that produce structurally complete context, not just semantically similar chunks. URL: <a class="reference external" href="https://openreview.net/forum?id=dw9VUsSHGB">https://openreview.net/forum?id=dw9VUsSHGB</a>.</p>
+</div>
+<div class="citation" id="id105" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>19<span class="fn-bracket">]</span></span>
+<p>Nils Reimers and Iryna Gurevych. Sentence-BERT: sentence embeddings using siamese BERT-networks. In <em>Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing</em>. 2019. Introduces the bi-encoder framing that underlies every modern dense retriever: two independent encodings compared by cosine similarity, contrasted explicitly against cross-encoders that concatenate (query, document) before scoring. URL: <a class="reference external" href="https://arxiv.org/abs/1908.10084">https://arxiv.org/abs/1908.10084</a>.</p>
+</div>
+<div class="citation" id="id94" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>20<span class="fn-bracket">]</span></span>
+<p>Stephen Robertson and Hugo Zaragoza. The probabilistic relevance framework: BM25 and beyond. <em>Foundations and Trends in Information Retrieval</em>, 3(4):333–389, 2009. <a class="reference external" href="https://doi.org/10.1561/1500000019">doi:10.1561/1500000019</a>.</p>
+</div>
+<div class="citation" id="id92" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">21</a><span class="fn-bracket">]</span></span>
+<p>Ian Robinson, Jim Webber, and Emil Eifrem. <em>Graph Databases: New Opportunities for Connected Data</em>. O'Reilly Media, 2015. ISBN 978-1491930892.</p>
+</div>
+<div class="citation" id="id114" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>22<span class="fn-bracket">]</span></span>
+<p>Disha Shrivastava, Hugo Larochelle, and Daniel Tarlow. Repository-level prompt generation for large language models of code. In <em>Proceedings of the 40th International Conference on Machine Learning (ICML 2023)</em>. 2023. The conceptual origin of repo-level RAG: even without fine-tuning, selecting the right cross-file context (imports, similar code, usage examples, type definitions) substantially improves code completion. Key insight for Chapter 12 and Chapter 19: context assembly is a first-class retrieval problem, not a prompt-engineering afterthought. URL: <a class="reference external" href="https://proceedings.mlr.press/v202/shrivastava23a.html">https://proceedings.mlr.press/v202/shrivastava23a.html</a>.</p>
+</div>
+<div class="citation" id="id53" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id8">23</a><span class="fn-bracket">]</span></span>
+<p>Hongyuan Tao, Ying Zhang, Zhenhao Tang, Hongen Peng, Xukun Zhu, Bingchang Liu, Yingguang Yang, Ziyin Zhang, Zhaogui Xu, Haipeng Zhang, Linchao Zhu, Rui Wang, Hang Yu, Jianguo Li, and Peng Di. Code graph model (CGM): a graph-integrated large language model for repository-level software engineering tasks. 2025. URL: <a class="reference external" href="https://arxiv.org/abs/2505.16901">https://arxiv.org/abs/2505.16901</a>, <a class="reference external" href="https://arxiv.org/abs/2505.16901">arXiv:2505.16901</a>.</p>
+</div>
+<div class="citation" id="id86" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>24<span class="fn-bracket">]</span></span>
+<p>Shitao Xiao, Zheng Liu, Peitian Zhang, Niklas Muennighoff, Defu Lian, and Jian-Yun Nie. C-Pack: packed resources for general Chinese embeddings. 2024. Includes the BGE family of open embedding models, which can be self-hosted on a single GPU at effectively zero per-token cost. URL: <a class="reference external" href="https://arxiv.org/abs/2309.07597">https://arxiv.org/abs/2309.07597</a>.</p>
+</div>
+<div class="citation" id="id113" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id10">25</a><span class="fn-bracket">]</span></span>
+<p>Chuxin Xu, Zhicheng Geng, Zhengtao Liao, and Yifan Wei. Synergizing LLMs and knowledge graphs: a novel approach to software repository-related question answering. <em>arXiv preprint arXiv:2412.03815</em>, 2024. Designs a software-specific KG ontology (Repository, Module, File, Class, Function, Dependency, Issue, Commit, Developer) and a synergistic LLM+KG QA framework that routes structural queries to KG and semantic queries to dense retrieval. Key insight for Chapter 6 and Chapter 11: a purpose-built software ontology plus hybrid query routing covers both structural and semantic questions better than either approach alone. URL: <a class="reference external" href="https://arxiv.org/abs/2412.03815">https://arxiv.org/abs/2412.03815</a>, <a class="reference external" href="https://arxiv.org/abs/2412.03815">arXiv:2412.03815</a>.</p>
+</div>
+<div class="citation" id="id112" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>26<span class="fn-bracket">]</span></span>
+<p>Fengji Zhang, Bei Chen, Yue Zhang, Jacky Keung, Jin Liu, Daoguang Zan, Yi Mao, Jian-Guang Chen, and Wenqiang Chen. RepoCoder: repository-level code completion through iterative retrieval and generation. <em>Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing (EMNLP 2023)</em>, 2023. Proposes a retrieve-generate-re-retrieve iterative loop: the LLM draft becomes a better retrieval query for the next round. Key insight for Chapter 12: multi-round retrieval converges on better context, especially for complex cross-file queries. URL: <a class="reference external" href="https://arxiv.org/abs/2303.12570">https://arxiv.org/abs/2303.12570</a>, <a class="reference external" href="https://arxiv.org/abs/2303.12570">arXiv:2303.12570</a>.</p>
+</div>
+<div class="citation" id="id51" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id7">27</a><span class="fn-bracket">]</span></span>
+<p>Yuqi Zhu, Xiaohan Wang, Jing Chen, Shuofei Qiao, Yixin Ou, Yunzhi Yao, Shumin Deng, Huajun Chen, and Ningyu Zhang. LLMs for knowledge graph construction and reasoning: recent capabilities and future opportunities. 2024. URL: <a class="reference external" href="https://arxiv.org/abs/2305.13168">https://arxiv.org/abs/2305.13168</a>, <a class="reference external" href="https://arxiv.org/abs/2305.13168">arXiv:2305.13168</a>.</p>
+</div>
+<div class="citation" id="id93" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id12">28</a><span class="fn-bracket">]</span></span>
+<p>Memgraph Ltd. Memgraph: an in-memory graph database compatible with the Bolt protocol. 2016–present. URL: <a class="reference external" href="https://memgraph.com/">https://memgraph.com/</a>.</p>
+</div>
+<div class="citation" id="id87" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>29<span class="fn-bracket">]</span></span>
+<p>OpenAI. OpenAI text embeddings v3 (text-embedding-3-small and text-embedding-3-large). 2024. The \texttt text-embedding-3-small launch announcement lists a 5× price reduction relative to \texttt text-embedding-ada-002 (from \$0.0001 to \$0.00002 per 1K tokens) at higher retrieval quality. URL: <a class="reference external" href="https://openai.com/index/new-embedding-models-and-api-updates/">https://openai.com/index/new-embedding-models-and-api-updates/</a>.</p>
+</div>
+<div class="citation" id="id88" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>30<span class="fn-bracket">]</span></span>
+<p>Voyage AI. Voyage-code-2: an embedding model optimised for code retrieval. 2024. URL: <a class="reference external" href="https://docs.voyageai.com/docs/embeddings">https://docs.voyageai.com/docs/embeddings</a>.</p>
+</div>
+<div class="citation" id="id91" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>31<span class="fn-bracket">]</span></span>
+<p>Zilliz, Inc. Milvus: an open-source vector database for scalable similarity search. 2019–present. URL: <a class="reference external" href="https://milvus.io/">https://milvus.io/</a>.</p>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="ch17-embeddings-and-vector-stores.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">第 17 章 —— 嵌入向量与向量存储</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="ch19-hybrid-retrieval-and-rrf.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">第 19 章 —— 混合检索与 RRF</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 目录
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why">Why —— 为什么</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what">What —— 是什么</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">理论锚点：把图上的“邻近性”作为一等公民信号</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how">How —— 怎么做</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">存储接口</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id14">实测：图能回答向量搜索回答不了的问题</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example —— 范例</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id15">11.5   图数据库选型对比</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id16">候选者一览</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id17">本书场景的决策矩阵</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id18">迁移路径</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id19">为什么不用通用分布式图数据库</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id20">11.6   图谱可视化与探索</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id21">工具对比</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id22">本书的推荐方案</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cypher">用于可视化的实用 Cypher 查询</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#kb-web-ui">在 KB Web UI 中嵌入可视化</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id23">常见错误</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#conclusion">Conclusion —— 小结</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id24">参考文献</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+作者： Walter Fan
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright AI 辅助创作 2026, Walter Fan.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    <p class="last-updated">
+  最后更新于 2026-11-10.
+  <br/>
+</p>
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
