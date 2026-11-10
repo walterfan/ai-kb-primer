@@ -1,0 +1,124 @@
+source/appendix/appendix-b-example-code-kg.md
+  s_b0fb1400eb47a9::t_bba9f0144cca8e 138
+  s_b0fb1400eb47a9::t_0892cda39f1323 33
+  s_b0fb1400eb47a9::t_9eae08d7c3af58 35
+  s_b0fb1400eb47a9::t_5091c550290861 302
+  s_b0fb1400eb47a9::t_0dd89a683695d4 134
+  s_b0fb1400eb47a9::t_a304936f0efbad 330
+  s_b0fb1400eb47a9::t_54fd35fc490746 54
+  s_b0fb1400eb47a9::t_d3a8f8efd3e92a 331
+  s_b0fb1400eb47a9::t_b2b426a68be703 19
+  s_b0fb1400eb47a9::t_a439c5bfff5473 329
+  s_b0fb1400eb47a9::t_f43de044152480 201
+  s_b0fb1400eb47a9::t_ec1c0f0932d642 219
+  s_b0fb1400eb47a9::t_5d31cc2af3bbf1 167
+source/appendix/appendix-d-glossary.md
+  s_b0fb1400eb47a9::t_8b559ccf7d910a 66
+  s_b0fb1400eb47a9::t_993283d47d53e5 100
+  s_b0fb1400eb47a9::t_75f4b2ccd9e00d 58,60
+  s_b0fb1400eb47a9::t_d86cce793edc99 106
+  s_b0fb1400eb47a9::t_26ec6a6003e444 69
+source/part6-hybrid-layer/index.md
+  s_b0fb1400eb47a9::t_9ee84b49133792 1-82
+source/part4-code-layer/ch15-why-code-is-not-prose.md
+  s_b0fb1400eb47a9::t_6b7157b8afc1d9 35
+source/part1-foundations/ch01-why-kb-for-software.md
+  s_b0fb1400eb47a9::t_c3f151c5662f53 102
+  s_b0fb1400eb47a9::t_266648163f0d55 62
+  s_b0fb1400eb47a9::t_55b7c0a12df690 104
+  s_b0fb1400eb47a9::t_1e3f143e27ce08 83
+  s_b0fb1400eb47a9::t_d259c8c8217cd1 73
+source/part1-foundations/ch03-diataxis-and-software-docs.md
+  s_b0fb1400eb47a9::t_ec071911a50de4 156
+  s_b0fb1400eb47a9::t_61badd441a3bbd 162
+  s_b0fb1400eb47a9::t_2a001b9a87c528 154
+  s_b0fb1400eb47a9::t_49b8aa79f5725c 158
+  s_b0fb1400eb47a9::t_5c2bf8abb4b04e 112
+  s_b0fb1400eb47a9::t_94e71e9d8e1fd9 133
+  s_b0fb1400eb47a9::t_fa6f0df877b57a 114
+source/part7-governance-and-outlook/index.md
+  s_b0fb1400eb47a9::t_7ba612ed8bb3ba 1-50
+AGENTS.md
+  s_b0fb1400eb47a9::t_37e43d9d2aa278 4
+  s_b0fb1400eb47a9::t_546a13aba4230d 18-22
+  s_b0fb1400eb47a9::t_e64f804d03c637 50-55
+source/part5-operations-lifecycle/index.md
+  s_b0fb1400eb47a9::t_d29bd8b8d461d9 1-46
+source/references.bib
+  s_b0fb1400eb47a9::t_e6d99d9dd5e9ec 739-756
+source/part2-prose-layer/ch07-publish-and-search.md
+  s_b0fb1400eb47a9::t_1ae106d7104ef1 265
+  s_b0fb1400eb47a9::t_edbcade7ee6d06 219
+README.md
+  s_b0fb1400eb47a9::t_9a0103d89f7ea2 36-40
+source/part2-prose-layer/index.md
+  s_b0fb1400eb47a9::t_d1b2d685244379 94
+  s_b0fb1400eb47a9::t_5c84b8c4cd6a25 98,100,102,104,106-110,112
+  s_b0fb1400eb47a9::t_7b0c95324e53d7 64
+  s_b0fb1400eb47a9::t_438ff8050c8ea1 50
+  s_b0fb1400eb47a9::t_afb144de7cf636 119
+  s_b0fb1400eb47a9::t_7ef5d0217f6b4b 69-73
+  s_b0fb1400eb47a9::t_51530a0b399f63 80
+  s_b0fb1400eb47a9::t_e173107f4f2850 76
+  s_b0fb1400eb47a9::t_49286329408cf9 128
+  s_b0fb1400eb47a9::t_b7497c4a3cd1df 82
+  s_b0fb1400eb47a9::t_afbb505f784b66 25
+  s_b0fb1400eb47a9::t_83aba2272ae320 88-92
+  s_b0fb1400eb47a9::t_f1a13c27b9688c 122
+  s_b0fb1400eb47a9::t_7f2134a10a7bae 21-22
+source/part4-code-layer/index.md
+  s_b0fb1400eb47a9::t_091271059ec981 1-98
+source/appendix/appendix-e-bilingual-publishing.md
+  s_b0fb1400eb47a9::t_fd7d2c688b93b7 145-147
+  s_b0fb1400eb47a9::t_a5cce0dd4bc615 46,51
+  s_b0fb1400eb47a9::t_e0980645001079 95
+  s_b0fb1400eb47a9::t_d78f792f062ad0 182
+  s_b0fb1400eb47a9::t_2091eb887f0bf4 160
+  s_b0fb1400eb47a9::t_6d88cc39cb8a00 177
+  s_b0fb1400eb47a9::t_d6040aacff9fe5 189
+source/part2-prose-layer/ch06-llm-classification-pipeline.md
+  s_b0fb1400eb47a9::t_a66baf6a3ffccf 142
+source/part1-foundations/ch02-ir-rag-primer.md
+  s_b0fb1400eb47a9::t_d6ac59496f2aca 188
+  s_b0fb1400eb47a9::t_b1274bc90db69d 196
+  s_b0fb1400eb47a9::t_801acf876435ef 237
+  s_b0fb1400eb47a9::t_73c2bb748ed324 154
+  s_b0fb1400eb47a9::t_ae310d3f9c4b80 110
+  s_b0fb1400eb47a9::t_e0ea8e72ecfd07 140
+  s_b0fb1400eb47a9::t_d27d63f38d56a3 90
+  s_b0fb1400eb47a9::t_521b8ab443bca6 137
+  s_b0fb1400eb47a9::t_72918bd2d14693 136
+  s_b0fb1400eb47a9::t_178ac3cfbdee0e 199
+  s_b0fb1400eb47a9::t_f54df9761acc1c 148
+  s_b0fb1400eb47a9::t_67d76683b5209f 160
+  s_b0fb1400eb47a9::t_eadae39605a8ed 162
+source/part2-prose-layer/ch05-frontmatter-provenance-trust.md
+  s_b0fb1400eb47a9::t_9de18fcc754d34 198
+  s_b0fb1400eb47a9::t_4863be49a7facb 311
+  s_b0fb1400eb47a9::t_b41e76fe1407c7 202
+  s_b0fb1400eb47a9::t_cefa3e185af299 315
+  s_b0fb1400eb47a9::t_b53dbdf04e6195 286
+source/part2-prose-layer/ch04-file-based-wiki.md
+  s_b0fb1400eb47a9::t_cee6f3bf259591 181
+  s_b0fb1400eb47a9::t_f20d4e3b19493d 244
+  s_b0fb1400eb47a9::t_82e61e88e88fbe 234
+  s_b0fb1400eb47a9::t_8a83bcd533d7ac 169
+source/index.md
+  s_b0fb1400eb47a9::t_a3a614854b38dd 95,97,102,104,109,111,116,118-125
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "e4acbf851a65478f2f4c958e6170fe1dca258f86",
+  "prompts": {},
+  "sessions": {
+    "s_b0fb1400eb47a9": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e3a4318aeffer5OKirwHes8pL1",
+        "model": "deepseek_v4_flash"
+      },
+      "human_author": "Walter Fan <walter.fan@zoom.us>"
+    }
+  }
+}
