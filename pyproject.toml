@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "async-pkb-book"
+name = "ai-kb-primer"
 version = "0.1.0"
 description = "Sphinx + MyST toolchain for the book 'Use AI to build a knowledge base for a software project' and its content-validation tools."
 authors = ["Walter (Yamin) Fan <waltefan@ustc.edu>"]

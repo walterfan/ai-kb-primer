@@ -2,7 +2,7 @@
 title: "Ch 14 — Sync Lifecycle and Three-Layer Filtering"
 status: review
 authors:
-  - [REDACTED_NAME]
+  - walterfan
 last_verified_commit: a1b2c3d
 ---
 

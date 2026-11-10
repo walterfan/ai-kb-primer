@@ -6,7 +6,7 @@ License: CC BY-NC-ND 4.0
 
 Author permission statement (for book use):
 
-  The author of this book ([REDACTED_NAME]) is also the author of the blog
+  The author of this book (walterfan) is also the author of the blog
   post cited above. The blog post itself remains licensed under
   CC BY-NC-ND 4.0 to the public. The author grants the book project
   ("How to Use AI to Build a Knowledge Base for a Software Project")

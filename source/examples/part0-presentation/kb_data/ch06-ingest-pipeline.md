@@ -2,7 +2,7 @@
 title: "Ch 6 — Ingest Pipeline"
 status: review
 authors:
-  - [REDACTED_NAME]
+  - walterfan
 last_verified_commit: a1b2c3d
 ---
 

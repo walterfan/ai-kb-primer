@@ -32,7 +32,7 @@ Example / Common mistakes / Conclusion` skeleton.
 ## Repository layout
 
 ```
-async-pkb-book/
+ai-kb-primer/
 ├── Makefile                  # All build/check/serve targets
 ├── pyproject.toml            # Poetry: Sphinx, MyST, bibtex, mermaid
 ├── poetry.lock

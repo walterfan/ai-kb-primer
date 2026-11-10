@@ -81,18 +81,18 @@ curl -sSL https://install.python-poetry.org | python3 -
 
 ```bash
 # 克隆文本层参考实现
-git clone https://github.com/[REDACTED_NAME]/lazy-kb-wiki.git
+git clone https://github.com/walterfan/lazy-kb-wiki.git
 cd lazy-kb-wiki
 
 # 克隆本书仓库（含构建工具链和示例文件）
 cd ..
-git clone https://github.com/[REDACTED_NAME]/async-pkb-book.git
+git clone https://github.com/walterfan/ai-kb-primer.git
 ```
 
 安装书稿仓库的 Python 依赖（后续步骤会用到）：
 
 ```bash
-cd async-pkb-book
+cd ai-kb-primer
 make setup   # 等价于 poetry install
 cd ..
 ```
@@ -238,7 +238,7 @@ Index entries:  3
 先启动必要的基础设施（Memgraph + pgvector）：
 
 ```bash
-cd ../async-pkb-book
+cd ../ai-kb-primer
 docker compose -f docker-compose.dev.yml up -d
 ```
 
@@ -375,7 +375,7 @@ graph TB
 
 6. **在 M1/M2 Mac 上 Docker 镜像拉不下来。** Memgraph 的官方镜像目前只有 `amd64`。解决办法是加 `--platform linux/amd64`，或者用 `docker-compose.dev.yml` 中已经配置好的 platform 字段。
 
-7. **`parse` 输出为空。** tree-sitter 的 Go 语法需要 `.go` 文件。如果你传入的 `--repo` 路径下没有 Go 源码（比如不小心指向了 `async-pkb-book`），`parsed.json` 会是一个空数组。确认 `--repo` 指向的是 `lazy-kb-wiki`。
+7. **`parse` 输出为空。** tree-sitter 的 Go 语法需要 `.go` 文件。如果你传入的 `--repo` 路径下没有 Go 源码（比如不小心指向了 `ai-kb-primer`），`parsed.json` 会是一个空数组。确认 `--repo` 指向的是 `lazy-kb-wiki`。
 
 ## 时间预算总览
 
