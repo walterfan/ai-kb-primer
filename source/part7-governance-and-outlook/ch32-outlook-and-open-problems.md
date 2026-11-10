@@ -1,5 +1,5 @@
 ---
-title: "第 24 章 —— 展望与尚未解决的问题"
+title: "第 32 章 —— 展望与尚未解决的问题"
 status: review
 authors:
   - Walter (Yamin) Fan
@@ -9,7 +9,7 @@ keywords:
   - governance
 ---
 
-# 第 24 章 —— 展望与尚未解决的问题
+# 第 32 章 —— 展望与尚未解决的问题
 
 ## Why —— 为什么
 
@@ -47,7 +47,7 @@ Zhu 等人为一个本书当作工程常识来处理的设计原则提供了最�
 
 ### 2. Repository documentation is a maintenance problem
 
-RepoAgent 之所以重要，不是因为它证明了 LLM 能写 Markdown，而是因为它把**仓库级文档当作一条有显式阶段（结构分析、生成、更新）的流水线**来对待 {cite}`luo2024repoagentllmpoweredopensourceframework`。这与本书第二部分到第四部分的契合度远超一个通用的"AI 文档"工具。开放问题不仅仅是页面质量；而是如何在仓库不断变动的情况下保持文档同步，又不产生一个比文档本身的收益还大的评审负担。
+RepoAgent 之所以重要，不是因为它证明了 LLM 能写 Markdown，而是因为它把**仓库级文档当作一条有显式阶段（结构分析、生成、更新）的流水线**来对待 {cite}`luo2024repoagentllmpoweredopensourceframework`。这与本书第二部分到第五部分的契合度远超一个通用的"AI 文档"工具。开放问题不仅仅是页面质量；而是如何在仓库不断变动的情况下保持文档同步，又不产生一个比文档本身的收益还大的评审负担。
 
 这就是本书为什么在增量同步、元组元数据和发布门禁上花了这么多篇幅。在实践中，在软件知识库上失败的团队很少是因为初稿写得差。它们失败是因为更新纪律缺失、评审队列停滞，或者引用悄悄腐烂。
 
@@ -82,14 +82,14 @@ CGM 的 SWE-bench Lite 结果很有价值，因为它给这个领域一个共享
 
 ### 6. Single-source ingestion vs. multi-source federation
 
-第 23 章建立了摄入的信任模型，但它隐含了一个假设：所有内容最终都被**导入**知识库。实际上还有另一种选择 —— **联邦**（federation）：知识库不复制外部内容，而是在搜索时同时查询 Confluence、Notion、内部知识平台 等来源，在展示层合并结果。
+第 31 章建立了摄入的信任模型，但它隐含了一个假设：所有内容最终都被**导入**知识库。实际上还有另一种选择 —— **联邦**（federation）：知识库不复制外部内容，而是在搜索时同时查询 Confluence、Notion、内部知识平台 等来源，在展示层合并结果。
 
 两种策略的取舍是清晰的：
 
 | 维度 | 摄入（Ingest） | 联邦（Federate） |
 |:--|:--|:--|
 | 出处控制 | 强 —— 每页都有 frontmatter 和出处元组 | 弱 —— 依赖来源端的元数据 |
-| 陈旧检测 | 知识库内闭环 —— 第 16 章漂移检查适用 | 依赖来源端 —— 来源不报告陈旧，知识库也不知道 |
+| 陈旧检测 | 知识库内闭环 —— 第 23 章漂移检查适用 | 依赖来源端 —— 来源不报告陈旧，知识库也不知道 |
 | 维护负担 | 高 —— 导入后每页都是自己的维护对象 | 低 —— 来源端自己维护 |
 | 搜索质量 | 高 —— 统一索引、统一排序 | 中 —— 跨源排序困难，元数据不一致 |
 | 隐私 | 可控 —— 内容在知识库围墙内 | 依赖来源端 —— 联邦查询可能穿越安全边界 |
@@ -105,7 +105,7 @@ CGM 的 SWE-bench Lite 结果很有价值，因为它给这个领域一个共享
 | Stage | Keep fixed | Add experimentally | Success criterion |
 |:--|:--|:--|:--|
 | **1. Durable KB** | parser, stable IDs, hybrid retrieval, citations | none | engineers get grounded answers with low review overhead |
-| **1.5 Multi-source ingest** | same retrieval stack + provenance model | OpenSpec / AI spec / doc-site import with ch23 trust tiers | all ingested pages carry provenance; gate failures < 5% |
+| **1.5 Multi-source ingest** | same retrieval stack + provenance model | OpenSpec / AI spec / doc-site import with 第 31 章 trust tiers | all ingested pages carry provenance; gate failures < 5% |
 | **2. Continuous docs** | same retrieval stack | RepoAgent-style doc-update loop over selected page classes | candidate pages per commit stay small and reviewable |
 | **3. Graph-aware models** | external graph remains source of truth | CGM-style graph-conditioned reader or reranker | better repo-level task accuracy *without* losing provenance |
 

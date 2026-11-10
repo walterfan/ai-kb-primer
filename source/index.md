@@ -92,30 +92,37 @@ part2-prose-layer/index
 
 ```{toctree}
 :maxdepth: 2
-:caption: Part III — The Code Layer
+:caption: Part III — The Author Layer
 
-part3-code-layer/index
+part3-author-layer/index
 ```
 
 ```{toctree}
 :maxdepth: 2
-:caption: Part IV — Operations & Lifecycle
+:caption: Part IV — The Code Layer
 
-part4-operations-lifecycle/index
+part4-code-layer/index
 ```
 
 ```{toctree}
 :maxdepth: 2
-:caption: Part V — The Hybrid Layer
+:caption: Part V — Operations & Lifecycle
 
-part5-hybrid-layer/index
+part5-operations-lifecycle/index
 ```
 
 ```{toctree}
 :maxdepth: 2
-:caption: Part VI — Governance & Outlook
+:caption: Part VI — The Hybrid Layer
 
-part6-governance-and-outlook/index
+part6-hybrid-layer/index
+```
+
+```{toctree}
+:maxdepth: 2
+:caption: Part VII — Governance & Outlook
+
+part7-governance-and-outlook/index
 ```
 
 ```{toctree}

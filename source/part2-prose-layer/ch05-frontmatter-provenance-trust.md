@@ -195,11 +195,11 @@ reviewed_by:
 
 **为什么是两块、不是一块。** frontmatter 和 footer 的**变化频率不同**，**动它们的人也不同**。frontmatter 记录的是 *来源* ：创建时写一次，更新时小心打补丁（见 `MergeFrontmatterUpdate` ），在 `git log` 里应当看起来像一个**几乎不变**的干净头部。footer 记录的是 *评审状态* ：正文一改，它就被重置为 `pending` ；只有**人出手**，它才翻到 `approved` 。把两者挤在一个 frontmatter 里，会混淆这两种变化速率 —— 每一次评审状态翻转都会呈现为一次来源 diff —— 还会让**过时检测**更难机械化，因为工具必须一字段一字段地判断“这个是血缘、那个是评审”。
 
-**“AI 永远设回 pending” 这条规则。** 当一个 LLM —— 或**任何**自动化路径，包括第 16 章那个 L1 机械改写器 —— 改动一张页时，`review_status` **必须**被设为 `pending` ，`review_score` **必须**重置为 `0` ，`reviewed_by` **必须**被清空。**只有** *人类* 评审可以把 `approved` 或非零分数写上去。这就是那条让人类注意力变得 *可审计* 的唯一规则：一旦知识库的闸系统（第 15 章）看到一个 `approved` 状态却没有对应的人类 `reviewed_by` ，就说明有东西绕过了这条规则，闸就会失败。**没有这条纪律，“approved”这个词**在第一次让 LLM 写它的时候**就失去了意义**。**
+**“AI 永远设回 pending” 这条规则。** 当一个 LLM —— 或**任何**自动化路径，包括第 23 章那个 L1 机械改写器 —— 改动一张页时，`review_status` **必须**被设为 `pending` ，`review_score` **必须**重置为 `0` ，`reviewed_by` **必须**被清空。**只有** *人类* 评审可以把 `approved` 或非零分数写上去。这就是那条让人类注意力变得 *可审计* 的唯一规则：一旦知识库的闸系统（第 22 章）看到一个 `approved` 状态却没有对应的人类 `reviewed_by` ，就说明有东西绕过了这条规则，闸就会失败。**没有这条纪律，“approved”这个词**在第一次让 LLM 写它的时候**就失去了意义**。**
 
 **footer *不是* 什么。** 它**不是** `verification_status` 的替代品。frontmatter 里的那个字段记录的是 *编辑层面的信任信号* （“这份内容是 supported，还是 contradicted，还是 superseded？”），关心的是**内容正确性**。footer 记录的是 *评审信号* （“有没有人看过当前这个版本？”），关心的是**评审节奏**。一页可以同时带着 `verification_status: supported` 和 `review_status: pending` —— 意思是：“这一页被写下来时我们是信的；昨天一个 LLM 把它重写了之后，还没人看过。”两种信号都重要；它们回答的是**不同的问题**。
 
-第 15 章会把 footer 做成一道**硬构建闸**；第 16 章会用它把变更**路由**进三级更新策略；第 18 章会把单轴的文档分层（L0–L4）扩展成一个四元组 `(layer, updated_by, review_status, review_score)` ，让一个检索系统可以在**不丢失血缘这根轴**的前提下按评审状态筛选。**footer 是这一章与上面三章之间的承重铰链。**
+第 22 章会把 footer 做成一道**硬构建闸**；第 23 章会用它把变更**路由**进三级更新策略；第 25 章会把单轴的文档分层（L0–L4）扩展成一个四元组 `(layer, updated_by, review_status, review_score)` ，让一个检索系统可以在**不丢失血缘这根轴**的前提下按评审状态筛选。**footer 是这一章与上面三章之间的承重铰链。**
 
 ## 示例
 
@@ -283,7 +283,7 @@ reviewed_by: alice
 -->
 ```
 
-`updated_by` 上的 `ai+human` 这个值是**故意**的：它记录的是 —— 当前这一页是一个 LLM 的草稿、一个人验证过。这和**单独的 `ai`**（LLM 写的，没人看过）以及**单独的 `human`**（人自己写的）是**真正不同的来源声明**。第 18 章那个文档分层元组在对一页分类时，会读这个值。
+`updated_by` 上的 `ai+human` 这个值是**故意**的：它记录的是 —— 当前这一页是一个 LLM 的草稿、一个人验证过。这和**单独的 `ai`**（LLM 写的，没人看过）以及**单独的 `human`**（人自己写的）是**真正不同的来源声明**。第 25 章那个文档分层元组在对一页分类时，会读这个值。
 
 三个状态、一份文件、一条完整的**来源轨迹** *以及* 一条完整的**评审轨迹** —— **没有任何附表**。`git log -p content/how-to/enable-tls.md` 就能把两条轨迹一次讲完。
 
@@ -308,11 +308,11 @@ reviewed_by: alice
 
 2.  **把评审状态塞进 frontmatter。** 现实中最常见的形态是 frontmatter 里一个孤零零的 `status: reviewed | pending` 字段，别无其他。它之所以失败，原因就是 §"frontmatter 与 footer"那一节已经讲过的：评审状态在 LLM 每次改动正文时都会翻转，而 `git log` 里不断翻转的评审字段会把*真正的*血缘变更淹没在评审状态噪声之下。两块拆分不是风格偏好，而是让 `git log` 在知识库老化时仍然可读的关键。
 
-3.  **`approved` 没有硬闸。** 一个允许任何角色写入 `review_status: approved` 的 schema，在一年之内就会出现由 LLM 批准的页面。"AI 永远设回 pending" 这条规则是必要的，但不够 —— 还需要一道构建闸，拒绝发布任何 `approved` 状态却没有匹配的人类 `reviewed_by` 的页面。第 15 章会接入这道闸；常见的失败是只上了 schema 没上闸，然后*假设*规则会靠约定来维持。
+3.  **`approved` 没有硬闸。** 一个允许任何角色写入 `review_status: approved` 的 schema，在一年之内就会出现由 LLM 批准的页面。"AI 永远设回 pending" 这条规则是必要的，但不够 —— 还需要一道构建闸，拒绝发布任何 `approved` 状态却没有匹配的人类 `reviewed_by` 的页面。第 22 章会接入这道闸；常见的失败是只上了 schema 没上闸，然后*假设*规则会靠约定来维持。
 
 4.  **`source.type`、`doc_type` 和状态枚举的本体漂移。** 团队一开始用了一个小小的封闭词表（`tutorial | how-to | reference | explanation`），六个月后索引里已经悄悄长出了 `guide`、`docs`、`ref`、`manual` 和一个空字符串 —— 因为没有人拒绝过引入它们的 PR。规则是：封闭词表必须在*语法层面*封闭，也就是说 frontmatter 校验器必须拒绝未知值。只是发出警告的软闸，在几周之内就会被评审队列吞没。
 
-5.  **重新验证悬崖。** 一份四月创建时标为 `verification_status: supported` 的页面，到了十月仍然是 `supported`，尽管它描述的代码已经被重写了两次。frontmatter 看起来是诚实的，但内容已经过期了。这正是第 7a 章运营模型要去暴露的那种失败：`verification_status` 是一个绑定到 `commit` 的*时间点断言*，自动过期检测器必须机械地降级那些 `commit` 已经和它们引用的代码不再匹配的页面（第 14 章）。不会自动衰减的信任，最终会变成虚构。
+5.  **重新验证悬崖。** 一份四月创建时标为 `verification_status: supported` 的页面，到了十月仍然是 `supported`，尽管它描述的代码已经被重写了两次。frontmatter 看起来是诚实的，但内容已经过期了。这正是第 8 章运营模型要去暴露的那种失败：`verification_status` 是一个绑定到 `commit` 的*时间点断言*，自动过期检测器必须机械地降级那些 `commit` 已经和它们引用的代码不再匹配的页面（第 21 章）。不会自动衰减的信任，最终会变成虚构。
 
 6.  **`source` 字段的遗漏式谎言。** 一份从外部 URL 导入的页面，`source.uri` 指向那个 URL —— 直到那个 URL 404 了，或者源页面悄悄改了措辞。规则是：`source.ref`（一个类似 commit 的标识符）在来源有此概念时必须伴随 `source.uri`：对代码导入，这是代码的 commit；对文章导入，这是 Wayback Machine 的快照时间戳；对 API spec，这是 OpenAPI 文件的内容哈希。一个没有 `ref` 的 `source` 是一个移动靶，从审计的角度看，并不比完全没有来源好多少。
 

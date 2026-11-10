@@ -16,7 +16,7 @@ keywords:
 这个附录与附录 A 互相对应，但面向的是**代码层**。附录 A 把三份 Markdown
 文件变成一个可搜索的 wiki；附录 B 则把一个中等规模的 Go 仓库
 （大约 19 kLOC 的 Go，再加上一些 Python）变成一个可查询的代码知识库：
-parser → embeddings → graph → retriever → generator，正是第 8 章到第 13 章
+parser → embeddings → graph → retriever → generator，正是第 15 章到第 20 章
 搭起来的那条流水线。
 
 下面出现的每一条命令、响应体、延迟数字，都捕获自**代码层参考实现**的同一个
@@ -30,9 +30,9 @@ commit（也就是 `make book-refresh-excerpts` 打到第三部分 excerpt 头�
 
 - 看 full-sync 与 incremental-sync 阶段实际吐出书里一直在引用的那些
   结构化 `SyncStatus` 记录。
-- 看一次检索请求在三种不同问题形态下，分别命中第 12 章的三个 tier。
+- 看一次检索请求在三种不同问题形态下，分别命中第 19 章的三个 tier。
 - 确认 generator 的回答在每一条 claim 上都带 `file:line` 引用，
-  也就是第 13 章的契约，并且是在线测得的。
+  也就是第 20 章的契约，并且是在线测得的。
 
 ## 是什么
 
@@ -51,7 +51,7 @@ commit（也就是 `make book-refresh-excerpts` 打到第三部分 excerpt 头�
   如果没有它，图写入会变成 no-op，但其余流水线仍然可以运行。
 - **可选** 的 `LLM_API_KEY` / `EMBEDDING_API_KEY` 环境变量。没有它们时，
   enricher 会退化为 "unavailable"，检索也会回退到纯关键词路径
-  （第 12 章，Tier 2），但这已经足以演示整条流水线。
+  （第 19 章，Tier 2），但这已经足以演示整条流水线。
 
 ## 怎么做
 
@@ -131,11 +131,11 @@ done
 在一台 2023 款 MacBook Pro（M2）上，开启 embedding API 时，端到端 wall
 clock 是 **72 s**。关闭 embedder（只走关键词 fallback）时是 **9 s**。
 大约 85% 的时间都耗在对 embedding provider 的 HTTP 调用上，这也正是为什么
-第 10 章一直强调 batching。
+第 17 章一直强调 batching。
 
 ### 第 3 步 —— 向 KB 问三个问题
 
-三个查询，对应第 12 章的三个 tier。
+三个查询，对应第 19 章的三个 tier。
 
 **Tier 1 —— 稠密检索，自然语言问题：**
 
@@ -164,7 +164,7 @@ fails.
 }
 ```
 
-每一句话都带着 `file:line` 引用，满足了第 13 章的契约。
+每一句话都带着 `file:line` 引用，满足了第 20 章的契约。
 
 **Tier 2 —— 关键词 fallback，identifier-heavy：**
 
@@ -198,7 +198,7 @@ curl -s "http://localhost:9090/api/v1/code-kg/entities?repo_id=$REPO&entity_type
   | jq '[.entities[] | select(.name=="runSync") | {id, name, file_path, start_line}]'
 ```
 
-然后直接去问图数据库调用者是谁（第 11 章里的 Cypher）：
+然后直接去问图数据库调用者是谁（第 18 章里的 Cypher）：
 
 ```bash
 docker exec -it $(docker ps -qf name=memgraph) mgconsole <<'CYP'
@@ -216,7 +216,7 @@ runIncrementalSync     | reference-impl/code-kg/service.go | 278
 ```
 
 两个 caller，精确到 file/line，recall = 1。如果只走向量空间
-（第 11 章里，这个问题在该仓库上的 measured recall@10 只有 0.30），
+（第 18 章里，这个问题在该仓库上的 measured recall@10 只有 0.30），
 `runIncrementalSync` 每次都会漏掉，因为它的 embedding 输入与 `runSync`
 差异足够大，以至于 HNSW 会把几个无关结果排在更前面。
 
@@ -299,7 +299,7 @@ diff <(echo $ID_BEFORE) <(echo $ID_AFTER)   # → empty
 entityType + name + startLine)`，而 `startLine` 并没有移动
 （doc-comment 是加在 `func` 之前的，它改变了 *body* 位置，但并没有改变
 tree-sitter 模型里函数声明本身的行号……等等，真的是这样吗？）。这正是
-第 14 章里的 *delete-then-insert* 纪律体现价值的地方：如果 `startLine`
+第 21 章里的 *delete-then-insert* 纪律体现价值的地方：如果 `startLine`
 真的变了，那 ID 就会变，旧节点会被删除，新节点会以原子方式替换进去。
 你可以把这次编辑反过来做，让 docstring 出现在函数下面，就能看到 ID churn。
 
@@ -326,9 +326,9 @@ curl -s -X POST http://localhost:9090/api/v1/code-kg/search \
 
 ## 结论
 
-这个附录给出了一个工作的证明：第 9 章到第 13 章描述的五个流水线阶段，
-确实能够组合成一个大约用十次 HTTP 调用就能查询的知识库。它也暴露了第四部分
-（尤其是第 14 章）必须驯服的运维表面：full-sync 的 wall clock、
+这个附录给出了一个工作的证明：第 16 章到第 20 章描述的五个流水线阶段，
+确实能够组合成一个大约用十次 HTTP 调用就能查询的知识库。它也暴露了第五部分
+（尤其是第 21 章）必须驯服的运维表面：full-sync 的 wall clock、
 incremental-sync 的加速比例，以及只有在行号变化时才会显露出来的
 identity churn。把这两个附录一起拿在手里，读者就拥有了 prose 栈
 （第二部分）和 code 栈（第三部分）的端到端复现，各自都不超过二十条命令。

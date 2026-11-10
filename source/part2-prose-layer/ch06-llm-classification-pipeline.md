@@ -139,7 +139,7 @@ mindmap
 $ kb-cli --wiki-dir=./demo init kb
 ```
 
-完整实现 80 行，结构是：template-copy → ensure-dirs → generate-skills → commit 。关键观察是：`init` *也* 是用户把 UI 指向一个空文件夹时 `SwitchRoot` 走的**同一条代码路径**（第 9 章会回到这一点）。**不管是 CLI 命令还是网页按钮，**一个 wiki 的诞生方式都是同一个。
+完整实现 80 行，结构是：template-copy → ensure-dirs → generate-skills → commit 。关键观察是：`init` *也* 是用户把 UI 指向一个空文件夹时 `SwitchRoot` 走的**同一条代码路径**（第 16 章会回到这一点）。**不管是 CLI 命令还是网页按钮，**一个 wiki 的诞生方式都是同一个。
 
 ### 2. `import` —— 把源搬进 `content/` 或 `raw/`
 

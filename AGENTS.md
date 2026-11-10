@@ -1,7 +1,7 @@
 # Build Knowledge Base by AI
 
 Sphinx + MyST source and toolchain for the book *Use AI to build a
-knowledge base for a software project* — a six-part field guide to
+knowledge base for a software project* — a seven-part field guide to
 designing, populating, maintaining, and governing a knowledge layer
 for software teams and coding agents. The book is written in Chinese
 with English technical terms retained.
@@ -15,10 +15,11 @@ The book content lives entirely under `source/`. Start here:
 | `source/index.md` | Book root table of contents |
 | `source/part1-foundations/` | What is a software KB; IR/RAG primer; Diataxis |
 | `source/part2-prose-layer/` | Markdown+Git wiki, frontmatter/footer, LLM classification, publish/search, operational model |
-| `source/part3-code-layer/` | Parse, embed, graph, hybrid retrieval, prompt and generation |
-| `source/part4-operations-lifecycle/` | Incremental sync, evaluation/benchmarks, maintenance/drift |
-| `source/part5-hybrid-layer/` | Document layering L0-L4, graph-guided context, AI agents on the KB |
-| `source/part6-governance-and-outlook/` | Cost/privacy/security, trust/provenance, open problems |
+| `source/part3-author-layer/` | AI as author: drafting, classifying/extracting, maintaining, judging; human-review contracts |
+| `source/part4-code-layer/` | Parse, embed, graph, hybrid retrieval, prompt and generation |
+| `source/part5-operations-lifecycle/` | Incremental sync, evaluation/benchmarks, maintenance/drift |
+| `source/part6-hybrid-layer/` | Document layering L0-L4, graph-guided context, AI agents on the KB |
+| `source/part7-governance-and-outlook/` | Cost/privacy/security, trust/provenance, open problems |
 | `source/reference/` | 10 annotated research paper summaries |
 | `source/appendix/appendix-*.md` | Glossary, bilingual publishing guide, DeepWiki checklist |
 | `source/references.bib` | BibTeX bibliography, filtered per chapter via `:filter: keywords` |
@@ -46,11 +47,12 @@ async-pkb-book/
     ├── references.bib        # BibTeX (shared, filtered per chapter)
     ├── part0-presentation/   # Talk slides
     ├── part1-foundations/     # ch01–ch03
-    ├── part2-prose-layer/    # ch04–ch07a
-    ├── part3-code-layer/     # ch08–ch13
-    ├── part4-operations-lifecycle/  # ch14–ch16
-    ├── part5-hybrid-layer/   # ch17–ch21
-    ├── part6-governance-and-outlook/  # ch22–ch24
+    ├── part2-prose-layer/    # ch04–ch09
+    ├── part3-author-layer/   # ch10–ch14
+    ├── part4-code-layer/     # ch15–ch20
+    ├── part5-operations-lifecycle/  # ch21–ch23
+    ├── part6-hybrid-layer/   # ch24–ch29
+    ├── part7-governance-and-outlook/  # ch30–ch32
     ├── reference/            # Research paper summaries
     ├── appendix/              # Appendix A-E standalone pages
     ├── examples/             # Runnable code excerpts (vendored)

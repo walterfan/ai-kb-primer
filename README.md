@@ -33,10 +33,11 @@ async-pkb-book/
     ├── part0-presentation/           # 60-minute talk (index/outline/slides)
     ├── part1-foundations/            # What is a software KB; IR/RAG primer
     ├── part2-prose-layer/            # Markdown + Git wiki, frontmatter/footer
-    ├── part3-code-layer/             # parse → embed → graph → retrieve
-    ├── part4-operations-lifecycle/   # Incremental sync, drift, evaluation
-    ├── part5-hybrid-layer/           # L0–L4 tuple, graph-guided context, MCP agents
-    ├── part6-governance-and-outlook/ # Cost, privacy, security, open problems
+    ├── part3-author-layer/           # AI as author: draft, classify, extract, maintain, judge
+    ├── part4-code-layer/             # parse → embed → graph → retrieve
+    ├── part5-operations-lifecycle/   # Incremental sync, drift, evaluation
+    ├── part6-hybrid-layer/           # L0–L4 tuple, graph-guided context, MCP agents
+    ├── part7-governance-and-outlook/ # Cost, privacy, security, open problems
     ├── appendix/                     # Appendix A-E standalone pages
     ├── _tools/                       # check_frontmatter / check_blog_quotes
     ├── _static/ _templates/          # CSS

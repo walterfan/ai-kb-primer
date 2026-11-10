@@ -43,12 +43,12 @@ Sphinx 工具链再加上一点点纪律，就足以同时处理这三类问题�
 
 ```text
 book/                            <- single source of truth (English)
-  ch07a-prose-operational-model.md
+  ch08-prose-operational-model.md
   ...
   locale/
     zh_CN/
       LC_MESSAGES/
-        ch07a-prose-operational-model.po  <- Chinese translation
+        ch08-prose-operational-model.po  <- Chinese translation
         ...
 ```
 
@@ -92,7 +92,7 @@ gettext_additional_targets = ["literal-block", "image"]
 ```python
 import polib
 
-po = polib.pofile("locale/zh_CN/LC_MESSAGES/ch07a-prose-operational-model.po")
+po = polib.pofile("locale/zh_CN/LC_MESSAGES/ch08-prose-operational-model.po")
 
 for entry in po.untranslated_entries():
     if should_auto_translate(entry.msgid):
@@ -142,9 +142,9 @@ def setup(app):
 `h1_map.zh_CN.yml` 是作者与 prose 并排维护的一份很小的平面文件：
 
 ```yaml
-ch07a-prose-operational-model: 第 7a 章 — 文章层的运维模型
-ch14-incremental-sync: 第 14 章 — 增量同步
-ch15-evaluation-and-benchmarks: 第 15 章 — 评估、基准与发布闸门
+ch08-prose-operational-model: 第 8 章 — 文稿层的运维模型
+ch21-incremental-sync: 第 21 章 — 增量同步
+ch22-evaluation-and-benchmarks: 第 22 章 — 评估、基准与发布闸门
 ```
 
 这比直接把标题塞进 `.po` 目录要多做一点工作，但它能产出一个在每种语言里都
@@ -157,7 +157,7 @@ ch15-evaluation-and-benchmarks: 第 15 章 — 评估、基准与发布闸门
 
 ```yaml
 ---
-title: 'Chapter 16 — Maintenance, Drift, and Link Rot'
+title: 'Chapter 23 — Maintenance, Drift, and Link Rot'
 zh_status: required   # required | optional | none
 ---
 ```
@@ -174,19 +174,19 @@ for doc in all_docs:
 ```
 
 三个值：`required`、`optional`、`none`，就给每一页定义了一份明确的翻译 SLA。
-从运维视角看，这和第 15 章的 hard/soft gate 分裂是对应的：
+从运维视角看，这和第 22 章的 hard/soft gate 分裂是对应的：
 `required` 是会阻塞发布的硬闸，`optional` 是软警告，`none` 则保持沉默。
 
 ## 示例 —— 一页内容穿过整条流水线
 
-`ch07a-prose-operational-model.md` 在一次编辑轮中的生命周期：
+`ch08-prose-operational-model.md` 在一次编辑轮中的生命周期：
 
 1.  作者修改英文源文本，例如重写一个小节标题。
 2.  `make book-i18n` 运行 `sphinx-build -b gettext` + `sphinx-intl update`。
     被改写标题的 UUID 被保留下来；它对应的中文翻译现在会被标记为 `fuzzy`。
 3.  `make book-build` 构建英文版本。构建成功；因为该章节的 `zh_status`
     是 `optional`，所以 fuzzy 条目不会让构建失败。
-4.  一次受控的 LLM 翻译 pass（与第 16 章的 L2 类似）为改写后的标题生成新的
+4.  一次受控的 LLM 翻译 pass（与第 23 章的 L2 类似）为改写后的标题生成新的
     `msgstr`，并把结果写回去，同时保留 `fuzzy` 标记。
 5.  人类审阅者在一个支持 PO 的编辑器中（Poedit、Lokalize）打开 `.po`
     文件，对照英文阅读新中文文本，然后移除 `fuzzy` 标记。

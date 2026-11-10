@@ -1,5 +1,5 @@
 ---
-title: "第 21 章 —— 在知识库上跑的 AI Agent"
+title: "第 29 章 —— 在知识库上跑的 AI Agent"
 status: review
 authors:
   - Walter (Yamin) Fan
@@ -11,7 +11,7 @@ keywords:
   - mcp
 ---
 
-# 第 21 章 —— 在知识库上跑的 AI Agent
+# 第 29 章 —— 在知识库上跑的 AI Agent
 
 ## Why —— 为什么
 
@@ -43,9 +43,9 @@ keywords:
 | `kb.read(page_id)` | stable page id | full body, frontmatter, footer |
 | `kb.cite(query, k)` | natural-language query, top-k | list of $\{page\_id, \text{file:line} \text{ anchors}\}$ |
 
-值得关注的细节是 **`kb.search` 的 filter 参数** ：它接受一个基于第 18 章文档层元组的谓词。只要经过批准内容的 agent 可以写 `filter: review_status == approved`；只要 L0–L1（代码和 ADR，不要 AI 起草的文稿）的 agent 可以写 `filter: layer in {L0, L1}`；要“已评审的文稿或代码”的 agent 写两者的合取即可。知识库 * 不必 * 信任 agent；它只要在检索阶段确定性地过滤就行。
+值得关注的细节是 **`kb.search` 的 filter 参数** ：它接受一个基于第 25 章文档层元组的谓词。只要经过批准内容的 agent 可以写 `filter: review_status == approved`；只要 L0–L1（代码和 ADR，不要 AI 起草的文稿）的 agent 可以写 `filter: layer in {L0, L1}`；要“已评审的文稿或代码”的 agent 写两者的合取即可。知识库 * 不必 * 信任 agent；它只要在检索阶段确定性地过滤就行。
 
-这就是元组模型的回报。没有它，一个对 agent 开放的知识库要么把 AI 起草、未评审的内容也塞进每个回答里（危险），要么一刀切地全部排除（浪费）。有了它，决定权被推到调用方那一侧，知识库自身的责任收敛为 * 诚实地打标签 * —— 正如第 7a 章所论证的，运维模型被建立起来，就是为了交付这件事。
+这就是元组模型的回报。没有它，一个对 agent 开放的知识库要么把 AI 起草、未评审的内容也塞进每个回答里（危险），要么一刀切地全部排除（浪费）。有了它，决定权被推到调用方那一侧，知识库自身的责任收敛为 * 诚实地打标签 * —— 正如第 8 章所论证的，运维模型被建立起来，就是为了交付这件事。
 
 ### 模式半：在 edge 上部署的知识库
 
@@ -72,8 +72,8 @@ function handle(request):
     tool, args = parse(request)
     switch tool:
         case "kb.search":
-            seeds      = hybrid_search(args.query, k=args.k * 3)   # ch12
-            expanded   = graph_expand(seeds, max_hops=1)           # ch12/ch19
+            seeds      = hybrid_search(args.query, k=args.k * 3)   # ch19
+            expanded   = graph_expand(seeds, max_hops=1)           # ch19/ch26
             filtered   = apply_tuple_filter(expanded, args.filter)
             top        = rerank(filtered)[:args.k]
             return [
@@ -103,10 +103,10 @@ function handle(request):
 
 有三点值得注意：
 
-1.  `kb.search` 已经是**混合检索**，不是原始的向量查找。这很重要，因为一个仓库 agent 的第一次查询通常是语义性的（*"我们在哪里校验 token？"*），但它的第二次查询是结构性的（*"谁调用了这个 validator？"*）。把第 12 章的混合搜索和图扩展折叠在一个工具后面，既保持了 agent 接口的精简，又保留了仓库级的覆盖范围。
+1.  `kb.search` 已经是**混合检索**，不是原始的向量查找。这很重要，因为一个仓库 agent 的第一次查询通常是语义性的（*"我们在哪里校验 token？"*），但它的第二次查询是结构性的（*"谁调用了这个 validator？"*）。把第 19 章的混合搜索和图扩展折叠在一个工具后面，既保持了 agent 接口的精简，又保留了仓库级的覆盖范围。
 2.  `kb.read` 返回 body 的同时也返回 **footer**。一个想要负责任地引用某页的 agent 会在引用之前查看 `review_status` 和 `review_score`。知识库不决定 agent 是否应该信任这个页面；它给 agent 标签，让它自己决定。
-3.  `kb.cite` 返回 `file:line` 锚点，不是文稿。这就是第 12 章的硬规则做成工具的样子。一个调了 `kb.cite` 然后捏造行号的 agent，是在违背服务器的声明 —— 而第 15 章门禁 H4 会在这个页面被 commit 回知识库时抓住它。
-4.  `kb.search` 接受一个 `filter`。这个 filter 就是第 18 章 §3.2 的元组谓词。运行时来求值；agent 来指定。
+3.  `kb.cite` 返回 `file:line` 锚点，不是文稿。这就是第 19 章的硬规则做成工具的样子。一个调了 `kb.cite` 然后捏造行号的 agent，是在违背服务器的声明 —— 而第 22 章门禁 H4 会在这个页面被 commit 回知识库时抓住它。
+4.  `kb.search` 接受一个 `filter`。这个 filter 就是第 25 章 §3.2 的元组谓词。运行时来求值；agent 来指定。
 
 ### Agentless readers and tool-using agents can share one KB
 
@@ -115,7 +115,7 @@ CGM 在这里有用，不是因为本章应该变成一篇模型架构论文，�
 这意味着知识库应该被当作一个**控制面**，而不仅仅是一个工具端点：
 
 - 类 RepoAgent 的系统可以通过保持仓库文档的及时更新来向它写入 {cite}`luo2024repoagentllmpoweredopensourceframework`；
-- 第 12 章的混合检索器可以从中导出图引导的证据；
+- 第 19 章的混合检索器可以从中导出图引导的证据；
 - MCP agent 可以在线查询它；
 - 图集成阅读器可以离线消费它的快照或图导出。
 
@@ -133,7 +133,7 @@ CGM 在这里有用，不是因为本章应该变成一篇模型架构论文，�
 
 ### 把元组 filter 当作发布门禁
 
-第 18 章里一个微妙的点在此变得可操作。一个习惯性传 `filter: review_status == approved` 的 agent * 永远看不到 * `pending` 状态的页面。这正是我们要的效果。但是一个一直停留在 `pending` 的页面 —— 因为始终没人评审 —— 对 agent 来说就等于不存在，哪怕它其实很有用。第 15 章的软门禁 S2（footer 陈旧）已经在向人类发出这种页面的警告；第 16 章的 L3 纪律会在 L2 更新搞不定时把它们交到人手上。agent 这个面并没有引入新问题，它只是让老问题的成本变得显性。Agent 看不见的知识库，是它自己挣来的“看不见”。
+第 25 章里一个微妙的点在此变得可操作。一个习惯性传 `filter: review_status == approved` 的 agent * 永远看不到 * `pending` 状态的页面。这正是我们要的效果。但是一个一直停留在 `pending` 的页面 —— 因为始终没人评审 —— 对 agent 来说就等于不存在，哪怕它其实很有用。第 22 章的软门禁 S2（footer 陈旧）已经在向人类发出这种页面的警告；第 23 章的 L3 纪律会在 L2 更新搞不定时把它们交到人手上。agent 这个面并没有引入新问题，它只是让老问题的成本变得显性。Agent 看不见的知识库，是它自己挣来的“看不见”。
 
 ## Example —— 范例
 
@@ -168,9 +168,9 @@ CGM 在这里有用，不是因为本章应该变成一篇模型架构论文，�
 
 ## Conclusion —— 小结
 
-“跑在知识库上的 agent” 不是叠加在文稿层和代码层之上的又一新层；它是运维模型本身早已蕴含的那种自然 API 形态。一个拥有“诚实层级元组、稳定页面标识、机械解析的引用”的知识库，恰好具备 agent 需要的那三个工具。协议（MCP）薄；模式（edge function）是现成的；信任模型就是第 18 章和第 15 章已经建好的那个。
+“跑在知识库上的 agent” 不是叠加在文稿层和代码层之上的又一新层；它是运维模型本身早已蕴含的那种自然 API 形态。一个拥有“诚实层级元组、稳定页面标识、机械解析的引用”的知识库，恰好具备 agent 需要的那三个工具。协议（MCP）薄；模式（edge function）是现成的；信任模型就是第 25 章和第 22 章已经建好的那个。
 
-剩下的 —— 第 22 章的 token 预算、第 23 章的信任与红队演练、第 24 章的展望 —— 都是“一个 agent 可调用的知识库”新近变得紧迫的治理问题。只被人类阅读的知识库可以承受一个马虎的 footer。一个被 agent 大规模调用的知识库承受不起。
+剩下的 —— 第 30 章的 token 预算、第 31 章的信任与红队演练、第 32 章的展望 —— 都是“一个 agent 可调用的知识库”新近变得紧迫的治理问题。只被人类阅读的知识库可以承受一个马虎的 footer。一个被 agent 大规模调用的知识库承受不起。
 
 ## 参考文献
 

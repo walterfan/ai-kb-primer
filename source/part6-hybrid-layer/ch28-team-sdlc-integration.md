@@ -1,5 +1,5 @@
 ---
-title: "第 20a 章 —— 团队协作与 SDLC 集成"
+title: "第 28 章 —— 团队协作与 SDLC 集成"
 status: draft
 authors: [AI]
 last_verified_commit: HEAD
@@ -7,7 +7,7 @@ zh_status: complete
 keywords: [team, sdlc, ownership, pr-review, workflow]
 ---
 
-# 第 20a 章 —— 团队协作与 SDLC 集成
+# 第 28 章 —— 团队协作与 SDLC 集成
 
 ## Why —— 为什么
 
@@ -97,7 +97,7 @@ PR 模板中加入一个显式的复选框，提醒提交者评估 KB 影响。
 
 ### 层 3：CI gate 基于 reverse index 自动检测
 
-第 14 章的 reverse index 维护着"代码文件 → 引用它的 KB 页面"的映射。CI pipeline 可以利用这个映射：当一个 PR 修改的代码文件出现在 reverse index 中时，自动要求关联一个 KB 更新 PR。
+第 21 章的 reverse index 维护着"代码文件 → 引用它的 KB 页面"的映射。CI pipeline 可以利用这个映射：当一个 PR 修改的代码文件出现在 reverse index 中时，自动要求关联一个 KB 更新 PR。
 
 ```yaml
 # .github/workflows/kb-impact-gate.yml
@@ -158,7 +158,7 @@ Reviewer 在审查代码时，同时检查代码中引用的 KB 页面是否仍�
 
 **KB Champion 的职责**：
 
-1. **每日运行 `lazy-kb status`**——检查有多少页面处于 `pending` 状态、多少页面超过了 staleness 阈值（第 16 章）。
+1. **每日运行 `lazy-kb status`**——检查有多少页面处于 `pending` 状态、多少页面超过了 staleness 阈值（第 23 章）。
 2. **分类处理 soft gate 告警**——CI 报告的"KB impact detected"需要有人跟进，确认是误报还是真正需要更新。
 3. **审查新提交的 KB 页面**——确保 frontmatter 完整、分类标签正确、内容与代码实际一致。
 4. **更新 KB 健康仪表盘**——记录本周的关键指标。
@@ -289,7 +289,7 @@ flowchart LR
 
 ### 错误 7：没有 reverse index 就上 CI gate
 
-在第 14 章的 reverse index 尚未构建时，就试图用 CI gate 检测 KB impact。结果：gate 无法工作、频繁误报、团队失去信任。**解药**：先完成 reverse index 的构建和验证（第 14 章），再启用 CI gate。
+在第 21 章的 reverse index 尚未构建时，就试图用 CI gate 检测 KB impact。结果：gate 无法工作、频繁误报、团队失去信任。**解药**：先完成 reverse index 的构建和验证（第 21 章），再启用 CI gate。
 
 ## Conclusion —— 小结
 
@@ -299,7 +299,7 @@ flowchart LR
 2. **四层 PR 嵌入**——从 pre-commit hook 到 CI gate，逐步收紧 KB 与代码变更的绑定。
 3. **仪式集成**——sprint planning 估算 KB 任务、sprint review demo KB 变更、retrospective 审视 KB 健康。
 
-这三根支柱的共同目标是让知识库维护像测试一样——不是"如果有时间就做"的附属品，而是"不做就不能合并"的工程纪律。下一章（第 21 章）将讨论知识库作为 agent 工具的完整协议和部署形态。
+这三根支柱的共同目标是让知识库维护像测试一样——不是"如果有时间就做"的附属品，而是"不做就不能合并"的工程纪律。下一章（第 29 章）将讨论知识库作为 agent 工具的完整协议和部署形态。
 
 ## 参考文献
 
